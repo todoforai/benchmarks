@@ -1,12 +1,12 @@
-# TodoForAI Benchmarks
+# TODOforAI Benchmarks
 
-Benchmarks for evaluating TodoForAI browsing agents and comparing with state-of-the-art web agents.
+Benchmarks for evaluating TODOforAI browsing agents and comparing with state-of-the-art web agents.
 
 ## Structure
 
 ```
 benchmarks/
-├── adapter/             # TodoForAI adapter for running benchmarks
+├── adapter/             # TODOforAI adapter for running benchmarks
 │   ├── mind2web_adapter.py  # Core library
 │   ├── cli.py               # CLI for managing tasks
 │   └── run_benchmark.py     # Runner for todoai_cli
@@ -54,9 +54,9 @@ mv temp_data/data . && rm -rf temp_data
 bash ./script/eval.sh
 ```
 
-## TodoForAI Adapter
+## TODOforAI Adapter
 
-The `adapter/` folder contains our integration for running TodoForAI agents against the benchmark.
+The `adapter/` folder contains our integration for running TODOforAI agents against the benchmark.
 
 ### Quick Start
 
@@ -128,7 +128,7 @@ Our benchmark results will be stored in the `results/` directory with timestamps
 ## Related Projects
 
 - [browser-use-benchmark](../browser-use-benchmark) - Human web automation competition platform
-- [browsing](../browsing) - TodoForAI browsing server
+- [browsing](../browsing) - TODOforAI browsing server
 
 ## License
 
