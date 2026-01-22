@@ -6,6 +6,10 @@ Benchmarks for evaluating TodoForAI browsing agents and comparing with state-of-
 
 ```
 benchmarks/
+├── adapter/             # TodoForAI adapter for running benchmarks
+│   ├── mind2web_adapter.py  # Core library
+│   ├── cli.py               # CLI for managing tasks
+│   └── run_benchmark.py     # Runner for todoai_cli
 ├── online-mind2web/     # Online-Mind2Web benchmark (OSU-NLP-Group)
 ├── common/              # Shared evaluation utilities
 │   ├── metrics/         # Common metrics calculations
@@ -48,6 +52,73 @@ mv temp_data/data . && rm -rf temp_data
 **Running the benchmark:**
 ```bash
 bash ./script/eval.sh
+```
+
+## TodoForAI Adapter
+
+The `adapter/` folder contains our integration for running TodoForAI agents against the benchmark.
+
+### Quick Start
+
+```python
+from adapter import Mind2WebBenchmark, TaskRunner
+
+# Load benchmark (300 tasks)
+benchmark = Mind2WebBenchmark()
+
+# Run your agent on each task
+for task in benchmark.tasks:
+    runner = benchmark.create_runner(task)
+
+    # Your agent loop
+    runner.screenshot(browser.screenshot())  # Initial state
+
+    while not done:
+        thought = your_agent.think(state)
+        runner.add_thought(thought)
+
+        action = your_agent.act(thought)
+        runner.add_action(action)
+
+        browser.execute(action)
+        runner.screenshot(browser.screenshot())
+
+    runner.complete(status="success", final_response="Task completed...")
+
+# Run WebJudge evaluation
+benchmark.evaluate(model="gpt-4o-mini")
+```
+
+### CLI Commands
+
+```bash
+# List tasks
+python adapter/cli.py list
+
+# Show task details
+python adapter/cli.py show TASK_ID
+
+# Check completion status
+python adapter/cli.py status
+
+# Run evaluation
+python adapter/cli.py eval --api-key YOUR_KEY
+
+# Export tasks
+python adapter/cli.py export --format json
+```
+
+### Run with todoai_cli
+
+```bash
+# Run all tasks
+python adapter/run_benchmark.py
+
+# Run first 5 tasks
+python adapter/run_benchmark.py --limit 5 -y
+
+# Resume incomplete tasks
+python adapter/run_benchmark.py --resume
 ```
 
 ## Results
