@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mind2Web Benchmark Runner using todoai_cli
+Mind2Web Benchmark Runner using todoai-cli
 
 Pipes Mind2Web tasks through your todoai system and collects results
 for WebJudge evaluation.
@@ -33,7 +33,7 @@ from mind2web_adapter import Mind2WebBenchmark, Task
 
 
 class TodoAIRunner:
-    """Runs Mind2Web tasks through todoai_cli."""
+    """Runs Mind2Web tasks through todoai-cli."""
 
     def __init__(
         self,
@@ -52,7 +52,7 @@ class TodoAIRunner:
         self.output_json = output_json
 
     def build_prompt(self, task: Task) -> str:
-        """Build the prompt to send to todoai_cli."""
+        """Build the prompt to send to todoai-cli."""
         prompt = f"""## Mind2Web Benchmark Task
 
 **Task ID:** {task.task_id}
@@ -70,10 +70,10 @@ class TodoAIRunner:
         return prompt
 
     def run_task(self, task: Task) -> Dict[str, Any]:
-        """Run a single task through todoai_cli."""
+        """Run a single task through todoai-cli."""
         prompt = self.build_prompt(task)
 
-        cmd = ["todoai_cli"]
+        cmd = ["todoai-cli"]
 
         if self.project:
             cmd.extend(["-p", self.project])
@@ -195,7 +195,7 @@ class TodoAIRunner:
 
         stats = {"success": 0, "failure": 0, "error": 0}
 
-        print(f"Running {len(tasks)} tasks through todoai_cli...")
+        print(f"Running {len(tasks)} tasks through todoai-cli...")
 
         for i, task in enumerate(tasks):
             print(f"\n[{i+1}/{len(tasks)}]", end=" ")
@@ -220,15 +220,15 @@ class TodoAIRunner:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Run Mind2Web benchmark through todoai_cli"
+        description="Run Mind2Web benchmark through todoai-cli"
     )
     parser.add_argument(
         "--project", "-p",
-        help="Project ID for todoai_cli"
+        help="Project ID for todoai-cli"
     )
     parser.add_argument(
         "--agent", "-a",
-        help="Agent name for todoai_cli"
+        help="Agent name for todoai-cli"
     )
     parser.add_argument(
         "--limit", "-n",

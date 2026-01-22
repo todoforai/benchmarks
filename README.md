@@ -9,7 +9,7 @@ benchmarks/
 ├── adapter/             # TODOforAI adapter for running benchmarks
 │   ├── mind2web_adapter.py  # Core library
 │   ├── cli.py               # CLI for managing tasks
-│   └── run_benchmark.py     # Runner for todoai_cli
+│   └── run_benchmark.py     # Runner for todoai-cli
 ├── online-mind2web/     # Online-Mind2Web benchmark (OSU-NLP-Group)
 ├── common/              # Shared evaluation utilities
 │   ├── metrics/         # Common metrics calculations
@@ -108,7 +108,7 @@ python adapter/cli.py eval --api-key YOUR_KEY
 python adapter/cli.py export --format json
 ```
 
-### Run with todoai_cli
+### Run with todoai-cli
 
 ```bash
 # Run all tasks
