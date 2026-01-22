@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Results (large files)
+results/*.json
+results/*.csv
+!results/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Conda
+*.conda
+
+# Large data files from Online-Mind2Web (download from original repo)
+online-mind2web/data/
