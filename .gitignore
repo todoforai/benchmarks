@@ -39,3 +39,5 @@ logs/
 
 # Large data files from Online-Mind2Web (download from original repo)
 online-mind2web/data/
+
+*.json

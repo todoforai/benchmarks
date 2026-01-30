@@ -53,21 +53,7 @@ class TodoAIRunner:
 
     def build_prompt(self, task: Task) -> str:
         """Build the prompt to send to todoai-cli."""
-        prompt = f"""## Mind2Web Benchmark Task
-
-**Task ID:** {task.task_id}
-
-**Task:** {task.description}
-
-**Instructions:**
-1. Complete the task described above using web browsing
-2. Take screenshots at each step
-3. Log your actions and reasoning
-4. Report success or failure with final URL/result
-
-**Important:** This is a benchmark evaluation task. Focus on completing the exact task as described.
-"""
-        return prompt
+        return task.description
 
     def run_task(self, task: Task) -> Dict[str, Any]:
         """Run a single task through todoai-cli."""
