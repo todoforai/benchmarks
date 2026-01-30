@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "todoforai-tbench"
+version = "0.1.0"
+description = "TODOforAI adapter for Terminal-Bench evaluation"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "TODOforAI", email = "support@todoforai.com"}
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "terminal-bench>=0.1.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.30.0"]
+openai = ["openai>=1.0.0"]
+full = [
+    "anthropic>=0.30.0",
+    "openai>=1.0.0",
+    "todoai-cli>=0.1.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.scripts]
+todoforai-tbench = "run_benchmark:main"
+
+[project.urls]
+Homepage = "https://github.com/todoforai/todoforai"
+Documentation = "https://docs.todoforai.com"
+Repository = "https://github.com/todoforai/todoforai"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["todoforai_tbench*"]
+
+[tool.setuptools.package-data]
+todoforai_tbench = ["scripts/*.sh"]
