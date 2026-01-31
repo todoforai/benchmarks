@@ -286,8 +286,8 @@ class TODOforAIDirectAgent(BaseAgent):
 
     def _extract_command(self, response: str) -> Optional[str]:
         """Extract bash command from LLM response."""
-        # Look for ```bash ... ``` blocks
-        pattern = r"```(?:bash|sh)?\s*\n(.*?)\n```"
+        # Look for ```bash ... ``` blocks (handles indented code blocks)
+        pattern = r"```(?:bash|sh)?\s*\n(.*?)\n\s*```"
         matches = re.findall(pattern, response, re.DOTALL)
 
         if matches:
