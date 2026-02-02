@@ -250,7 +250,7 @@ class TODOforAIAgent(BaseAgent):
             print("[TODOforAI] Edge stopped")
 
     def _on_message(self, msg_type: str, payload: Dict[str, Any]) -> None:
-        """Handle backend messages."""
+        """Handle backend messages - tool calls come via TmuxShellRedirector."""
         if msg_type == "todo:msg_done":
             meta = payload.get("meta", {})
             self.total_input_tokens = meta.get("input_tokens", 0)

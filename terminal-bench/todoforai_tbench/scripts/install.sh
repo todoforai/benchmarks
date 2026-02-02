@@ -38,23 +38,48 @@ source /opt/todoforai-venv/bin/activate
 # Upgrade pip
 pip install --upgrade pip -q
 
-# Install todoai-cli
-echo "Installing todoai-cli..."
-pip install todoai-cli -q
+# Install todoai-cli and todoforai-edge-cli
+echo "Installing todoai-cli and todoforai-edge-cli..."
+pip install todoai-cli todoforai-edge-cli
+echo "Pip install completed with exit code: $?"
+which todoai-cli && echo "todoai-cli found" || echo "todoai-cli NOT in PATH"
+ls -la /opt/todoforai-venv/bin/todoai* 2>/dev/null || echo "No todoai binaries in venv"
 
 # Verify installation
 echo "Verifying installation..."
 todoai-cli --version || echo "todoai-cli installed (version command may not exist)"
 
-# Create wrapper script that activates venv
-cat > /usr/local/bin/todoai-cli-wrapper << 'EOF'
+# Find the actual todoai-cli binary name
+TODOAI_BIN=""
+if [ -f /opt/todoforai-venv/bin/todoai-cli ]; then
+    TODOAI_BIN="/opt/todoforai-venv/bin/todoai-cli"
+elif [ -f /opt/todoforai-venv/bin/todoai_cli ]; then
+    TODOAI_BIN="/opt/todoforai-venv/bin/todoai_cli"
+fi
+echo "Found todoai-cli at: $TODOAI_BIN"
+
+# Create wrapper scripts that activate venv
+cat > /usr/local/bin/todoai-cli-wrapper << EOF
 #!/bin/bash
 source /opt/todoforai-venv/bin/activate
-exec todoai-cli "$@"
+exec $TODOAI_BIN "\$@"
 EOF
 chmod +x /usr/local/bin/todoai-cli-wrapper
 
-# Create symlink
-ln -sf /usr/local/bin/todoai-cli-wrapper /usr/local/bin/todoai-cli 2>/dev/null || true
+cat > /usr/local/bin/todoforai-edge-cli-wrapper << 'EOF'
+#!/bin/bash
+source /opt/todoforai-venv/bin/activate
+exec todoforai-edge-cli "$@"
+EOF
+chmod +x /usr/local/bin/todoforai-edge-cli-wrapper
+
+# Create symlinks (force overwrite)
+ln -sf /usr/local/bin/todoai-cli-wrapper /usr/local/bin/todoai-cli
+ln -sf /usr/local/bin/todoforai-edge-cli-wrapper /usr/local/bin/todoforai-edge-cli
+
+# Verify the wrappers work
+echo "Verifying wrappers..."
+/usr/local/bin/todoai-cli --help > /dev/null 2>&1 && echo "todoai-cli wrapper OK" || echo "todoai-cli wrapper FAILED"
+/usr/local/bin/todoforai-edge-cli --help > /dev/null 2>&1 && echo "todoforai-edge-cli wrapper OK" || echo "todoforai-edge-cli wrapper FAILED"
 
 echo "=== TODOforAI installation complete ==="

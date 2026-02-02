@@ -12,8 +12,7 @@ from typing import List, Dict, Optional
 
 # Terminal-Bench imports
 try:
-    from terminal_bench.agents import AbstractInstalledAgent
-    from terminal_bench.terminal.terminal_command import TerminalCommand
+    from terminal_bench.agents.installed_agents.abstract_installed_agent import AbstractInstalledAgent, TerminalCommand
 except ImportError:
     # Allow importing without terminal-bench installed
     AbstractInstalledAgent = object
@@ -34,7 +33,8 @@ class TODOforAIInstalledAgent(AbstractInstalledAgent):
     Best for: Leaderboard submissions, isolated evaluation
     """
 
-    def __init__(self, config: Optional[TBenchConfig] = None):
+    def __init__(self, config: Optional[TBenchConfig] = None, **kwargs):
+        super().__init__(**kwargs)
         self.config = config or load_config()
 
     @staticmethod
@@ -57,9 +57,13 @@ class TODOforAIInstalledAgent(AbstractInstalledAgent):
         if os.environ.get("OPENAI_API_KEY"):
             env["OPENAI_API_KEY"] = os.environ["OPENAI_API_KEY"]
 
-        # TODOforAI config
-        if self.config.api_url:
-            env["TODOFORAI_API_URL"] = self.config.api_url
+        # TODOforAI config - adjust localhost for Docker networking
+        api_url = self.config.api_url
+        if api_url and "localhost" in api_url:
+            # In Docker, use host.docker.internal to reach host's localhost
+            api_url = api_url.replace("localhost", "host.docker.internal")
+        if api_url:
+            env["TODOFORAI_API_URL"] = api_url
         if self.config.api_key:
             env["TODOFORAI_API_KEY"] = self.config.api_key
         if self.config.project_id:
@@ -77,11 +81,26 @@ class TODOforAIInstalledAgent(AbstractInstalledAgent):
         # Escape the task description for shell
         escaped_task = task_description.replace("'", "'\"'\"'")
 
+        # Start edge in background, wait for connection, then create TODO
+        # Backend will use the edge (running in this container) to execute commands
+        # The wrappers at /usr/local/bin handle venv activation
         commands = [
             TerminalCommand(
-                command=f"echo '{escaped_task}' | todoai-cli --terminal-bench --json -y --timeout {self.config.timeout}",
+                command="echo 'API_URL:' $TODOFORAI_API_URL; echo 'API_KEY:' ${TODOFORAI_API_KEY:0:10}...",
+                timeout=10,
+            ),
+            TerminalCommand(
+                command="/usr/local/bin/todoforai-edge-cli &",
+                timeout=10,
+            ),
+            TerminalCommand(
+                command="sleep 5",
+                timeout=10,
+            ),
+            TerminalCommand(
+                command=f"echo '{escaped_task}' | /usr/local/bin/todoai-cli --agent '{self.config.default_agent}' --json -y --timeout {self.config.timeout}",
                 timeout=self.config.timeout,
-            )
+            ),
         ]
 
         return commands
