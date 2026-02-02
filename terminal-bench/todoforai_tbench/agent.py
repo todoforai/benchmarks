@@ -1,15 +1,14 @@
 """
 TODOforAI Agent for Terminal-Bench.
 
-This agent connects to the TODOforAI backend to execute Terminal-Bench tasks.
-It sends tasks to the backend API and translates shell commands to the
-Terminal-Bench tmux session.
+This agent connects to the TODOforAI backend with full edge integration.
+The edge runs in the task environment and the backend executes commands
+directly via the edge's BASH tool.
 """
 
 import asyncio
 import json
 import logging
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -32,28 +31,100 @@ class ToolCall:
     result: Optional[str] = None
 
 
+class TmuxShellRedirector:
+    """
+    Redirects shell execution from the edge to the tmux session.
+
+    When the backend calls BASH via the edge, this redirector ensures
+    the command runs in the terminal-bench tmux session.
+    """
+
+    _instance = None
+    _original_execute_block = None
+
+    def __init__(self, session: TmuxSession, tool_calls: List[ToolCall]):
+        self.session = session
+        self.tool_calls = tool_calls
+        TmuxShellRedirector._instance = self
+
+    @classmethod
+    def install(cls, session: TmuxSession, tool_calls: List[ToolCall]):
+        """Install the tmux redirector by monkey-patching ShellProcess."""
+        instance = cls(session, tool_calls)
+
+        from todoforai_edge.handlers.shell_handler import ShellProcess
+
+        if cls._original_execute_block is None:
+            cls._original_execute_block = ShellProcess.execute_block
+
+        async def redirected_execute_block(self, block_id, content, client, todo_id, request_id, timeout, root_path=""):
+            return await instance._execute_in_tmux(block_id, content, client, todo_id, request_id, timeout)
+
+        ShellProcess.execute_block = redirected_execute_block
+        logger.info("TmuxShellRedirector installed - edge BASH routed to tmux")
+        return instance
+
+    @classmethod
+    def uninstall(cls):
+        """Restore original ShellProcess behavior."""
+        if cls._original_execute_block is not None:
+            from todoforai_edge.handlers.shell_handler import ShellProcess
+            ShellProcess.execute_block = cls._original_execute_block
+            cls._original_execute_block = None
+            logger.info("TmuxShellRedirector uninstalled")
+
+    async def _execute_in_tmux(self, block_id, content, client, todo_id, request_id, timeout):
+        """Execute shell command in tmux session."""
+        from todoforai_edge.constants.messages import (
+            shell_block_start_result_msg,
+            shell_block_message_result_msg,
+            shell_block_done_result_msg,
+        )
+
+        print(f"[Edge→Tmux] {content[:100]}...")
+
+        self.tool_calls.append(ToolCall(
+            tool_name="BASH",
+            arguments={"command": content},
+        ))
+
+        await client.send_response(shell_block_start_result_msg(todo_id, block_id, "execute", request_id))
+
+        try:
+            self.session.send_keys(content, block=True, max_timeout_sec=float(timeout))
+            output = self.session.capture_pane()
+
+            if output:
+                await client.send_response(shell_block_message_result_msg(todo_id, block_id, output[-2000:], request_id))
+
+            await client.send_response(shell_block_done_result_msg(todo_id, block_id, 0, output or "", request_id))
+
+        except Exception as e:
+            logger.error(f"[Edge→Tmux] Error: {e}")
+            await client.send_response(shell_block_done_result_msg(todo_id, block_id, 1, str(e), request_id))
+
+
 class TODOforAIAgent(BaseAgent):
     """
     TODOforAI agent for Terminal-Bench.
 
-    Connects to the TODOforAI backend API to execute tasks.
-    Shell commands from the backend are sent to the Terminal-Bench tmux session.
+    Architecture:
+    1. Start edge in task environment
+    2. Send task to backend via TODO
+    3. Backend executes commands via edge's BASH tool
+    4. TmuxShellRedirector routes BASH calls to tmux session
     """
 
     def __init__(
         self,
         config: Optional[TBenchConfig] = None,
         model: Optional[str] = None,
-        **kwargs,  # Accept extra kwargs from terminal-bench
+        **kwargs,
     ):
         self.config = config or load_config()
         self.model = model or self.config.default_model
-
-        # Token tracking
         self.total_input_tokens = 0
         self.total_output_tokens = 0
-
-        # Logging
         self.log_dir: Optional[Path] = None
         self.tool_calls: List[ToolCall] = []
 
@@ -67,35 +138,31 @@ class TODOforAIAgent(BaseAgent):
         session: TmuxSession,
         logging_dir: Optional[Path] = None,
     ) -> AgentResult:
-        """
-        Execute a Terminal-Bench task via TODOforAI backend.
-
-        Args:
-            instruction: The task instructions
-            session: TmuxSession for sending commands
-            logging_dir: Directory for logs
-
-        Returns:
-            AgentResult with token counts
-        """
+        """Execute a Terminal-Bench task via TODOforAI backend."""
         self.log_dir = logging_dir
         self.tool_calls = []
         self.total_input_tokens = 0
         self.total_output_tokens = 0
 
         try:
-            asyncio.run(self._run_task(instruction, session))
+            print(f"[TODOforAI] Task: {instruction[:100]}...")
+            asyncio.run(self._run_task_with_edge(instruction, session))
+            print(f"[TODOforAI] Done. Tool calls: {len(self.tool_calls)}")
             failure_mode = "none"
 
         except TimeoutError as e:
-            logger.error(f"Task timed out: {e}")
+            print(f"[TODOforAI] Timeout: {e}")
             failure_mode = "agent_timeout"
 
         except Exception as e:
-            logger.error(f"Task failed: {e}", exc_info=True)
+            print(f"[TODOforAI] Error: {e}")
+            import traceback
+            traceback.print_exc()
             failure_mode = "unknown_agent_error"
 
-        # Save logs
+        finally:
+            TmuxShellRedirector.uninstall()
+
         if self.log_dir:
             self._save_logs()
 
@@ -105,52 +172,50 @@ class TODOforAIAgent(BaseAgent):
             failure_mode=failure_mode,
         )
 
-    async def _run_task(self, task_description: str, session: TmuxSession) -> None:
-        """
-        Run task via TODOforAI's backend API.
-
-        Creates a TODO and streams the execution, translating
-        tool calls to tmux commands.
-        """
+    async def _run_task_with_edge(self, task_description: str, session: TmuxSession) -> None:
+        """Run task with edge integration."""
         from todoforai_edge.edge import TODOforAIEdge
         from todoforai_edge.config import Config
 
-        # Build config
-        cfg = Config()
-        if self.config.api_url:
-            cfg.api_url = self.config.api_url
-        if self.config.api_key:
-            cfg.api_key = self.config.api_key
+        # Create edge config directly (don't use argparse - it conflicts with terminal-bench args)
+        config = Config()
+        config.api_url = self.config.api_url
+        config.api_key = self.config.api_key
 
-        if not cfg.api_key:
-            raise ValueError(
-                "API key required. Set TODOFORAI_API_KEY env var or configure in ~/.todoforai/tbench.json"
-            )
+        if not config.api_key:
+            raise ValueError("API key required - set in ~/.todoforai/tbench.json")
 
-        edge = TODOforAIEdge(cfg)
+        # Install tmux redirector - routes edge BASH calls to tmux session
+        TmuxShellRedirector.install(session, self.tool_calls)
 
-        logger.info(f"Connecting to TODOforAI backend at {cfg.api_url}...")
+        # Create and start edge
+        edge = TODOforAIEdge(config)
+        print(f"[TODOforAI] Connecting edge to {config.api_url}...")
+
+        edge_task = asyncio.create_task(self._run_edge(edge))
 
         try:
-            # Get agent settings by name
-            agents = await edge.list_agent_settings()
-            agent_settings = None
-            for agent in agents:
-                if self.config.default_agent.lower() in agent.get("name", "").lower():
-                    agent_settings = agent
+            # Wait for edge to connect
+            for _ in range(10):
+                await asyncio.sleep(1)
+                if edge.connected and edge.edge_id:
+                    print(f"[TODOforAI] Edge ready: {edge.edge_id}")
                     break
+            else:
+                raise ConnectionError("Edge failed to connect")
 
+            # Find agent
+            agents = await edge.list_agent_settings()
+            agent_settings = next(
+                (a for a in agents if self.config.default_agent.lower() in a.get("name", "").lower()),
+                agents[0] if agents else None
+            )
             if not agent_settings:
-                # Use first available agent if no match
-                if agents:
-                    agent_settings = agents[0]
-                    logger.warning(f"Agent '{self.config.default_agent}' not found, using '{agent_settings.get('name')}'")
-                else:
-                    raise ValueError(f"No agents available and '{self.config.default_agent}' not found")
+                raise ValueError("No agents available")
 
-            logger.info(f"Using agent: {agent_settings.get('name')} (id: {agent_settings.get('id')})")
+            print(f"[TODOforAI] Using agent: {agent_settings.get('name')}")
 
-            # Create the TODO with terminal-bench context
+            # Create TODO - backend will execute via edge
             todo = await edge.add_message(
                 project_id=self.config.project_id,
                 content=f"[Terminal-Bench Task]\n\n{task_description}",
@@ -158,80 +223,38 @@ class TODOforAIAgent(BaseAgent):
             )
 
             todo_id = todo.get("id") or todo.get("todo_id")
-            logger.info(f"Created TODO: {todo_id}")
+            print(f"[TODOforAI] TODO: {todo_id}")
 
-            # Watch execution and translate shell commands to tmux
-            await self._watch_todo(edge, todo_id, session)
+            # Wait for completion
+            result = await edge.wait_for_todo_completion(
+                todo_id,
+                timeout=self.config.timeout,
+                callback=self._on_message,
+            )
+
+            if not result.get("success"):
+                print(f"[TODOforAI] Issue: {result.get('payload', {}).get('error', 'Unknown')}")
 
         finally:
-            pass  # Edge client handles cleanup
+            edge_task.cancel()
+            try:
+                await edge_task
+            except asyncio.CancelledError:
+                pass
 
-    async def _watch_todo(
-        self,
-        edge,
-        todo_id: str,
-        session: TmuxSession,
-    ) -> None:
-        """Watch TODO execution and send shell commands to tmux."""
+    async def _run_edge(self, edge) -> None:
+        """Run edge client."""
+        try:
+            await edge.start()
+        except asyncio.CancelledError:
+            print("[TODOforAI] Edge stopped")
 
-        def callback(msg_type: str, payload: Dict[str, Any]):
-            self._handle_message(msg_type, payload, session)
-
-        result = await edge.wait_for_todo_completion(
-            todo_id,
-            timeout=self.config.timeout,
-            callback=callback,
-        )
-
-        if not result.get("success"):
-            error = result.get("payload", {}).get("error", "Unknown error")
-            logger.warning(f"TODO execution issue: {error}")
-
-    def _handle_message(
-        self,
-        msg_type: str,
-        payload: Dict[str, Any],
-        session: TmuxSession,
-    ) -> None:
-        """Handle a message from the backend stream."""
-
-        if msg_type == "block:start_shell":
-            # Shell command - send to tmux
-            command = payload.get("command", "")
-            if command:
-                logger.info(f"Executing: {command[:80]}...")
-                session.send_keys(command)
-
-                # Record tool call
-                self.tool_calls.append(ToolCall(
-                    tool_name="shell",
-                    arguments={"command": command},
-                ))
-
-                # Wait for completion
-                self._wait_for_command(session)
-
-        elif msg_type == "block:message":
-            # Token from LLM response - estimate tokens
-            content = payload.get("content", "")
-            if content:
-                self.total_output_tokens += len(content) // 4
-
-        elif msg_type == "todo:msg_done":
-            # Execution complete - get actual token counts
+    def _on_message(self, msg_type: str, payload: Dict[str, Any]) -> None:
+        """Handle backend messages."""
+        if msg_type == "todo:msg_done":
             meta = payload.get("meta", {})
-            if "input_tokens" in meta:
-                self.total_input_tokens = meta["input_tokens"]
-            if "output_tokens" in meta:
-                self.total_output_tokens = meta["output_tokens"]
-
-    def _wait_for_command(self, session: TmuxSession, timeout: int = 60) -> None:
-        """Wait for a command to complete in tmux."""
-        time.sleep(0.5)
-        waited = 0
-        while session.is_busy() and waited < timeout:
-            time.sleep(0.5)
-            waited += 0.5
+            self.total_input_tokens = meta.get("input_tokens", 0)
+            self.total_output_tokens = meta.get("output_tokens", 0)
 
     def _save_logs(self) -> None:
         """Save execution logs to log_dir."""
