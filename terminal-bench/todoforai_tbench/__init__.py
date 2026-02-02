@@ -1,18 +1,17 @@
 """
 TODOforAI Terminal-Bench Adapter
 
-Provides agent implementations for running TODOforAI on Terminal-Bench.
+Provides the TODOforAI agent for Terminal-Bench evaluation.
+This agent connects to your TODOforAI backend to execute benchmark tasks.
 """
 
 from .agent import TODOforAIAgent
 from .installed_agent import TODOforAIInstalledAgent
-from .direct_agent import TODOforAIDirectAgent
 from .config import TBenchConfig, load_config
 
 __all__ = [
     "TODOforAIAgent",
     "TODOforAIInstalledAgent",
-    "TODOforAIDirectAgent",
     "TBenchConfig",
     "load_config",
 ]
