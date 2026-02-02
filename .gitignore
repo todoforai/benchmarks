@@ -41,3 +41,7 @@ logs/
 online-mind2web/data/
 
 *.json
+
+# Terminal bench runs and logs
+terminal-bench/runs/
+terminal-bench/logs/
