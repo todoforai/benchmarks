@@ -42,8 +42,6 @@ def get_agent_import_path(agent_type: str) -> str:
     """Get the import path for an agent type."""
     agent_map = {
         "default": "todoforai_tbench:TODOforAIAgent",
-        "cli": "todoforai_tbench:TODOforAIAgent",
-        "direct": "todoforai_tbench:TODOforAIDirectAgent",
         "installed": "todoforai_tbench:TODOforAIInstalledAgent",
         "minimal": "todoforai_tbench:TODOforAIInstalledAgentMinimal",
     }
@@ -142,10 +140,9 @@ def list_datasets() -> None:
 def list_agents() -> None:
     """List available agent types."""
     print("Available agent types:\n")
-    print("  default    - Full TODOforAI via CLI (recommended)")
-    print("  direct     - Direct LLM calls (no Edge/Backend)")
+    print("  default    - Full TODOforAI via Edge/Backend (recommended)")
     print("  installed  - Installs in container (for leaderboard)")
-    print("  minimal    - Lightweight direct agent")
+    print("  minimal    - Lightweight installed agent")
     print("\nUse --agent <type> to select.")
 
 
@@ -157,7 +154,7 @@ def main():
 Examples:
   %(prog)s --task-id hello-world              # Test single task
   %(prog)s --dataset terminal-bench-core      # Run full benchmark
-  %(prog)s --agent direct --model opus        # Use direct agent with Opus
+  %(prog)s --agent installed                  # Use installed agent (for Docker)
   %(prog)s --concurrent 8                     # Run 8 tasks in parallel
         """,
     )
@@ -175,7 +172,7 @@ Examples:
     parser.add_argument(
         "--agent", "-a",
         default="default",
-        help="Agent type: default, direct, installed, minimal",
+        help="Agent type: default, installed, minimal",
     )
     parser.add_argument(
         "--model", "-m",

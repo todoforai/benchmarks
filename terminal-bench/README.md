@@ -98,16 +98,6 @@ from todoforai_tbench import TODOforAIInstalledAgent
 # tb run --agent-import-path todoforai_tbench:TODOforAIInstalledAgent
 ```
 
-### 3. TODOforAIDirectAgent
-
-Bypasses Edge/Backend, calls Julia agent directly:
-
-```python
-from todoforai_tbench import TODOforAIDirectAgent
-
-# tb run --agent-import-path todoforai_tbench:TODOforAIDirectAgent
-```
-
 ## Architecture
 
 ```
@@ -118,21 +108,28 @@ Terminal-Bench Harness
 │  TODOforAIAgent (Python)        │
 │  - Receives task_description    │
 │  - Gets TmuxSession handle      │
-│  - Bridges to TODOforAI system  │
+│  - Connects Edge to backend     │
 └─────────────────────────────────┘
     │
-    ▼ (Option A: via CLI)
+    ▼
 ┌─────────────────────────────────┐
-│  todoai-cli --terminal-bench    │
-│  - Reads TBENCH_SESSION env     │
-│  - Sends commands to tmux       │
+│  TODOforAI Backend              │
+│  - Creates TODO with task       │
+│  - Triggers Julia Agent         │
 └─────────────────────────────────┘
     │
-    ▼ (Option B: direct)
+    ▼
 ┌─────────────────────────────────┐
 │  Julia Agent (TODO4AI.jl)       │
-│  - Direct LLM calls             │
-│  - Tool execution               │
+│  - LLM calls via backend        │
+│  - Tool execution via Edge      │
+└─────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────┐
+│  Edge (TmuxShellRedirector)     │
+│  - Intercepts BASH tool calls   │
+│  - Routes to tmux session       │
 └─────────────────────────────────┘
 ```
 
