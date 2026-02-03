@@ -39,18 +39,3 @@ def temp_config(tmp_path):
     return config_path
 
 
-@pytest.fixture
-def mock_anthropic_client():
-    """Create a mock Anthropic client."""
-    from unittest.mock import Mock, MagicMock
-
-    client = Mock()
-
-    # Mock response
-    response = Mock()
-    response.content = [Mock(text="```bash\nls -la\n```")]
-    response.usage = Mock(input_tokens=100, output_tokens=50)
-
-    client.messages.create.return_value = response
-
-    return client

@@ -14,12 +14,12 @@ class TBenchConfig:
     """Configuration for Terminal-Bench adapter."""
 
     # TODOforAI connection
-    api_url: str = ""
+    api_url: str = "http://localhost:4000"
     api_key: str = ""
 
     # Agent settings
     default_model: str = "claude-sonnet-4-5"
-    default_agent: str = "terminal"
+    default_agent: str = "Agent"
     project_id: Optional[str] = None
 
     # Execution settings
@@ -38,12 +38,12 @@ class TBenchConfig:
 
     def __post_init__(self):
         # Load from environment if not set
-        if not self.api_url:
-            self.api_url = os.environ.get("TODOFORAI_API_URL", "")
+        if not self.api_url or self.api_url == "http://localhost:4000":
+            self.api_url = os.environ.get("TODOFORAI_API_URL") or os.environ.get("TODO4AI_API_URL") or "http://localhost:4000"
         if not self.api_key:
-            self.api_key = os.environ.get("TODOFORAI_API_KEY", "")
+            self.api_key = os.environ.get("TODOFORAI_API_KEY") or os.environ.get("TODO4AI_API_KEY") or ""
         if not self.project_id:
-            self.project_id = os.environ.get("TODOFORAI_PROJECT_ID")
+            self.project_id = os.environ.get("TODOFORAI_PROJECT_ID") or os.environ.get("TODO4AI_PROJECT_ID")
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TBenchConfig":

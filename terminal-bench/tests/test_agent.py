@@ -69,67 +69,10 @@ class TestAgentImports:
         from todoforai_tbench import TODOforAIAgent
         assert TODOforAIAgent.name() == "todoforai"
 
-    def test_import_direct_agent(self):
-        """Test importing TODOforAIDirectAgent."""
-        from todoforai_tbench import TODOforAIDirectAgent
-        assert TODOforAIDirectAgent.name() == "todoforai-direct"
-
     def test_import_installed_agent(self):
         """Test importing TODOforAIInstalledAgent."""
         from todoforai_tbench import TODOforAIInstalledAgent
         assert TODOforAIInstalledAgent.name() == "todoforai-installed"
-
-
-class TestDirectAgent:
-    """Test direct agent functionality."""
-
-    def test_extract_command(self):
-        """Test command extraction from LLM response."""
-        from todoforai_tbench.direct_agent import TODOforAIDirectAgent
-
-        agent = TODOforAIDirectAgent.__new__(TODOforAIDirectAgent)
-
-        # Test basic extraction
-        response = """
-        Let me check the files.
-
-        ```bash
-        ls -la
-        ```
-
-        This will show all files.
-        """
-
-        cmd = agent._extract_command(response)
-        assert cmd == "ls -la"
-
-    def test_extract_command_multiline(self):
-        """Test that only first line is extracted."""
-        from todoforai_tbench.direct_agent import TODOforAIDirectAgent
-
-        agent = TODOforAIDirectAgent.__new__(TODOforAIDirectAgent)
-
-        response = """
-        ```bash
-        cd /tmp
-        ls -la
-        pwd
-        ```
-        """
-
-        cmd = agent._extract_command(response)
-        assert cmd == "cd /tmp"
-
-    def test_extract_command_no_match(self):
-        """Test when no command is found."""
-        from todoforai_tbench.direct_agent import TODOforAIDirectAgent
-
-        agent = TODOforAIDirectAgent.__new__(TODOforAIDirectAgent)
-
-        response = "I'm thinking about what to do next."
-
-        cmd = agent._extract_command(response)
-        assert cmd is None
 
 
 class TestScripts:
@@ -162,7 +105,7 @@ class TestIntegration:
             [
                 "tb", "run",
                 "--dataset", "terminal-bench-core==head",
-                "--agent-import-path", "todoforai_tbench:TODOforAIDirectAgent",
+                "--agent-import-path", "todoforai_tbench:TODOforAIAgent",
                 "--task-id", "hello-world",
             ],
             capture_output=True,

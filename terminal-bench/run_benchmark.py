@@ -11,8 +11,8 @@ Usage:
     # Run full benchmark
     python run_benchmark.py --dataset terminal-bench-core
 
-    # Run with specific agent variant
-    python run_benchmark.py --agent direct --model claude-sonnet-4-5
+    # Run with specific model
+    python run_benchmark.py --model claude-sonnet-4-5
 
     # Run Terminal-Bench 2.0
     python run_benchmark.py --dataset terminal-bench@2.0 --concurrent 8
