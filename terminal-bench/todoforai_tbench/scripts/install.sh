@@ -82,4 +82,35 @@ echo "Verifying wrappers..."
 /usr/local/bin/todoai-cli --help > /dev/null 2>&1 && echo "todoai-cli wrapper OK" || echo "todoai-cli wrapper FAILED"
 /usr/local/bin/todoforai-edge-cli --help > /dev/null 2>&1 && echo "todoforai-edge-cli wrapper OK" || echo "todoforai-edge-cli wrapper FAILED"
 
+# Create run script for executing tasks
+cat > /usr/local/bin/todoai-run << 'RUNEOF'
+#!/bin/bash
+# Run edge and todoai-cli for a task
+source /opt/todoforai-venv/bin/activate
+
+# Fix Docker networking - get host IP
+if [ -z "$TODOFORAI_API_URL" ]; then
+    # Try to get host gateway IP
+    HOST_IP=$(ip route | grep default | awk '{print $3}')
+    export TODOFORAI_API_URL="http://${HOST_IP}:4000"
+fi
+
+echo "API URL: $TODOFORAI_API_URL"
+echo "Starting edge..."
+/opt/todoforai-venv/bin/todoforai-edge-cli --api-url "$TODOFORAI_API_URL" --api-key "$TODOFORAI_API_KEY" > /tmp/edge.log 2>&1 &
+EDGE_PID=$!
+echo "Edge PID: $EDGE_PID"
+sleep 5
+echo "Running todoai-cli..."
+# Run todoai-cli with the task from stdin (no --timeout flag)
+cat | /opt/todoforai-venv/bin/todoai_cli --api-url "$TODOFORAI_API_URL" --json -y "$@" 2>&1
+RESULT=$?
+echo "todoai-cli exit code: $RESULT"
+echo "=== Edge log ==="
+cat /tmp/edge.log 2>/dev/null || echo "(no edge log)"
+kill $EDGE_PID 2>/dev/null
+exit $RESULT
+RUNEOF
+chmod +x /usr/local/bin/todoai-run
+
 echo "=== TODOforAI installation complete ==="

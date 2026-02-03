@@ -81,25 +81,12 @@ class TODOforAIInstalledAgent(AbstractInstalledAgent):
         # Escape the task description for shell
         escaped_task = task_description.replace("'", "'\"'\"'")
 
-        # Start edge in background, wait for connection, then create TODO
-        # Backend will use the edge (running in this container) to execute commands
-        # The wrappers at /usr/local/bin handle venv activation
+        # Use the todoai-run script that handles edge + cli
         commands = [
             TerminalCommand(
-                command="echo 'API_URL:' $TODOFORAI_API_URL; echo 'API_KEY:' ${TODOFORAI_API_KEY:0:10}...",
-                timeout=10,
-            ),
-            TerminalCommand(
-                command="/usr/local/bin/todoforai-edge-cli &",
-                timeout=10,
-            ),
-            TerminalCommand(
-                command="sleep 5",
-                timeout=10,
-            ),
-            TerminalCommand(
-                command=f"echo '{escaped_task}' | /usr/local/bin/todoai-cli --agent '{self.config.default_agent}' --json -y --timeout {self.config.timeout}",
-                timeout=self.config.timeout,
+                command=f"echo '{escaped_task}' | /usr/local/bin/todoai-run --agent '{self.config.default_agent}'",
+                max_timeout_sec=self.config.timeout + 60,
+                block=True,
             ),
         ]
 
