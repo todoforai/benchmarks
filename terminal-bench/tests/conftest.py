@@ -21,6 +21,8 @@ def mock_tmux_session():
     session.session_id = "test-session"
     session.is_busy.return_value = False
     session.get_output.return_value = "mock output"
+    session.capture_pane.return_value = "$ echo hello\nhello\n$"
+    session.send_keys.return_value = None
 
     return session
 
