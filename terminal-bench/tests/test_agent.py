@@ -2,15 +2,14 @@
 Tests for TODOforAI Terminal-Bench adapter.
 """
 
-import asyncio
 import os
 import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock, AsyncMock
+from unittest.mock import Mock, patch, AsyncMock
 
 # Import our modules
 from todoforai_tbench.config import TBenchConfig, load_config
-from todoforai_tbench.agent import TODOforAIAgent, TmuxShellRedirector, ToolCall
+from todoforai_tbench.agent import TODOforAIAgent
 
 
 class TestConfig:
@@ -119,67 +118,6 @@ class TestIntegration:
         # Just check it ran without crashing
         assert result.returncode in [0, 1]  # Success or task failure both OK
 
-
-class TestTmuxShellRedirector:
-    """Unit tests for TmuxShellRedirector - routes BASH calls to tmux."""
-
-    def test_install_creates_instance(self, mock_tmux_session):
-        """Test that install() creates and stores the redirector instance."""
-        tool_calls = []
-
-        with patch("todoforai_tbench.agent.TmuxShellRedirector._original_execute_block", None):
-            with patch("todoforai_edge.handlers.shell_handler.ShellProcess") as mock_shell:
-                mock_shell.execute_block = Mock()
-
-                redirector = TmuxShellRedirector.install(mock_tmux_session, tool_calls)
-
-                assert redirector is not None
-                assert redirector.session == mock_tmux_session
-                assert redirector.tool_calls is tool_calls
-                assert TmuxShellRedirector._instance is redirector
-
-    def test_uninstall_restores_original(self, mock_tmux_session):
-        """Test that uninstall() restores original behavior."""
-        original_func = Mock()
-        tool_calls = []
-
-        with patch("todoforai_edge.handlers.shell_handler.ShellProcess") as mock_shell:
-            TmuxShellRedirector._original_execute_block = original_func
-            mock_shell.execute_block = Mock()
-
-            TmuxShellRedirector.install(mock_tmux_session, tool_calls)
-            TmuxShellRedirector.uninstall()
-
-            assert mock_shell.execute_block == original_func
-            assert TmuxShellRedirector._original_execute_block is None
-
-    def test_tool_call_recorded(self, mock_tmux_session):
-        """Test that executing a command records the tool call."""
-        tool_calls = []
-        redirector = TmuxShellRedirector(mock_tmux_session, tool_calls)
-
-        # Simulate the async execution
-        mock_client = AsyncMock()
-
-        async def run_test():
-            with patch("todoforai_edge.constants.messages.shell_block_start_result_msg", return_value={}):
-                with patch("todoforai_edge.constants.messages.shell_block_message_result_msg", return_value={}):
-                    with patch("todoforai_edge.constants.messages.shell_block_done_result_msg", return_value={}):
-                        await redirector._execute_in_tmux(
-                            block_id="test-block",
-                            content="echo hello",
-                            client=mock_client,
-                            todo_id="test-todo",
-                            request_id="test-request",
-                            timeout=30
-                        )
-
-        asyncio.run(run_test())
-
-        assert len(tool_calls) == 1
-        assert tool_calls[0].tool_name == "BASH"
-        assert tool_calls[0].arguments == {"command": "echo hello"}
-        mock_tmux_session.send_keys.assert_called_once_with("echo hello", block=True, max_timeout_sec=30.0)
 
 
 class TestTODOforAIAgentInit:

@@ -127,7 +127,7 @@ Terminal-Bench Harness
     │
     ▼
 ┌─────────────────────────────────┐
-│  Edge (TmuxShellRedirector)     │
+│  Edge (in-container)            │
 │  - Intercepts BASH tool calls   │
 │  - Routes to tmux session       │
 └─────────────────────────────────┘
