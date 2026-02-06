@@ -58,6 +58,8 @@ def run_benchmark(
     timeout: int = 600,
     output_dir: Optional[str] = None,
     dry_run: bool = False,
+    no_rebuild: bool = True,
+    no_cleanup: bool = True,
 ) -> int:
     """Run Terminal-Bench evaluation."""
 
@@ -78,11 +80,20 @@ def run_benchmark(
     if model:
         os.environ["TODOFORAI_MODEL"] = model
 
+    # Skip rebuild (uses pre-built images with edge baked in)
+    if no_rebuild:
+        cmd_args.append("--no-rebuild")
+
+    # Keep Docker images between runs for faster subsequent runs
+    if no_cleanup:
+        cmd_args.append("--no-cleanup")
+
+    # Always set concurrency (tb defaults to 4, we want 1)
+    cmd_args.extend(["--n-concurrent", str(concurrent)])
+
     # Single task or full run
     if task_id:
         cmd_args.extend(["--task-id", task_id])
-    else:
-        cmd_args.extend(["--n-concurrent", str(concurrent)])
 
     # Output directory
     if output_dir:
@@ -199,6 +210,16 @@ Examples:
         help="Output directory for results",
     )
     parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="Force rebuild containers (default: skip rebuild for speed)",
+    )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Remove Docker images after run (default: keep for speed)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print command without executing",
@@ -250,6 +271,8 @@ Examples:
         timeout=args.timeout,
         output_dir=args.output_dir,
         dry_run=args.dry_run,
+        no_rebuild=not args.rebuild,
+        no_cleanup=not args.cleanup,
     )
 
 

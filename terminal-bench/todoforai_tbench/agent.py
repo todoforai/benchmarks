@@ -1,107 +1,125 @@
 """
 TODOforAI Agent for Terminal-Bench.
 
-This agent connects to the TODOforAI backend with full edge integration.
-The edge runs in the task environment and the backend executes commands
-directly via the edge's BASH tool.
+Installs the edge inside the Docker container and runs it there.
+The edge connects back to the host backend, and all tool execution
+happens naturally inside the container's filesystem.
 """
 
-import asyncio
+import base64
 import json
-import logging
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional
 
-# Terminal-Bench imports (required)
 from terminal_bench.agents import BaseAgent
 from terminal_bench.agents.base_agent import AgentResult
 from terminal_bench.terminal.tmux_session import TmuxSession
 
 from .config import TBenchConfig, load_config
 
-logger = logging.getLogger(__name__)
+# Path to the locally-built edge wheel (has create_file/read_file unlike pip version)
+EDGE_WHEEL_PATH = Path(__file__).parent.parent / "edge_wheel" / "todoforai_edge_cli-0.12.2-py3-none-any.whl"
 
+# This script runs INSIDE the Docker container.
+# It starts the edge, creates a TODO, and waits for completion.
+DOCKER_RUNNER_SCRIPT = r'''
+import asyncio, sys, os, json
 
-@dataclass
-class ToolCall:
-    """Represents a tool call from the backend."""
-    tool_name: str
-    arguments: Dict[str, Any]
-    result: Optional[str] = None
+async def main():
+    from todoforai_edge.edge import TODOforAIEdge
+    from todoforai_edge.config import Config
 
+    config = Config()
+    config.api_url = os.environ.get("TODOFORAI_API_URL", "http://host.docker.internal:4000")
+    config.api_key = os.environ["TODOFORAI_API_KEY"]
+    edge = TODOforAIEdge(config)
+    edge_task = asyncio.create_task(edge.start())
 
-class TmuxShellRedirector:
-    """
-    Redirects shell execution from the edge to the tmux session.
+    # Wait for edge to connect
+    for i in range(30):
+        await asyncio.sleep(1)
+        if edge.connected and edge.edge_id:
+            break
+    else:
+        print("TBENCH_ERROR: Edge failed to connect after 30s", flush=True)
+        sys.exit(1)
 
-    When the backend calls BASH via the edge, this redirector ensures
-    the command runs in the terminal-bench tmux session.
-    """
+    print(f"TBENCH_EDGE_ID: {edge.edge_id}", flush=True)
 
-    _instance = None
-    _original_execute_block = None
+    # Allow workspace access to /app (needed for workspace handler path checks)
+    try:
+        if hasattr(edge, 'edge_config') and hasattr(edge.edge_config, 'config'):
+            edge.edge_config.config["workspacepaths"] = ["/app"]
+    except Exception:
+        pass
 
-    def __init__(self, session: TmuxSession, tool_calls: List[ToolCall]):
-        self.session = session
-        self.tool_calls = tool_calls
-        TmuxShellRedirector._instance = self
+    # Find agent settings
+    agents = await edge.list_agent_settings()
+    agent_name = os.environ.get("TODOFORAI_AGENT", "Agent")
+    agent = next(
+        (a for a in agents if agent_name.lower() in a.get("name", "").lower()),
+        agents[0] if agents else None,
+    )
+    if not agent:
+        print("TBENCH_ERROR: No agents available", flush=True)
+        sys.exit(1)
 
-    @classmethod
-    def install(cls, session: TmuxSession, tool_calls: List[ToolCall]):
-        """Install the tmux redirector by monkey-patching ShellProcess."""
-        instance = cls(session, tool_calls)
+    # Override edgesMcpConfigs: use THIS Docker edge with /app workspace
+    # workspacePaths needed so Julia agent routes tools to this edge
+    agent = dict(agent)
+    agent["edgesMcpConfigs"] = {
+        edge.edge_id: {
+            "todoai_edge": {"workspacePaths": ["/app"]}
+        }
+    }
+    print(f"TBENCH_AGENT: {agent.get('name')}", flush=True)
 
-        from todoforai_edge.handlers.shell_handler import ShellProcess
+    # Create TODO
+    task_desc = sys.argv[1]
+    todo = await edge.add_message(
+        project_id=os.environ.get("TODOFORAI_PROJECT_ID"),
+        content=task_desc,
+        agent_settings=agent,
+    )
 
-        if cls._original_execute_block is None:
-            cls._original_execute_block = ShellProcess.execute_block
+    todo_id = todo.get("id") or todo.get("todo_id")
+    print(f"TBENCH_TODO_ID: {todo_id}", flush=True)
 
-        async def redirected_execute_block(self, block_id, content, client, todo_id, request_id, timeout, root_path=""):
-            return await instance._execute_in_tmux(block_id, content, client, todo_id, request_id, timeout)
+    # Track tokens
+    tokens = {"input": 0, "output": 0}
 
-        ShellProcess.execute_block = redirected_execute_block
-        logger.info("TmuxShellRedirector installed - edge BASH routed to tmux")
-        return instance
+    def on_message(msg_type, payload):
+        if msg_type == "todo:msg_done":
+            meta = payload.get("meta", {})
+            tokens["input"] += meta.get("input_tokens", 0)
+            tokens["output"] += meta.get("output_tokens", 0)
 
-    @classmethod
-    def uninstall(cls):
-        """Restore original ShellProcess behavior."""
-        if cls._original_execute_block is not None:
-            from todoforai_edge.handlers.shell_handler import ShellProcess
-            ShellProcess.execute_block = cls._original_execute_block
-            cls._original_execute_block = None
-            logger.info("TmuxShellRedirector uninstalled")
+    timeout = int(os.environ.get("TODOFORAI_TIMEOUT", "600"))
+    result = await edge.wait_for_todo_completion(
+        todo_id, timeout=timeout, callback=on_message,
+    )
 
-    async def _execute_in_tmux(self, block_id, content, client, todo_id, request_id, timeout):
-        """Execute shell command in tmux session."""
-        from todoforai_edge.constants.messages import (
-            shell_block_start_result_msg,
-            shell_block_message_result_msg,
-            shell_block_done_result_msg,
-        )
+    success = result.get("success", False)
 
-        print(f"[Edge→Tmux] {content[:100]}...")
+    # Write result to file (capture_pane might miss scrolled output)
+    result_data = {
+        "success": success,
+        "input_tokens": tokens["input"],
+        "output_tokens": tokens["output"],
+    }
+    with open("/tmp/tbench_result.json", "w") as f:
+        json.dump(result_data, f)
 
-        self.tool_calls.append(ToolCall(
-            tool_name="BASH",
-            arguments={"command": content},
-        ))
+    print(f"TBENCH_RESULT: {json.dumps(result_data)}", flush=True)
 
-        await client.send_response(shell_block_start_result_msg(todo_id, block_id, "execute", request_id))
+    edge_task.cancel()
+    try:
+        await edge_task
+    except asyncio.CancelledError:
+        pass
 
-        try:
-            self.session.send_keys(content, block=True, max_timeout_sec=float(timeout))
-            output = self.session.capture_pane()
-
-            if output:
-                await client.send_response(shell_block_message_result_msg(todo_id, block_id, output[-2000:], request_id))
-
-            await client.send_response(shell_block_done_result_msg(todo_id, block_id, 0, output or "", request_id))
-
-        except Exception as e:
-            logger.error(f"[Edge→Tmux] Error: {e}")
-            await client.send_response(shell_block_done_result_msg(todo_id, block_id, 1, str(e), request_id))
+asyncio.run(main())
+'''
 
 
 class TODOforAIAgent(BaseAgent):
@@ -109,10 +127,10 @@ class TODOforAIAgent(BaseAgent):
     TODOforAI agent for Terminal-Bench.
 
     Architecture:
-    1. Start edge in task environment
-    2. Send task to backend via TODO
-    3. Backend executes commands via edge's BASH tool
-    4. TmuxShellRedirector routes BASH calls to tmux session
+    1. Install edge inside Docker container via tmux (from local wheel)
+    2. Run Python script that starts edge + creates TODO
+    3. Edge connects to host backend, Julia agent processes TODO
+    4. Tool calls execute inside Docker naturally
     """
 
     def __init__(
@@ -126,7 +144,14 @@ class TODOforAIAgent(BaseAgent):
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         self.log_dir: Optional[Path] = None
-        self.tool_calls: List[ToolCall] = []
+
+        # Pre-encode the wheel for copying into Docker
+        if EDGE_WHEEL_PATH.exists():
+            self._wheel_b64 = base64.b64encode(EDGE_WHEEL_PATH.read_bytes()).decode()
+            self._wheel_name = EDGE_WHEEL_PATH.name
+        else:
+            self._wheel_b64 = None
+            self._wheel_name = None
 
     @staticmethod
     def name() -> str:
@@ -140,15 +165,17 @@ class TODOforAIAgent(BaseAgent):
     ) -> AgentResult:
         """Execute a Terminal-Bench task via TODOforAI backend."""
         self.log_dir = logging_dir
-        self.tool_calls = []
         self.total_input_tokens = 0
         self.total_output_tokens = 0
 
         try:
             print(f"[TODOforAI] Task: {instruction[:100]}...")
-            asyncio.run(self._run_task_with_edge(instruction, session))
-            print(f"[TODOforAI] Done. Tool calls: {len(self.tool_calls)}")
+
+            self._install_edge(session)
+            self._run_task(session, instruction)
+
             failure_mode = "none"
+            print(f"[TODOforAI] Done. Tokens: {self.total_input_tokens}in/{self.total_output_tokens}out")
 
         except TimeoutError as e:
             print(f"[TODOforAI] Timeout: {e}")
@@ -160,9 +187,6 @@ class TODOforAIAgent(BaseAgent):
             traceback.print_exc()
             failure_mode = "unknown_agent_error"
 
-        finally:
-            TmuxShellRedirector.uninstall()
-
         if self.log_dir:
             self._save_logs()
 
@@ -172,113 +196,138 @@ class TODOforAIAgent(BaseAgent):
             failure_mode=failure_mode,
         )
 
-    async def _run_task_with_edge(self, task_description: str, session: TmuxSession) -> None:
-        """Run task with edge integration."""
-        from todoforai_edge.edge import TODOforAIEdge
-        from todoforai_edge.config import Config
+    def _check_edge_installed(self, session: TmuxSession) -> bool:
+        """Check if the edge is already installed inside the container."""
+        # Use unique markers to avoid false matches from the command line itself in capture_pane
+        session.send_keys(
+            ["test -x /opt/todoforai-venv/bin/python && /opt/todoforai-venv/bin/python -c 'import todoforai_edge' 2>/dev/null && echo __INSTALLED_OK__ || echo __NOT_INSTALLED__", "Enter"],
+            block=True, max_timeout_sec=10,
+        )
+        output = session.capture_pane() or ""
+        # Count occurrences: the command line has it once, actual output adds a second
+        return output.count("__INSTALLED_OK__") >= 2
 
-        # Create edge config directly (don't use argparse - it conflicts with terminal-bench args)
-        config = Config()
-        config.api_url = self.config.api_url
-        config.api_key = self.config.api_key
+    def _install_edge(self, session: TmuxSession) -> None:
+        """Install todoforai-edge inside the Docker container."""
+        already_installed = self._check_edge_installed(session)
 
-        if not config.api_key:
-            raise ValueError("API key required - set in ~/.todoforai/tbench.json")
+        if not already_installed:
+            print("[TODOforAI] Installing edge inside Docker...")
 
-        # Install tmux redirector - routes edge BASH calls to tmux session
-        TmuxShellRedirector.install(session, self.tool_calls)
+            cmds = [
+                # Install Python and venv support (always ensure python3-venv is present)
+                "apt-get update -qq && apt-get install -y -qq python3 python3-pip python3-venv",
+                # Create venv and install pip
+                "python3 -m venv /opt/todoforai-venv",
+                "/opt/todoforai-venv/bin/pip install -q --upgrade pip",
+            ]
 
-        # Create and start edge
-        edge = TODOforAIEdge(config)
-        print(f"[TODOforAI] Connecting edge to {config.api_url}...")
+            for cmd in cmds:
+                print(f"[TODOforAI]   > {cmd[:80]}...")
+                session.send_keys([cmd, "Enter"], block=True, max_timeout_sec=180)
 
-        edge_task = asyncio.create_task(self._run_edge(edge))
+        # Always install local wheel (has create_file/read_file unlike pip version)
+        if self._wheel_b64:
+            print(f"[TODOforAI] Installing local edge wheel ({self._wheel_name})...")
+            # Send in chunks to avoid tmux buffer issues
+            chunk_size = 4000
+            chunks = [self._wheel_b64[i:i+chunk_size] for i in range(0, len(self._wheel_b64), chunk_size)]
+            session.send_keys(["> /tmp/edge.whl.b64", "Enter"], block=True, max_timeout_sec=5)
+            for chunk in chunks:
+                session.send_keys([f"echo '{chunk}' >> /tmp/edge.whl.b64", "Enter"], block=True, max_timeout_sec=5)
+            session.send_keys([f"base64 -d /tmp/edge.whl.b64 > /tmp/{self._wheel_name}", "Enter"], block=True, max_timeout_sec=5)
+            session.send_keys([f"/opt/todoforai-venv/bin/pip install -q --force-reinstall /tmp/{self._wheel_name}", "Enter"], block=True, max_timeout_sec=60)
+        elif not already_installed:
+            print("[TODOforAI] No local wheel found, falling back to pip...")
+            session.send_keys(["/opt/todoforai-venv/bin/pip install -q todoforai-edge-cli", "Enter"], block=True, max_timeout_sec=180)
 
-        try:
-            # Wait for edge to connect
-            for _ in range(10):
-                await asyncio.sleep(1)
-                if edge.connected and edge.edge_id:
-                    print(f"[TODOforAI] Edge ready: {edge.edge_id}")
-                    break
+        print("[TODOforAI] Edge installed")
+
+    def _run_task(self, session: TmuxSession, instruction: str) -> None:
+        """Write runner script into Docker and execute it."""
+        # Write the runner script (base64-encoded to avoid heredoc issues with tmux)
+        encoded = base64.b64encode(DOCKER_RUNNER_SCRIPT.encode()).decode()
+        session.send_keys(
+            [f"echo '{encoded}' | base64 -d > /tmp/tbench_runner.py", "Enter"],
+            block=True,
+            max_timeout_sec=10,
+        )
+
+        # Set environment variables
+        # Detect host IP from inside Docker (host.docker.internal doesn't work on Linux,
+        # and `ip` command may not be installed — use Python to parse /proc/net/route)
+        session.send_keys(
+            ["""export DOCKER_HOST_IP=$(python3 -c "import struct; f=open('/proc/net/route'); [print('.'.join(str(b) for b in struct.pack('<I',int(l.split()[2],16)))) for l in f if l.split()[1]=='00000000']; f.close()" 2>/dev/null | head -1)""", "Enter"],
+            block=True,
+            max_timeout_sec=5,
+        )
+
+        api_url = self.config.api_url
+        if "localhost" in api_url:
+            api_url = api_url.replace("localhost", "$DOCKER_HOST_IP")
+
+        env_vars = {
+            "TODOFORAI_API_URL": api_url,
+            "TODOFORAI_API_KEY": self.config.api_key,
+            "TODOFORAI_AGENT": self.config.default_agent,
+            "TODOFORAI_TIMEOUT": str(self.config.timeout),
+        }
+        if self.config.project_id:
+            env_vars["TODOFORAI_PROJECT_ID"] = self.config.project_id
+
+        for key, val in env_vars.items():
+            # Use double quotes for API_URL so $DOCKER_HOST_IP gets expanded
+            if "$" in val:
+                session.send_keys([f'export {key}="{val}"', "Enter"], block=True, max_timeout_sec=5)
             else:
-                raise ConnectionError("Edge failed to connect")
+                session.send_keys([f"export {key}='{val}'", "Enter"], block=True, max_timeout_sec=5)
 
-            # Find agent
-            agents = await edge.list_agent_settings()
-            agent_settings = next(
-                (a for a in agents if self.config.default_agent.lower() in a.get("name", "").lower()),
-                agents[0] if agents else None
-            )
-            if not agent_settings:
-                raise ValueError("No agents available")
+        # Run the script
+        escaped = instruction.replace("'", "'\\''")
+        session.send_keys(
+            [f"/opt/todoforai-venv/bin/python /tmp/tbench_runner.py '{escaped}'", "Enter"],
+            block=True,
+            max_timeout_sec=self.config.timeout + 60,
+        )
 
-            print(f"[TODOforAI] Using agent: {agent_settings.get('name')}")
+        # Read results from file (more reliable than capture_pane)
+        session.send_keys(["cat /tmp/tbench_result.json", "Enter"], block=True, max_timeout_sec=10)
+        output = session.capture_pane()
+        self._parse_output(output or "")
 
-            # Create TODO - backend will execute via edge
-            todo = await edge.add_message(
-                project_id=self.config.project_id,
-                content=f"[Terminal-Bench Task]\n\n{task_description}",
-                agent_settings=agent_settings,
-            )
-
-            todo_id = todo.get("id") or todo.get("todo_id")
-            print(f"[TODOforAI] TODO: {todo_id}")
-
-            # Wait for completion
-            result = await edge.wait_for_todo_completion(
-                todo_id,
-                timeout=self.config.timeout,
-                callback=self._on_message,
-            )
-
-            if not result.get("success"):
-                print(f"[TODOforAI] Issue: {result.get('payload', {}).get('error', 'Unknown')}")
-
-        finally:
-            edge_task.cancel()
-            try:
-                await edge_task
-            except asyncio.CancelledError:
-                pass
-
-    async def _run_edge(self, edge) -> None:
-        """Run edge client."""
-        try:
-            await edge.start()
-        except asyncio.CancelledError:
-            print("[TODOforAI] Edge stopped")
-
-    def _on_message(self, msg_type: str, payload: Dict[str, Any]) -> None:
-        """Handle backend messages - tool calls come via TmuxShellRedirector."""
-        if msg_type == "todo:msg_done":
-            meta = payload.get("meta", {})
-            self.total_input_tokens = meta.get("input_tokens", 0)
-            self.total_output_tokens = meta.get("output_tokens", 0)
+    def _parse_output(self, output: str) -> None:
+        """Parse runner output for token counts."""
+        for line in output.split("\n"):
+            line = line.strip()
+            if line.startswith("{") and "input_tokens" in line:
+                try:
+                    result = json.loads(line)
+                    self.total_input_tokens = result.get("input_tokens", 0)
+                    self.total_output_tokens = result.get("output_tokens", 0)
+                    return
+                except json.JSONDecodeError:
+                    continue
+            if "TBENCH_RESULT:" in line:
+                try:
+                    json_str = line.split("TBENCH_RESULT:", 1)[1].strip()
+                    result = json.loads(json_str)
+                    self.total_input_tokens = result.get("input_tokens", 0)
+                    self.total_output_tokens = result.get("output_tokens", 0)
+                    return
+                except (json.JSONDecodeError, IndexError):
+                    continue
 
     def _save_logs(self) -> None:
-        """Save execution logs to log_dir."""
+        """Save execution logs."""
         if not self.log_dir:
             return
 
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save tool calls
-        tool_calls_path = self.log_dir / "tool_calls.json"
-        with open(tool_calls_path, 'w') as f:
-            json.dump(
-                [{"tool": tc.tool_name, "args": tc.arguments, "result": tc.result}
-                 for tc in self.tool_calls],
-                f,
-                indent=2,
-            )
-
-        # Save summary
         summary_path = self.log_dir / "summary.json"
         with open(summary_path, 'w') as f:
             json.dump({
                 "input_tokens": self.total_input_tokens,
                 "output_tokens": self.total_output_tokens,
-                "tool_calls_count": len(self.tool_calls),
                 "model": self.model,
             }, f, indent=2)
