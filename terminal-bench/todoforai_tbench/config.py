@@ -4,9 +4,10 @@ Configuration management for TODOforAI Terminal-Bench adapter.
 
 import json
 import os
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 
 @dataclass
@@ -16,6 +17,7 @@ class TBenchConfig:
     # TODOforAI connection
     api_url: str = "http://localhost:4000"
     api_key: str = ""
+    api_keys: List[str] = field(default_factory=list)  # Pool of keys for parallel runs
 
     # Agent settings
     default_model: str = "claude-sonnet-4-5"
@@ -36,20 +38,62 @@ class TBenchConfig:
     # Extra settings
     extra: Dict[str, Any] = field(default_factory=dict)
 
+    # Internal: round-robin counter for api_keys pool
+    _key_counter: int = field(default=0, init=False, repr=False)
+    _key_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+
     def __post_init__(self):
-        # Load from environment if not set
-        if not self.api_url or self.api_url == "http://localhost:4000":
-            self.api_url = os.environ.get("TODOFORAI_API_URL") or os.environ.get("TODO4AI_API_URL") or "http://localhost:4000"
-        if not self.api_key:
-            self.api_key = os.environ.get("TODOFORAI_API_KEY") or os.environ.get("TODO4AI_API_KEY") or ""
-        if not self.project_id:
-            self.project_id = os.environ.get("TODOFORAI_PROJECT_ID") or os.environ.get("TODO4AI_PROJECT_ID")
+        # Environment variables OVERRIDE config file values
+        env_api_url = os.environ.get("TODOFORAI_API_URL") or os.environ.get("TODO4AI_API_URL")
+        if env_api_url:
+            self.api_url = env_api_url
+        elif not self.api_url:
+            self.api_url = "http://localhost:4000"
+
+        env_api_key = os.environ.get("TODOFORAI_API_KEY") or os.environ.get("TODO4AI_API_KEY")
+        if env_api_key:
+            self.api_key = env_api_key
+
+        env_project_id = os.environ.get("TODOFORAI_PROJECT_ID") or os.environ.get("TODO4AI_PROJECT_ID")
+        if env_project_id is not None:  # Allow empty string to clear
+            self.project_id = env_project_id or None
+        elif env_api_key:
+            # API key changed via env but no project_id specified -
+            # clear config file's project_id (belongs to a different account)
+            self.project_id = None
+
+        env_agent = os.environ.get("TODOFORAI_AGENT")
+        if env_agent:
+            self.default_agent = env_agent
+
+        # TODOFORAI_API_KEYS env var for parallel runs with key pool
+        keys_str = os.environ.get("TODOFORAI_API_KEYS", "")
+        if keys_str:
+            self.api_keys = [k.strip() for k in keys_str.split(",") if k.strip()]
+            # When using key pool, clear project_id (each account has its own)
+            if not env_project_id:
+                self.project_id = None
+
+        # Sync api_key and api_keys: if only one is set, populate the other
+        if self.api_key and not self.api_keys:
+            self.api_keys = [self.api_key]
+        elif self.api_keys and not self.api_key:
+            self.api_key = self.api_keys[0]
+
+    def next_api_key(self) -> str:
+        """Get next API key from pool (round-robin, thread-safe)."""
+        if not self.api_keys:
+            return self.api_key
+        with self._key_lock:
+            key = self.api_keys[self._key_counter % len(self.api_keys)]
+            self._key_counter += 1
+            return key
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TBenchConfig":
         """Create config from dictionary."""
         known_fields = {
-            "api_url", "api_key", "default_model", "default_agent",
+            "api_url", "api_key", "api_keys", "default_model", "default_agent",
             "project_id", "timeout", "max_iterations", "log_dir",
             "verbose", "track_tokens"
         }
@@ -73,6 +117,7 @@ class TBenchConfig:
         return {
             "api_url": self.api_url,
             "api_key": self.api_key,
+            "api_keys": self.api_keys,
             "default_model": self.default_model,
             "default_agent": self.default_agent,
             "project_id": self.project_id,
