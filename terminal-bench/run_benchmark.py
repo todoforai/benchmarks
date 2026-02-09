@@ -267,6 +267,11 @@ Examples:
     # Set API keys pool via env var (picked up by TBenchConfig)
     if args.api_keys:
         os.environ["TODOFORAI_API_KEYS"] = args.api_keys
+        n_keys = len([k for k in args.api_keys.split(",") if k.strip()])
+        if args.concurrent > n_keys:
+            print(f"Error: concurrency ({args.concurrent}) exceeds number of API keys ({n_keys})")
+            print(f"Each parallel worker needs its own API key/account.")
+            return 1
 
     # Run benchmark
     return run_benchmark(
