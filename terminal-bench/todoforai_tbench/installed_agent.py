@@ -64,8 +64,9 @@ class TODOforAIInstalledAgent(AbstractInstalledAgent):
             api_url = api_url.replace("localhost", "host.docker.internal")
         if api_url:
             env["TODOFORAI_API_URL"] = api_url
-        if self.config.api_key:
-            env["TODOFORAI_API_KEY"] = self.config.api_key
+        api_key = self.config.next_api_key()
+        if api_key:
+            env["TODOFORAI_API_KEY"] = api_key
         if self.config.project_id:
             env["TODOFORAI_PROJECT_ID"] = self.config.project_id
 

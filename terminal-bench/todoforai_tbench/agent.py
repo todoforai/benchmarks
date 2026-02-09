@@ -268,7 +268,7 @@ class TODOforAIAgent(BaseAgent):
 
         env_vars = {
             "TODOFORAI_API_URL": api_url,
-            "TODOFORAI_API_KEY": self.config.api_key,
+            "TODOFORAI_API_KEY": self.config.next_api_key(),
             "TODOFORAI_AGENT": self.config.default_agent,
             "TODOFORAI_TIMEOUT": str(self.config.timeout),
         }

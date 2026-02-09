@@ -239,6 +239,10 @@ Examples:
         action="store_true",
         help="List available agent types",
     )
+    parser.add_argument(
+        "--api-keys",
+        help="Comma-separated list of TODOFORAI API keys for parallel runs (round-robin per task)",
+    )
 
     args = parser.parse_args()
 
@@ -259,6 +263,10 @@ Examples:
             print("Terminal-Bench not installed. Run with --install or:")
             print("  pip install terminal-bench")
             return 1
+
+    # Set API keys pool via env var (picked up by TBenchConfig)
+    if args.api_keys:
+        os.environ["TODOFORAI_API_KEYS"] = args.api_keys
 
     # Run benchmark
     return run_benchmark(
