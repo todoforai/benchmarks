@@ -1,4 +1,5 @@
 # Config with API keys
+.env
 tbench.json
 dev_api_keys.txt
 

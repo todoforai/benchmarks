@@ -8,10 +8,15 @@ import threading
 from pathlib import Path
 from queue import Queue
 
+import dotenv
 from terminal_bench.agents.base_agent import AgentResult
 from terminal_bench.agents.installed_agents.abstract_installed_agent import AbstractInstalledAgent
 from terminal_bench.terminal.models import TerminalCommand
 from terminal_bench.terminal.tmux_session import TmuxSession
+
+# terminal-bench's load_dotenv() searches from site-packages, not cwd.
+# Load from cwd so users can put keys in .env next to their project.
+dotenv.load_dotenv(dotenv.find_dotenv(usecwd=True))
 
 
 def _load_keys() -> list[str]:
@@ -80,7 +85,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         escaped = shlex.quote(instruction)
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli -y --timeout 600",
+                command=f"echo {escaped} | /usr/local/bin/todoai-cli -y --agent Agent --edge /app --timeout 600",
                 max_timeout_sec=660.0,
                 block=True,
             ),
