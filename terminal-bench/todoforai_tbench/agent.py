@@ -75,6 +75,8 @@ class TODOforAIAgent(AbstractInstalledAgent):
             env["TODOFORAI_API_KEY"] = self._current_key
         if os.environ.get("TODOFORAI_API_URL"):
             env["TODOFORAI_API_URL"] = os.environ["TODOFORAI_API_URL"]
+        if os.environ.get("TODOFORAI_PROJECT_ID"):
+            env["TODOFORAI_PROJECT_ID"] = os.environ["TODOFORAI_PROJECT_ID"]
         return env
 
     @property
@@ -83,9 +85,13 @@ class TODOforAIAgent(AbstractInstalledAgent):
 
     def _run_agent_commands(self, instruction: str) -> list[TerminalCommand]:
         escaped = shlex.quote(instruction)
+        api_url = os.environ.get("TODOFORAI_API_URL", "")
+        url_flag = f" --api-url {shlex.quote(api_url)}" if api_url else ""
+        project_id = os.environ.get("TODOFORAI_PROJECT_ID", "")
+        project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli -y --agent Agent --edge /app --timeout 600",
+                command=f"echo {escaped} | /usr/local/bin/todoai-cli -y --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),
