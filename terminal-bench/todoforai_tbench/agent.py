@@ -4,6 +4,7 @@ TODOforAI agent adapter for Terminal-Bench.
 
 import os
 import shlex
+import subprocess
 import threading
 from pathlib import Path
 from queue import Queue
@@ -97,6 +98,21 @@ class TODOforAIAgent(AbstractInstalledAgent):
             ),
         ]
 
+    @staticmethod
+    def _build_edge_wheel() -> Path | None:
+        """Build a wheel from the local edge repo if available."""
+        edge_dir = Path(__file__).resolve().parents[2] / ".." / "edge"
+        edge_dir = edge_dir.resolve()
+        if not (edge_dir / "pyproject.toml").exists():
+            return None
+        dist_dir = edge_dir / "dist"
+        subprocess.run(
+            ["pip", "wheel", "--no-deps", "-w", str(dist_dir), str(edge_dir)],
+            capture_output=True,
+        )
+        wheels = sorted(dist_dir.glob("*.whl"), key=lambda p: p.stat().st_mtime)
+        return wheels[-1] if wheels else None
+
     def perform_task(
         self,
         instruction: str,
@@ -104,10 +120,12 @@ class TODOforAIAgent(AbstractInstalledAgent):
         logging_dir: Path | None = None,
     ) -> AgentResult:
         if self._key_pool is not None:
-            # Blocks until a key is available — naturally throttles concurrency
-            # to the number of keys in the pool
             self._current_key = self._key_pool.get()
         try:
+            # Copy local edge wheel into the container so install.sh uses it
+            wheel = self._build_edge_wheel()
+            if wheel:
+                session.copy_to_container(wheel, container_dir="/installed-agent")
             return super().perform_task(instruction, session, logging_dir)
         finally:
             if self._current_key is not None:
