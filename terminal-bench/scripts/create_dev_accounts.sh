@@ -19,7 +19,7 @@ set -euo pipefail
 
 BASE_URL="${1:-http://localhost:4000}"
 AUTH_URL="$BASE_URL/api/auth"
-LOG_FILE="/home/hm/.pm2/logs/backend-out.log"
+LOG_FILE="${PM2_LOG_FILE:-$HOME/.pm2/logs/backend-out.log}"
 
 NUM_ACCOUNTS=10
 EMAILS=()

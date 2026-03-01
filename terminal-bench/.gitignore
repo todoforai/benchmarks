@@ -6,10 +6,12 @@ dev_api_keys.txt
 # Run results
 runs/
 
-# Edge wheel distribution
+# Wheel distributions
 edge_wheel/
+todoforai_tbench/wheels/
 
 # Python
+.venv/
 __pycache__/
 *.py[cod]
 *$py.class

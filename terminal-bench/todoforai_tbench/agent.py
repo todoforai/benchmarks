@@ -91,7 +91,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli -y --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
+                command=f"echo {escaped} | /usr/local/bin/todoai-cli -p --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),
@@ -106,6 +106,13 @@ class TODOforAIAgent(AbstractInstalledAgent):
         if self._key_pool is not None:
             self._current_key = self._key_pool.get()
         try:
+            # Copy local wheels to the container (if available) before install
+            wheels_dir = Path(__file__).parent / "wheels"
+            if wheels_dir.is_dir() and list(wheels_dir.glob("*.whl")):
+                session.copy_to_container(
+                    wheels_dir,
+                    container_dir="/installed-agent/wheels",
+                )
             return super().perform_task(instruction, session, logging_dir)
         finally:
             if self._current_key is not None:
