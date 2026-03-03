@@ -1,43 +1,158 @@
 # TODOforAI Terminal-Bench Adapter
 
-[Terminal-Bench](https://github.com/terminal-bench/terminal-bench) adapter for evaluating the TODOforAI agent.
+[Terminal-Bench](https://github.com/terminal-bench/terminal-bench) adapter for evaluating the TODOforAI agent in Docker containers.
 
-## Installation
-
-```bash
-pip install todoforai-tbench
-```
-
-## Usage
+## Quick Start
 
 ```bash
-tb run --dataset terminal-bench-core==0.1.1 \
-  --agent-import-path todoforai_tbench:TODOforAIAgent \
-  --task-id hello-world
+# 1. Install the adapter (from this directory)
+pip install -e .
+
+# 2. Set up API keys (see "API Keys" section below)
+export TODOFORAI_API_KEYS="key1,key2,..."
+export TODOFORAI_API_URL="http://172.17.0.1:4000"  # local dev backend
+
+# 3. Run a benchmark
+tb run --dataset "terminal-bench-core==0.1.1" \
+  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
+  --task-id hello-world \
+  --livestream
 ```
+
+## Prerequisites
+
+- Python 3.10+
+- Docker (tasks run in isolated containers)
+- `terminal-bench` CLI: `pip install terminal-bench`
+- A running TODOforAI backend (local dev or production)
+
+## API Keys
+
+Each Docker container needs its own API key. The adapter fails immediately with a clear error if no keys are configured.
+
+| Variable | Format | Description |
+|----------|--------|-------------|
+| `TODOFORAI_API_KEYS` | `key1,key2,key3` | Comma-separated pool for concurrent runs |
+| `TODOFORAI_API_KEYS_FILE` | `/path/to/keys.txt` | File with one key per line |
+| `TODOFORAI_API_KEY` | `single-key` | Single key (for serial runs only) |
+
+Priority: `TODOFORAI_API_KEYS` > `TODOFORAI_API_KEYS_FILE` > `TODOFORAI_API_KEY`
+
+You can also put these in a `.env` file in your working directory — it's auto-loaded.
+
+### Generating Dev Keys
+
+Run the dev account creation script against your local backend:
+
+```bash
+# Backend must be running (pm2 status → backend)
+./scripts/create_dev_accounts.sh
+
+# Or with a custom backend URL
+./scripts/create_dev_accounts.sh http://localhost:4000
+```
+
+This creates accounts via the email OTP flow (OTPs are extracted from PM2 backend logs) and outputs a `TODOFORAI_API_KEYS` export command you can copy-paste.
+
+Customize with env vars: `NUM_ACCOUNTS`, `EMAIL_PREFIX`, `EMAIL_DOMAIN`.
 
 ## Configuration
 
-| Environment Variable | Description |
-|---------------------|-------------|
-| `TODOFORAI_API_KEY` | Single API key (simplest setup) |
-| `TODOFORAI_API_KEYS` | Comma-separated key pool for concurrent runs |
-| `TODOFORAI_API_KEYS_FILE` | Path to file with one key per line |
-| `TODOFORAI_API_URL` | API URL (defaults to production) |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `TODOFORAI_API_KEYS` | Yes* | - | API key(s) — see above |
+| `TODOFORAI_API_URL` | No | production | API endpoint (use `http://172.17.0.1:4000` for local dev) |
+| `TODOFORAI_PROJECT_ID` | No | - | Specific project ID to use |
 
-### API Key Pool
+*At least one of the three key variables must be set.
 
-When running multiple tasks concurrently, each Docker container gets a unique key from the pool. If all keys are in use, additional tasks block until a key is returned. This ensures no two containers share a key simultaneously.
+Note: `172.17.0.1` is Docker's default host gateway — it lets containers reach your host's `localhost:4000`.
+
+## Running Benchmarks
+
+### Single task
 
 ```bash
-# Option 1: Comma-separated
-export TODOFORAI_API_KEYS="key-1,key-2,key-3"
+tb run --dataset "terminal-bench-core==0.1.1" \
+  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
+  --task-id hello-world \
+  --livestream \
+  --output-path runs
+```
 
-# Option 2: Keys file
-export TODOFORAI_API_KEYS_FILE=/path/to/keys.txt
+### Concurrent tasks
 
-# Then run with concurrency matching your key count
-tb run --dataset terminal-bench-core==0.1.1 \
-  --agent-import-path todoforai_tbench:TODOforAIAgent \
-  --max-concurrent 3
+Match `--n-concurrent` to your number of API keys:
+
+```bash
+export TODOFORAI_API_KEYS="key1,key2,key3"
+
+tb run --dataset "terminal-bench-core==0.1.1" \
+  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
+  --n-concurrent 3 \
+  --output-path runs
+```
+
+### Common flags
+
+| Flag | Description |
+|------|-------------|
+| `--task-id <id>` | Run a specific task (omit to run all) |
+| `--n-concurrent N` | Parallel containers (default 1) |
+| `--livestream` | Stream agent output in real-time |
+| `--output-path runs` | Save results to `runs/` directory |
+| `--global-test-timeout-sec N` | Override test timeout (default varies by task) |
+
+### Available tasks
+
+List tasks in the dataset:
+
+```bash
+tb list-tasks --dataset "terminal-bench-core==0.1.1"
+```
+
+## Rebuilding Wheels
+
+The adapter ships pre-built wheels for `todoai-cli` and `todoforai-edge-cli` in `todoforai_tbench/wheels/`. These are copied into Docker containers during task setup.
+
+After modifying either package, rebuild:
+
+```bash
+./scripts/rebuild_wheels.sh
+```
+
+This builds wheels from the monorepo source (`../../todoai-cli` and `../../edge`) and places them in `todoforai_tbench/wheels/`.
+
+Override source paths with `TODOAI_CLI_DIR` and `EDGE_DIR` env vars.
+
+## How It Works
+
+1. Terminal-bench spins up a Docker container for each task
+2. The adapter copies wheels into the container and runs `install.sh`
+3. `install.sh` creates a venv, installs the wheels (or falls back to PyPI)
+4. The task instruction is piped into `todoai-cli --print --dangerously-skip-permissions`
+5. `todoai-cli` creates a TODO, starts an embedded edge, and streams output
+6. The edge executes shell commands and file operations inside the container
+7. Terminal-bench runs pytest to verify the task was completed correctly
+
+## Troubleshooting
+
+**"No TODOforAI API keys configured"** — Set one of the key environment variables. See "API Keys" above.
+
+**401 UNAUTHORIZED inside container** — Your API key is invalid or expired. Regenerate dev keys with `./scripts/create_dev_accounts.sh`.
+
+**"No tasks found matching pattern"** — Make sure you include the dataset version: `--dataset "terminal-bench-core==0.1.1"` (not just `terminal-bench-core`).
+
+**Agent only runs one turn** — Complex tasks may need multiple LLM turns. The CLI's idle timeout is 60s; if the backend doesn't produce a second turn within that window, the CLI exits. This is typically a backend/agent-side issue.
+
+**Wheel changes not taking effect** — Run `./scripts/rebuild_wheels.sh` after modifying `todoai-cli` or `edge`. The old wheels in `todoforai_tbench/wheels/` are what gets installed in containers.
+
+## Development
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
 ```

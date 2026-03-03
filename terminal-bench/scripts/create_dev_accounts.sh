@@ -6,6 +6,12 @@
 # Usage: ./create_dev_accounts.sh [base_url]
 #   base_url: defaults to http://localhost:4000
 #
+# Environment variables:
+#   NUM_ACCOUNTS   - Number of accounts to create (default: 10)
+#   EMAIL_PREFIX   - Email prefix before the number (default: tbench+dev)
+#   EMAIL_DOMAIN   - Email domain (default: todoforai.com)
+#   PM2_LOG_FILE   - Path to PM2 backend log (default: ~/.pm2/logs/backend-out.log)
+#
 # Prerequisites:
 #   - Backend must be running via PM2 (pm2 status → backend)
 #   - OTP codes are logged to PM2 backend logs
@@ -21,10 +27,12 @@ BASE_URL="${1:-http://localhost:4000}"
 AUTH_URL="$BASE_URL/api/auth"
 LOG_FILE="${PM2_LOG_FILE:-$HOME/.pm2/logs/backend-out.log}"
 
-NUM_ACCOUNTS=10
+NUM_ACCOUNTS="${NUM_ACCOUNTS:-10}"
+EMAIL_PREFIX="${EMAIL_PREFIX:-tbench+dev}"
+EMAIL_DOMAIN="${EMAIL_DOMAIN:-todoforai.com}"
 EMAILS=()
 for i in $(seq 1 "$NUM_ACCOUNTS"); do
-  EMAILS+=("havlikmarcell+dev${i}@gmail.com")
+  EMAILS+=("${EMAIL_PREFIX}${i}@${EMAIL_DOMAIN}")
 done
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

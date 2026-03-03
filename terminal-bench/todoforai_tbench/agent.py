@@ -53,10 +53,18 @@ class TODOforAIAgent(AbstractInstalledAgent):
             if cls._pool_initialized:
                 return
             keys = _load_keys()
-            if keys:
-                cls._key_pool = Queue()
-                for key in keys:
-                    cls._key_pool.put(key)
+            if not keys:
+                raise RuntimeError(
+                    "No TODOforAI API keys configured. Set one of:\n"
+                    "  TODOFORAI_API_KEYS=key1,key2,...  (comma-separated, for concurrent runs)\n"
+                    "  TODOFORAI_API_KEYS_FILE=/path/to/keys.txt  (one key per line)\n"
+                    "  TODOFORAI_API_KEY=<key>  (single key)\n"
+                    "Or create a .env file in the current directory with these variables.\n"
+                    "To generate dev keys: ./scripts/create_dev_accounts.sh"
+                )
+            cls._key_pool = Queue()
+            for key in keys:
+                cls._key_pool.put(key)
             cls._pool_initialized = True
 
     def __init__(self, **kwargs):
@@ -91,7 +99,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli -p --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
+                command=f"echo {escaped} | /usr/local/bin/todoai-cli --print --dangerously-skip-permissions --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),
@@ -103,8 +111,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         session: TmuxSession,
         logging_dir: Path | None = None,
     ) -> AgentResult:
-        if self._key_pool is not None:
-            self._current_key = self._key_pool.get()
+        self._current_key = self._key_pool.get()
         try:
             # Copy local wheels to the container (if available) before install
             wheels_dir = Path(__file__).parent / "wheels"
@@ -115,6 +122,5 @@ class TODOforAIAgent(AbstractInstalledAgent):
                 )
             return super().perform_task(instruction, session, logging_dir)
         finally:
-            if self._current_key is not None:
-                self._key_pool.put(self._current_key)
-                self._current_key = None
+            self._key_pool.put(self._current_key)
+            self._current_key = None

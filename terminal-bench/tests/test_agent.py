@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from todoforai_tbench.agent import _load_keys
 
 
@@ -53,3 +55,27 @@ class TestLoadKeys:
         monkeypatch.delenv("TODOFORAI_API_KEYS_FILE", raising=False)
         monkeypatch.delenv("TODOFORAI_API_KEY", raising=False)
         assert _load_keys() == ["key-1", "key-2", "key-3"]
+
+
+class TestAgentInit:
+    def test_raises_without_keys(self, monkeypatch):
+        from todoforai_tbench.agent import TODOforAIAgent
+        # Reset class-level pool state
+        TODOforAIAgent._pool_initialized = False
+        TODOforAIAgent._key_pool = None
+        monkeypatch.delenv("TODOFORAI_API_KEYS", raising=False)
+        monkeypatch.delenv("TODOFORAI_API_KEYS_FILE", raising=False)
+        monkeypatch.delenv("TODOFORAI_API_KEY", raising=False)
+        with pytest.raises(RuntimeError, match="No TODOforAI API keys configured"):
+            TODOforAIAgent()
+
+    def test_initializes_with_keys(self, monkeypatch):
+        from todoforai_tbench.agent import TODOforAIAgent
+        TODOforAIAgent._pool_initialized = False
+        TODOforAIAgent._key_pool = None
+        monkeypatch.setenv("TODOFORAI_API_KEY", "test-key")
+        monkeypatch.delenv("TODOFORAI_API_KEYS", raising=False)
+        monkeypatch.delenv("TODOFORAI_API_KEYS_FILE", raising=False)
+        agent = TODOforAIAgent()
+        assert agent._key_pool is not None
+        assert not agent._key_pool.empty()
