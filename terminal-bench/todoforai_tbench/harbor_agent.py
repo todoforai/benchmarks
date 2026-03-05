@@ -1,5 +1,5 @@
 """
-TODOforAI agent adapter for Terminal-Bench.
+TODOforAI agent adapter for Harbor (Terminal-Bench 2.0).
 """
 
 import os
@@ -9,10 +9,9 @@ from pathlib import Path
 from queue import Queue
 
 import dotenv
-from terminal_bench.agents.base_agent import AgentResult
-from terminal_bench.agents.installed_agents.abstract_installed_agent import AbstractInstalledAgent
-from terminal_bench.terminal.models import TerminalCommand
-from terminal_bench.terminal.tmux_session import TmuxSession
+from harbor.agents.installed.base import BaseInstalledAgent, ExecInput
+from harbor.environments.base import BaseEnvironment
+from harbor.models.agent.context import AgentContext
 
 # terminal-bench's load_dotenv() searches from site-packages, not cwd.
 # Load from cwd so users can put keys in .env next to their project.
@@ -42,7 +41,7 @@ def _load_keys() -> list[str]:
     return []
 
 
-class TODOforAIAgent(AbstractInstalledAgent):
+class TODOforAIHarborAgent(BaseInstalledAgent):
     _key_pool: Queue | None = None
     _pool_initialized = False
     _pool_lock = threading.Lock()
@@ -67,8 +66,8 @@ class TODOforAIAgent(AbstractInstalledAgent):
                 cls._key_pool.put(key)
             cls._pool_initialized = True
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, logs_dir: Path, *args, **kwargs):
+        super().__init__(logs_dir, *args, **kwargs)
         self._init_pool()
         self._current_key: str | None = None
 
@@ -88,39 +87,47 @@ class TODOforAIAgent(AbstractInstalledAgent):
         return env
 
     @property
-    def _install_agent_script_path(self) -> Path:
-        return Path(__file__).parent / "scripts" / "install.sh"
+    def _install_agent_template_path(self) -> Path:
+        return Path(__file__).parent / "install-todoforai.sh.j2"
 
-    def _run_agent_commands(self, instruction: str) -> list[TerminalCommand]:
+    def create_run_agent_commands(self, instruction: str) -> list[ExecInput]:
         escaped = shlex.quote(instruction)
         api_url = os.environ.get("TODOFORAI_API_URL", "")
         url_flag = f" --api-url {shlex.quote(api_url)}" if api_url else ""
         project_id = os.environ.get("TODOFORAI_PROJECT_ID", "")
         project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
         return [
-            TerminalCommand(
+            ExecInput(
                 command=f"echo {escaped} | /usr/local/bin/todoai-cli --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
-                max_timeout_sec=660.0,
-                block=True,
+                env=self._env,
+                timeout_sec=660,
             ),
         ]
 
-    def perform_task(
+    def populate_context_post_run(self, context: AgentContext) -> None:
+        pass
+
+    async def setup(self, environment: BaseEnvironment) -> None:
+        # Run the standard install (renders template, uploads, executes)
+        await super().setup(environment)
+
+        # Copy local wheels to the container (if available)
+        wheels_dir = Path(__file__).parent / "wheels"
+        if wheels_dir.is_dir() and list(wheels_dir.glob("*.whl")):
+            await environment.upload_dir(
+                source_dir=wheels_dir,
+                target_dir="/installed-agent/wheels",
+            )
+
+    async def run(
         self,
         instruction: str,
-        session: TmuxSession,
-        logging_dir: Path | None = None,
-    ) -> AgentResult:
+        environment: BaseEnvironment,
+        context: AgentContext,
+    ) -> None:
         self._current_key = self._key_pool.get()
         try:
-            # Copy local wheels to the container (if available) before install
-            wheels_dir = Path(__file__).parent / "wheels"
-            if wheels_dir.is_dir() and list(wheels_dir.glob("*.whl")):
-                session.copy_to_container(
-                    wheels_dir,
-                    container_dir="/installed-agent/wheels",
-                )
-            return super().perform_task(instruction, session, logging_dir)
+            await super().run(instruction, environment, context)
         finally:
             self._key_pool.put(self._current_key)
             self._current_key = None

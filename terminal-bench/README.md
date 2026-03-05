@@ -4,6 +4,8 @@
 
 ## Quick Start
 
+### Harbor (Terminal-Bench 2.0)
+
 ```bash
 # 1. Install the adapter (from this directory)
 pip install -e .
@@ -13,6 +15,14 @@ export TODOFORAI_API_KEYS="key1,key2,..."
 export TODOFORAI_API_URL="http://172.17.0.1:4000"  # local dev backend
 
 # 3. Run a benchmark
+harbor run -d "terminal-bench@2.0" \
+  --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
+  --task-id hello-world
+```
+
+### Legacy (`tb` CLI, terminal-bench-core 0.1.x)
+
+```bash
 tb run --dataset "terminal-bench-core==0.1.1" \
   --agent-import-path "todoforai_tbench:TODOforAIAgent" \
   --task-id hello-world \

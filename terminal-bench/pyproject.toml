@@ -19,6 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "terminal-bench>=0.1.0",
+    "harbor",
 ]
 
 [project.optional-dependencies]
@@ -34,4 +35,4 @@ where = ["."]
 include = ["todoforai_tbench*"]
 
 [tool.setuptools.package-data]
-todoforai_tbench = ["scripts/*.sh"]
+todoforai_tbench = ["scripts/*.sh", "*.j2"]
