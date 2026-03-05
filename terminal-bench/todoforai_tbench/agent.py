@@ -99,7 +99,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
+                command=f"echo {escaped} | /usr/local/bin/todoai-cli --non-interactive --dangerously-skip-permissions --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),
