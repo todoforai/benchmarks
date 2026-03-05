@@ -108,16 +108,17 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         pass
 
     async def setup(self, environment: BaseEnvironment) -> None:
-        # Run the standard install (renders template, uploads, executes)
-        await super().setup(environment)
-
-        # Copy local wheels to the container (if available)
+        # Upload wheels before install so the script finds them
         wheels_dir = Path(__file__).parent / "wheels"
         if wheels_dir.is_dir() and list(wheels_dir.glob("*.whl")):
+            await environment.exec(command="mkdir -p /installed-agent/wheels")
             await environment.upload_dir(
                 source_dir=wheels_dir,
                 target_dir="/installed-agent/wheels",
             )
+
+        # Run the standard install (renders template, uploads, executes)
+        await super().setup(environment)
 
     async def run(
         self,
