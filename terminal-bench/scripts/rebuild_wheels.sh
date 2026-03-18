@@ -1,51 +1,56 @@
 #!/usr/bin/env bash
 #
-# Rebuild todoai-cli and todoforai-edge-cli wheels and copy them to
-# todoforai_tbench/wheels/ for use in terminal-bench Docker containers.
+# Build todoai CLI and todoforai-edge dist files for use in terminal-bench Docker containers.
 #
 # Usage: ./scripts/rebuild_wheels.sh
 #
 # Prerequisites:
-#   - python3 with 'build' module (pip install build)
-#   - Source repos at expected paths (see TODOAI_CLI_DIR / EDGE_DIR below)
+#   - bun installed
+#   - Source repos at expected paths (see CLI_DIR / EDGE_DIR below)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$SCRIPT_DIR/.."
-WHEELS_DIR="$PROJECT_DIR/todoforai_tbench/wheels"
+DIST_DIR="$PROJECT_DIR/todoforai_tbench/dist"
 
-# Source package directories (relative to the monorepo root)
 MONOREPO_DIR="$(cd "$PROJECT_DIR/../.." && pwd)"
-TODOAI_CLI_DIR="${TODOAI_CLI_DIR:-$MONOREPO_DIR/todoai-cli}"
-EDGE_DIR="${EDGE_DIR:-$MONOREPO_DIR/edge}"
+CLI_DIR="${CLI_DIR:-$MONOREPO_DIR/cli}"
+EDGE_DIR="${EDGE_DIR:-$MONOREPO_DIR/edge/bun}"
 
-echo "=== Rebuilding wheels ==="
-echo "  todoai-cli:  $TODOAI_CLI_DIR"
-echo "  edge:        $EDGE_DIR"
-echo "  output:      $WHEELS_DIR"
+echo "=== Building dist files ==="
+echo "  cli:   $CLI_DIR"
+echo "  edge:  $EDGE_DIR"
+echo "  output: $DIST_DIR"
 echo ""
 
-# Ensure output dir exists and is clean
-mkdir -p "$WHEELS_DIR"
-rm -f "$WHEELS_DIR"/*.whl
+mkdir -p "$DIST_DIR"
+rm -f "$DIST_DIR"/*.js
 
-# Build todoai-cli
-if [ -d "$TODOAI_CLI_DIR" ]; then
-  echo "Building todoai-cli wheel..."
-  python3 -m build --wheel --outdir "$WHEELS_DIR" "$TODOAI_CLI_DIR" 2>&1 | tail -1
+# Build todoai CLI bundle
+if [ -d "$CLI_DIR" ]; then
+  echo "Building todoai.js..."
+  cd "$CLI_DIR"
+  bun install --silent
+  bun build src/index.ts --target=bun --outfile "$DIST_DIR/todoai.js" --external ws
+  chmod +x "$DIST_DIR/todoai.js"
+  echo "  -> $DIST_DIR/todoai.js ($(du -sh "$DIST_DIR/todoai.js" | cut -f1))"
 else
-  echo "WARNING: $TODOAI_CLI_DIR not found, skipping todoai-cli"
+  echo "WARNING: $CLI_DIR not found, skipping todoai CLI"
 fi
 
-# Build todoforai-edge-cli
+# Build todoforai-edge bundle
 if [ -d "$EDGE_DIR" ]; then
-  echo "Building todoforai-edge-cli wheel..."
-  python3 -m build --wheel --outdir "$WHEELS_DIR" "$EDGE_DIR" 2>&1 | tail -1
+  echo "Building todoforai-edge.js..."
+  cd "$EDGE_DIR"
+  bun install --silent
+  bun build src/index.ts --target=bun --outfile "$DIST_DIR/todoforai-edge.js"
+  chmod +x "$DIST_DIR/todoforai-edge.js"
+  echo "  -> $DIST_DIR/todoforai-edge.js ($(du -sh "$DIST_DIR/todoforai-edge.js" | cut -f1))"
 else
-  echo "WARNING: $EDGE_DIR not found, skipping edge"
+  echo "WARNING: $EDGE_DIR not found, skipping todoforai-edge"
 fi
 
 echo ""
-echo "=== Wheels built ==="
-ls -lh "$WHEELS_DIR"/*.whl 2>/dev/null || echo "No wheels found!"
+echo "=== Done ==="
+ls -lh "$DIST_DIR"/*.js 2>/dev/null || echo "No dist files found!"

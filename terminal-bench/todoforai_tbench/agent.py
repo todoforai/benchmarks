@@ -95,11 +95,16 @@ class TODOforAIAgent(AbstractInstalledAgent):
         escaped = shlex.quote(instruction)
         api_url = os.environ.get("TODOFORAI_API_URL", "")
         url_flag = f" --api-url {shlex.quote(api_url)}" if api_url else ""
-        project_id = os.environ.get("TODOFORAI_PROJECT_ID", "")
-        project_flag = f" --project {shlex.quote(project_id)}" if project_id else ""
+        project_flag = f" --project {shlex.quote(os.environ['TODOFORAI_PROJECT_ID'])}" if os.environ.get("TODOFORAI_PROJECT_ID") else ""
+        edge_url_flag = f" --api-url {shlex.quote(api_url)}" if api_url else ""
         return [
             TerminalCommand(
-                command=f"echo {escaped} | /usr/local/bin/todoai-cli --non-interactive --dangerously-skip-permissions --agent Agent --edge /app --timeout 600{url_flag}{project_flag}",
+                command=f"export PATH=\"$HOME/.bun/bin:$PATH\" && todoforai-edge --path /app{edge_url_flag} &",
+                max_timeout_sec=10.0,
+                block=False,
+            ),
+            TerminalCommand(
+                command=f"sleep 2 && echo {escaped} | todoai --non-interactive --dangerously-skip-permissions --agent Agent --path /app{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),

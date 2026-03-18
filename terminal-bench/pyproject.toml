@@ -35,4 +35,4 @@ where = ["."]
 include = ["todoforai_tbench*"]
 
 [tool.setuptools.package-data]
-todoforai_tbench = ["scripts/*.sh", "*.j2"]
+todoforai_tbench = ["scripts/*.sh", "*.j2", "dist/*.js"]
