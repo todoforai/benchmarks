@@ -52,5 +52,6 @@ class TestTODOforAIHarborAgent:
         agent = TODOforAIHarborAgent(logs_dir=tmp_path)
         commands = agent.create_run_agent_commands("do something")
         assert len(commands) == 1
-        assert "todoai-cli" in commands[0].command
+        assert "todoai" in commands[0].command
+        assert "todoforai-edge" in commands[0].command
         assert commands[0].timeout_sec == 660

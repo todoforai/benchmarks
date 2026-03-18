@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mind2Web Benchmark Runner using todoai-cli
+Mind2Web Benchmark Runner using todoai
 
 Pipes Mind2Web tasks through your todoai system and collects results
 for WebJudge evaluation.
@@ -33,7 +33,7 @@ from mind2web_adapter import Mind2WebBenchmark, Task
 
 
 class TodoAIRunner:
-    """Runs Mind2Web tasks through todoai-cli."""
+    """Runs Mind2Web tasks through todoai."""
 
     def __init__(
         self,
@@ -52,14 +52,14 @@ class TodoAIRunner:
         self.output_json = output_json
 
     def build_prompt(self, task: Task) -> str:
-        """Build the prompt to send to todoai-cli."""
+        """Build the prompt to send to todoai."""
         return task.description
 
     def run_task(self, task: Task) -> Dict[str, Any]:
-        """Run a single task through todoai-cli."""
+        """Run a single task through todoai."""
         prompt = self.build_prompt(task)
 
-        cmd = ["todoai-cli"]
+        cmd = ["todoai"]
 
         if self.project:
             cmd.extend(["-p", self.project])
@@ -181,7 +181,7 @@ class TodoAIRunner:
 
         stats = {"success": 0, "failure": 0, "error": 0}
 
-        print(f"Running {len(tasks)} tasks through todoai-cli...")
+        print(f"Running {len(tasks)} tasks through todoai...")
 
         for i, task in enumerate(tasks):
             print(f"\n[{i+1}/{len(tasks)}]", end=" ")
@@ -206,15 +206,15 @@ class TodoAIRunner:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Run Mind2Web benchmark through todoai-cli"
+        description="Run Mind2Web benchmark through todoai"
     )
     parser.add_argument(
         "--project", "-p",
-        help="Project ID for todoai-cli"
+        help="Project ID for todoai"
     )
     parser.add_argument(
         "--agent", "-a",
-        help="Agent name for todoai-cli"
+        help="Agent name for todoai"
     )
     parser.add_argument(
         "--limit", "-n",

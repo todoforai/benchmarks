@@ -121,9 +121,9 @@ List tasks in the dataset:
 tb list-tasks --dataset "terminal-bench-core==0.1.1"
 ```
 
-## Rebuilding Wheels
+## Rebuilding Dist
 
-The adapter ships pre-built wheels for `todoai-cli` and `todoforai-edge-cli` in `todoforai_tbench/wheels/`. These are copied into Docker containers during task setup.
+The adapter ships pre-built JS bundles for `todoai` and `todoforai-edge` in `todoforai_tbench/dist/`. These are copied into Docker containers during task setup.
 
 After modifying either package, rebuild:
 
@@ -131,18 +131,18 @@ After modifying either package, rebuild:
 ./scripts/rebuild_wheels.sh
 ```
 
-This builds wheels from the monorepo source (`../../todoai-cli` and `../../edge`) and places them in `todoforai_tbench/wheels/`.
+This bundles from the monorepo source (`../../cli` and `../../edge/bun`) and places them in `todoforai_tbench/dist/`.
 
-Override source paths with `TODOAI_CLI_DIR` and `EDGE_DIR` env vars.
+Override source paths with `CLI_DIR` and `EDGE_DIR` env vars.
 
 ## How It Works
 
 1. Terminal-bench spins up a Docker container for each task
-2. The adapter copies wheels into the container and runs `install.sh`
-3. `install.sh` creates a venv, installs the wheels (or falls back to PyPI)
-4. The task instruction is piped into `todoai-cli --print --dangerously-skip-permissions`
-5. `todoai-cli` creates a TODO, starts an embedded edge, and streams output
-6. The edge executes shell commands and file operations inside the container
+2. The adapter copies dist files into the container and runs `install.sh`
+3. `install.sh` installs bun, then installs `todoai` and `todoforai-edge` (from dist or npm)
+4. `todoforai-edge --path /app` is started in the background
+5. The task instruction is piped into `todoai --non-interactive --dangerously-skip-permissions`
+6. `todoai` creates a TODO and streams output; the edge executes blocks inside the container
 7. Terminal-bench runs pytest to verify the task was completed correctly
 
 ## Troubleshooting
@@ -155,7 +155,7 @@ Override source paths with `TODOAI_CLI_DIR` and `EDGE_DIR` env vars.
 
 **Agent only runs one turn** — Complex tasks may need multiple LLM turns. The CLI's idle timeout is 60s; if the backend doesn't produce a second turn within that window, the CLI exits. This is typically a backend/agent-side issue.
 
-**Wheel changes not taking effect** — Run `./scripts/rebuild_wheels.sh` after modifying `todoai-cli` or `edge`. The old wheels in `todoforai_tbench/wheels/` are what gets installed in containers.
+**Dist changes not taking effect** — Run `./scripts/rebuild_wheels.sh` after modifying `cli` or `edge`. The bundles in `todoforai_tbench/dist/` are what gets installed in containers.
 
 ## Development
 
