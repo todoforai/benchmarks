@@ -20,12 +20,18 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         return Path(__file__).parent / "install-todoforai.sh.j2"
 
     def create_run_agent_commands(self, instruction: str) -> list[ExecInput]:
+        api_key = os.environ.get("TODOFORAI_API_KEY", "")
+        api_url = os.environ.get("TODOFORAI_API_URL", "")
+        edge_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
+        if api_url:
+            edge_flags += f" --api-url {shlex.quote(api_url)}"
+        todoai_flags = f" --api-url {shlex.quote(api_url)}" if api_url else ""
         return [
             ExecInput(
                 command=(
                     'export PATH="$HOME/.bun/bin:$PATH" && '
-                    "todoforai-edge --path /app & sleep 2 && "
-                    f"echo {shlex.quote(instruction)} | todoai --non-interactive --dangerously-skip-permissions --path /app"
+                    f"todoforai-edge --path /app{edge_flags} & sleep 2 && "
+                    f"echo {shlex.quote(instruction)} | todoai --non-interactive --dangerously-skip-permissions --path /app{todoai_flags}"
                 ),
                 timeout_sec=660,
             ),
