@@ -32,7 +32,13 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
             env={"DEBIAN_FRONTEND": "noninteractive"},
         )
 
+    # Stable machine-id so the edge registers as the same device every run
+    MACHINE_ID = "todoforai-terminal-bench-00000000000000000000"
+
     async def setup(self, environment: BaseEnvironment) -> None:
+        await environment.exec(
+            command=f"echo {self.MACHINE_ID} > /etc/machine-id", user="root",
+        )
         dist_dir = Path(__file__).parent / "dist"
         if dist_dir.is_dir():
             await environment.exec(command="mkdir -p /installed-agent/dist")
