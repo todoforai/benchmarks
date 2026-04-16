@@ -1,23 +1,31 @@
 # Terminal-Bench — Where We Left Off
 
-## Status: First run attempt — `install` abstract method missing
+## Status: First successful trial — agent runs but reward=0.0
 
-Harbor agent adapter simplified, but hit runtime error:
-```
-TypeError: Can't instantiate abstract class TODOforAIHarborAgent without an implementation for abstract method 'install'
-```
+The Harbor adapter is fully functional. First trial completed without exceptions,
+but the agent didn't produce the expected output files (reward=0.0, 6/6 tests failed).
+
+## What was fixed
+
+1. **Added `install()` method** to `harbor_agent.py` — uploads and runs the install script
+2. **Installed Docker Compose plugin** — was missing (`docker compose` subcommand not found)
+3. **Fixed install script** — bun/node/todoai/edge now symlinked to `/usr/local/bin` so agent user can find them
+4. **Fixed edge CLI flags** — `--path` → `--add-path` (edge doesn't accept `--path`)
+5. **Added `--api-key` to todoai CLI** — without it, todoai opens browser auth prompt
+6. **Updated tests** — removed stale key-pool tests, added install method tests
 
 ## What needs to happen next
 
-1. **Add `install()` method** to `harbor_agent.py` — the `BaseInstalledAgent` requires it.
-   The install script template (`install-todoforai.sh.j2`) is already there, just need to wire it up:
-   ```python
-   async def install(self, environment: BaseEnvironment) -> None:
-       await self.exec_as_root(environment, command="bash /installed-agent/install-todoforai.sh")
-   ```
-   Or check how other Harbor agents implement `install()` — it may need to render the `.j2` template first.
+1. **Debug why agent produces no output** — the todoai CLI ran for ~4min but created no files in `/app/`.
+   Possible causes:
+   - Edge might not be connecting properly (check if WebSocket connects to API)
+   - todoai might be waiting for something or erroring silently
+   - The agent might be working in wrong directory
+   
+   To debug, add `--debug` flag to both edge and todoai in `harbor_agent.py:run()`,
+   or check the todo on the web UI to see what happened.
 
-2. **Run the first test**:
+2. **Run again with more visibility**:
    ```bash
    export TODOFORAI_API_KEY=$(python3 -c "import json; print(json.load(open('$HOME/.todoforai/credentials.json'))['https://api.todofor.ai'])")
    cd ~/repo/todoforai/benchmarks/terminal-bench
@@ -25,29 +33,34 @@ TypeError: Can't instantiate abstract class TODOforAIHarborAgent without an impl
      -d "terminal-bench/terminal-bench-2" \
      --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
      -i "terminal-bench/openssl-selfsigned-cert" \
-     --yes
+     --yes --debug -n 1
    ```
 
-3. **Docker permission** — `sudo -E` needed because user not yet in docker group (relogin needed).
+3. **Check the last trial results**:
+   ```
+   jobs/2026-04-16__13-24-08/openssl-selfsigned-cert__vzc3YEN/
+   ```
 
-## What was done
+## Last trial timeline
 
-- Simplified `harbor_agent.py`: removed key pool, dotenv, project flag, env handling
-- API key comes from `TODOFORAI_API_KEY` env var (read from `~/.todoforai/credentials.json` on host)
-- Edge gets `--api-key` flag, no other env vars needed
-- Installed Harbor (`uv tool install harbor`) + adapter (`pip install -e .`) + Docker
+| Phase | Duration |
+|-------|----------|
+| Environment setup | ~5s |
+| Agent setup (install) | ~8s |
+| Agent execution | ~4min |
+| Verifier | ~5s |
 
 ## Relevant paths
 
 | What | Path |
 |------|------|
-| **This adapter** | `benchmarks/terminal-bench/todoforai_tbench/harbor_agent.py` |
+| **Harbor adapter** | `benchmarks/terminal-bench/todoforai_tbench/harbor_agent.py` |
 | **Install script** | `benchmarks/terminal-bench/todoforai_tbench/install-todoforai.sh.j2` |
-| **Legacy agent (tb CLI)** | `benchmarks/terminal-bench/todoforai_tbench/agent.py` |
+| **Tests** | `benchmarks/terminal-bench/tests/test_harbor_agent.py` |
 | **Edge source** | `edge/bun/src/edge.ts` |
+| **Edge config** | `edge/bun/src/config.ts` |
 | **CLI source** | `cli/src/index.ts` |
-| **Edge credentials** | `~/.todoforai/credentials.json` |
 | **Harbor binary** | `~/.todoforai/tools/venv/bin/harbor` |
+| **Credentials** | `~/.todoforai/credentials.json` |
 
 All paths relative to `~/repo/todoforai/` monorepo root.
-Work was done from `~/repo/todoforai/browser-extension/` but the adapter lives in `~/repo/todoforai/benchmarks/terminal-bench/`.

@@ -3,17 +3,30 @@ set -e
 
 echo "=== Installing TODOforAI for Terminal-Bench ==="
 
-# Install bun
+# Compiled bun binaries (preferred — no runtime deps needed)
+if [ -f /installed-agent/dist/todoai ] && [ -f /installed-agent/dist/todoforai-edge ]; then
+  echo "Installing from compiled binaries..."
+  cp /installed-agent/dist/todoai /usr/local/bin/todoai
+  cp /installed-agent/dist/todoforai-edge /usr/local/bin/todoforai-edge
+  chmod +x /usr/local/bin/todoai /usr/local/bin/todoforai-edge
+  echo "=== TODOforAI installation complete ==="
+  todoai --help 2>&1 | head -3 || true
+  exit 0
+fi
+
+# Fallback: install bun + npm packages
 apt-get update -qq
 apt-get install -y -qq curl unzip
+
 curl -fsSL https://bun.sh/install | bash
 export PATH="$HOME/.bun/bin:$PATH"
-echo 'export PATH="$HOME/.bun/bin:$PATH"' >> /etc/environment
+ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/bun
+ln -sf "$HOME/.bun/bin/bunx" /usr/local/bin/bunx
+ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/node
 
-# Install todoai CLI (Bun) and todoforai-edge
-# Use local dist if available (from rebuild_wheels.sh), otherwise npm
+# JS dist files (bun wrappers)
 if [ -f /installed-agent/dist/todoai.js ]; then
-  echo "Installing todoai from local dist..."
+  echo "Installing todoai from local JS dist..."
   mkdir -p /usr/local/lib/todoai
   cp /installed-agent/dist/todoai.js /usr/local/lib/todoai/todoai.js
   chmod +x /usr/local/lib/todoai/todoai.js
@@ -22,11 +35,13 @@ if [ -f /installed-agent/dist/todoai.js ]; then
 else
   echo "Installing @todoforai/cli from npm..."
   bun add -g @todoforai/cli
+  for f in "$HOME/.bun/bin/todoai"*; do
+    [ -f "$f" ] && ln -sf "$f" /usr/local/bin/"$(basename "$f")"
+  done
 fi
 
-# Install todoforai-edge (node-compatible, runs with node or bun)
 if [ -f /installed-agent/dist/todoforai-edge.js ]; then
-  echo "Installing todoforai-edge from local dist..."
+  echo "Installing todoforai-edge from local JS dist..."
   mkdir -p /usr/local/lib/todoforai-edge
   cp /installed-agent/dist/todoforai-edge.js /usr/local/lib/todoforai-edge/index.js
   printf '#!/bin/bash\nexec bun /usr/local/lib/todoforai-edge/index.js "$@"\n' > /usr/local/bin/todoforai-edge
@@ -34,7 +49,13 @@ if [ -f /installed-agent/dist/todoforai-edge.js ]; then
 else
   echo "Installing @todoforai/edge from npm..."
   bun add -g @todoforai/edge
+  for f in "$HOME/.bun/bin/todoforai-edge"*; do
+    [ -f "$f" ] && ln -sf "$f" /usr/local/bin/"$(basename "$f")"
+  done
 fi
 
 echo "=== TODOforAI installation complete ==="
-todoai --help 2>&1 | head -3 || true
+echo "Verifying installation..."
+which bun && bun --version
+which todoai && todoai --help 2>&1 | head -3 || true
+which todoforai-edge || true

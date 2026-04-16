@@ -23,6 +23,15 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
     def populate_context_post_run(self, context: AgentContext) -> None:
         pass
 
+    async def install(self, environment: BaseEnvironment) -> None:
+        install_script = Path(__file__).parent / "install-todoforai.sh.j2"
+        await environment.upload_file(source_path=install_script, target_path="/installed-agent/install-todoforai.sh")
+        await self.exec_as_root(
+            environment,
+            command="bash /installed-agent/install-todoforai.sh",
+            env={"DEBIAN_FRONTEND": "noninteractive"},
+        )
+
     async def setup(self, environment: BaseEnvironment) -> None:
         dist_dir = Path(__file__).parent / "dist"
         if dist_dir.is_dir():
@@ -39,13 +48,15 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         edge_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
         if api_url:
             edge_flags += f" --api-url {shlex.quote(api_url)}"
-        todoai_flags = f" --api-url {shlex.quote(api_url)}" if api_url else ""
+        edge_flags += " --add-path /app"
+        todoai_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
+        if api_url:
+            todoai_flags += f" --api-url {shlex.quote(api_url)}"
 
         await self.exec_as_agent(
             environment,
             command=(
-                'export PATH="$HOME/.bun/bin:$PATH" && '
-                f"todoforai-edge --path /app{edge_flags} & sleep 2 && "
+                f"todoforai-edge{edge_flags} & sleep 5 && "
                 f"echo {shlex.quote(instruction)} | todoai --non-interactive --dangerously-skip-permissions --path /app{todoai_flags}"
             ),
         )
