@@ -104,7 +104,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
                 block=False,
             ),
             TerminalCommand(
-                command=f"sleep 2 && echo {escaped} | todoai --non-interactive --dangerously-skip-permissions --agent Agent --path /app{url_flag}{project_flag}",
+                command=f"sleep 2 && echo {escaped} | todoai --non-interactive --allow-all --agent Agent --path /app{url_flag}{project_flag}",
                 max_timeout_sec=660.0,
                 block=True,
             ),

@@ -141,7 +141,7 @@ Override source paths with `CLI_DIR` and `EDGE_DIR` env vars.
 2. The adapter copies dist files into the container and runs `install.sh`
 3. `install.sh` installs bun, then installs `todoai` and `todoforai-edge` (from dist or npm)
 4. `todoforai-edge --path /app` is started in the background
-5. The task instruction is piped into `todoai --non-interactive --dangerously-skip-permissions`
+5. The task instruction is piped into `todoai --non-interactive --allow-all`
 6. `todoai` creates a TODO and streams output; the edge executes blocks inside the container
 7. Terminal-bench runs pytest to verify the task was completed correctly
 

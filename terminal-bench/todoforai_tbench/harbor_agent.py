@@ -63,6 +63,6 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
             environment,
             command=(
                 f"todoforai-edge{edge_flags} & sleep 5 && "
-                f"echo {shlex.quote(instruction)} | todoai --non-interactive --dangerously-skip-permissions --path /app{todoai_flags}"
+                f"echo {shlex.quote(instruction)} | todoai --non-interactive --allow-all --path /app{todoai_flags}"
             ),
         )
