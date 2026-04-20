@@ -1,9 +1,26 @@
 # Terminal-Bench — Where We Left Off
 
-## Status: First successful trial — 5/6 tests passed (reward=0.0 due to 1 fail)
+## Status: Adapter fully working — 5/6 tests pass, stable machine-id added
 
 Harbor adapter fully working. Compiled bun binaries solved the `ws` WebSocket
-compatibility issue. Agent completes tasks in ~30s.
+compatibility issue. Agent completes tasks in ~30s. No more `sudo -E` needed
+(docker group membership active after reboot).
+
+## Latest fix (needs verification run)
+
+Added stable `/etc/machine-id` in `setup()` so the edge registers as the **same**
+device across runs (no more new `PC_XXXX` per run). All stale edges + stale "app"
+agent were deleted via API — next run starts clean.
+
+```python
+MACHINE_ID = "todoforai-terminal-bench-00000000000000000000"
+
+async def setup(self, environment: BaseEnvironment) -> None:
+    await environment.exec(
+        command=f"echo {self.MACHINE_ID} > /etc/machine-id", user="root",
+    )
+    ...
+```
 
 ## Last trial result (openssl-selfsigned-cert)
 
@@ -40,24 +57,27 @@ cd ~/repo/todoforai/cli && bun build src/index.ts --compile --outfile dist/todoa
 cp ~/repo/todoforai/edge/bun/dist/todoforai-edge ~/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/dist/
 cp ~/repo/todoforai/cli/dist/todoai ~/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/dist/
 
-# 3. Run benchmark
+# 3. Run benchmark (no sudo needed — user is in docker group)
 export TODOFORAI_API_KEY=0f666800f6e7930136eef8cdbb6ed81ca5707f6ff1be605bbe9820860e588e00
 cd ~/repo/todoforai/benchmarks/terminal-bench
-sudo -E ~/.todoforai/tools/venv/bin/harbor run \
+~/.todoforai/tools/venv/bin/harbor run \
   -d "terminal-bench/terminal-bench-2" \
   --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
   -i "terminal-bench/openssl-selfsigned-cert" \
   --yes -n 1
-```
 
-After reboot, `sudo -E` not needed (user `six` is in `docker` group).
+# Verify only ONE edge registered (machine-id fix works):
+curl -H "x-api-key: $TODOFORAI_API_KEY" https://api.todofor.ai/api/v1/edges
+```
 
 ## What needs to happen next
 
-1. **Run full benchmark** — remove `-i` filter to run all tasks, not just openssl-selfsigned-cert
-2. **Improve agent quality** — the 1 failing test is an agent decision (used `cryptography` lib
-   that isn't installed). Could add system prompt hints or pre-install common pip packages.
-3. **Automate binary rebuild** — add a `scripts/rebuild_binaries.sh` that builds edge + cli
+1. **Verify machine-id fix** — run once, check `GET /api/v1/edges` returns 1 entry.
+   Run again, should still be 1 (same fingerprint → same device).
+2. **Run full benchmark** — remove `-i` filter to run all tasks.
+3. **Improve agent quality** — the 1 failing test is an agent decision (used `cryptography` lib
+   that isn't installed). Could pre-install common pip packages or tune the prompt.
+4. **Automate binary rebuild** — add `scripts/rebuild_binaries.sh`.
 
 ## Relevant paths
 
