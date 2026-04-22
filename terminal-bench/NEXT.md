@@ -88,6 +88,32 @@ nohup ~/.todoforai/tools/venv/bin/harbor run \
 cat jobs/<JOB_DIR>/result.json | jq '.stats'
 ```
 
+## Stop / resume gotchas
+
+- `kill <harbor_pid>` stops the python process. The docker container running the
+  current trial is **usually** killed with it (verified).
+- Trial dirs without `result.json` are half-finished — delete them before
+  `job resume` so the trial reruns cleanly:
+  ```
+  rm -rf jobs/<JOB_DIR>/<trial-without-result.json>
+  harbor job resume -p jobs/<JOB_DIR>
+  ```
+- Long-running stuck tasks (e.g. `path-tracing`, `compile-compcert`) can take
+  15+ minutes. Don't kill too early — check `docker ps` and `docker top` for
+  activity before assuming hang.
+- After a kill, always `docker ps` and `docker rm -f` any leftover containers
+  before starting a new run (stale edges hijack tool calls — see fix #2 above).
+
+## Task flakiness (agent-side, not adapter)
+
+Individual reruns show significant variance on borderline tasks:
+- `protein-assembly`: ❌ then ✅ (bioinformatics ordering)
+- `break-filter-js-from-html`: ❌ then ✅ (XSS bypass)
+- `video-processing`: ❌ then ❌ (frame-detection pixel precision — consistent miss)
+
+Frame-pixel-precision tasks appear to be a systematic weakness; logic/code tasks
+are retry-recoverable.
+
 ## Why `-n 1` (sequential only)
 
 `-n 1` forces **1 trial at a time**. Parallel trials would all register edges
@@ -99,11 +125,15 @@ Not done yet.
 
 ## What needs to happen next
 
-1. **Run full benchmark to completion** — in progress (`2026-04-22__16-17-47`).
-2. **Cleanup stale containers** — implement `teardown()` or verify
-   harbor's `delete: true` actually removes containers.
+1. **Run full benchmark to completion** — in progress (`2026-04-22__16-17-47`),
+   currently ~9/89 done, resuming past `compile-compcert`.
+2. **Auto-cleanup half-finished trial dirs on resume** — harbor doesn't
+   currently rerun a trial dir that exists without `result.json`; adapter or a
+   pre-resume script should `rm -rf` them.
 3. **Per-trial MACHINE_ID** for parallel runs (`-n > 1`).
-4. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
+4. **Retry policy for known-flaky tasks** — add `-k 2` (n-attempts) or a
+   selective rerun of `reward=0.0` trials after the full sweep.
+5. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
    on todo create. Currently the backend stores phantom IDs from client payload.
 
 ## Relevant paths
