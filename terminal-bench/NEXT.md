@@ -88,6 +88,46 @@ nohup ~/.todoforai/tools/venv/bin/harbor run \
 cat jobs/<JOB_DIR>/result.json | jq '.stats'
 ```
 
+## Monitoring a running benchmark
+
+```bash
+# Is harbor still running?
+ps -p <PID> -o pid,etime,cmd
+# Or find it:
+ps aux | grep "harbor (run|job resume)" | grep -v grep
+
+# Which task is currently in the docker container?
+docker ps --format "{{.Names}} | {{.Status}}"
+
+# Progress summary (n done / total, reward counts, trial names):
+cat jobs/<JOB_DIR>/result.json | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+s = d['stats']
+print(f\"Done: {s['n_trials']} / {d['n_total_trials']}\")
+for v in s['evals'].values():
+    for r, t in sorted(v['reward_stats']['reward'].items()):
+        print(f'  reward={r}: {len(t)}')
+        for x in t: print(f'    {x}')
+"
+
+# Which trial dirs exist and whether each finished:
+for d in jobs/<JOB_DIR>/*__*/; do
+  r=$(python3 -c "import json; print(json.load(open('$d/result.json'))['verifier_result']['rewards']['reward'])" 2>/dev/null || echo "PENDING")
+  echo "$(basename $d): $r"
+done
+
+# Why did a trial fail? (verifier pytest output)
+tail -40 jobs/<JOB_DIR>/<trial>/verifier/test-stdout.txt
+
+# Agent side: what did the AI actually do? (chat + tool calls)
+curl -s -H "x-api-key: $TODOFORAI_API_KEY" \
+  "https://api.todofor.ai/api/v1/todos/<TODO_ID>" | python3 -m json.tool
+
+# Only ONE edge registered? (machine-id fix sanity)
+curl -s -H "x-api-key: $TODOFORAI_API_KEY" https://api.todofor.ai/api/v1/edges
+```
+
 ## Stop / resume gotchas
 
 - `kill <harbor_pid>` stops the python process. The docker container running the
