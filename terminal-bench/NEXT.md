@@ -1,6 +1,23 @@
 # Terminal-Bench — Where We Left Off
 
-## Status: 🎉 Reward 1.0 — openssl-selfsigned-cert FULLY PASSES (6/6)
+## Status: 🎉 Full benchmark runs on 89 tasks × 2 models
+
+Adapter stable. Parallel runs (6 keys, `-n 6`) complete in ~1.5–2h per model.
+
+### Latest results (benchmark: `terminal-bench/terminal-bench-2`, 89 tasks)
+
+| Model | Job dir | Pass | Fail | Pass rate |
+|-------|---------|-----:|-----:|----------:|
+| `anthropic:anthropic/claude-opus-4.7` | `jobs/2026-04-22__16-17-47/` | 54 | 35 | **60.7 %** |
+| `anthropic:anthropic/claude-opus-4.6` | `jobs/opus-4.6__2026-04-23__17-37-27/` | 42 | 47 | **47.2 %** |
+
+opus-4.7 beats opus-4.6 by ~13.5 pp on this bench.
+
+Note: the 4.7 run predates `--job-name` convention — use the mtime + `model.json`
+(add one if missing) to attribute runs. Future runs must use `--job-name
+<model>__<timestamp>` so the directory is self-describing.
+
+## Earlier status: openssl-selfsigned-cert passes 6/6
 
 Harbor adapter fully working end-to-end. `--allow-all` now injects `*:*` into
 agent permissions and the backend honors it. Agent completed all 6 openssl
@@ -167,6 +184,145 @@ block on `acquire()` until a key frees up.
 Key sources (priority): `TODOFORAI_API_KEYS` (csv) > `TODOFORAI_API_KEYS_FILE`
 (one key per line, first whitespace token, `#` comments) > `TODOFORAI_API_KEY`.
 
+## Configuring dev accounts (agent settings per API key)
+
+Each API key is a separate account with its own `app` agent (created on first
+run, workspace path `/app`). Configure via REST `/api/v1/*` with `x-api-key`.
+
+**Bootstrap app agents** (must run once per new key so `app` agent exists):
+
+```bash
+cd ~/repo/todoforai/benchmarks/terminal-bench
+unset TODOFORAI_API_KEYS_FILE TODOFORAI_API_KEYS
+while read -r key email; do
+  [ -z "$key" ] && continue
+  echo "=== $email ==="
+  TODOFORAI_API_KEY=$key ~/.todoforai/tools/venv/bin/harbor run \
+    -d "terminal-bench/terminal-bench-2" \
+    --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
+    -i "terminal-bench/openssl-selfsigned-cert" --yes -n 1 \
+    2>&1 | grep -E "Reward|Total runtime" | tail -2
+done < dev_api_keys.txt
+```
+
+**Global deny (cloud tools except webfetch + google_search):**
+
+```bash
+URL="https://api.todofor.ai/api/v1"
+PAYLOAD='{"permissions":{"allow":["todoai_cloud:webfetch","todoai_cloud:google_search"],"ask":[],"deny":["todoai_edge:REVIEW","todoai_cloud:browser_automation","todoai_cloud:intro","todoai_cloud:todoforai_api","todoai_cloud:vault_access","todoai_cloud:business_context","todoai_cloud:image_gen","todoai_cloud:create_todo","todoai_cloud:update_agent_settings"]}}'
+while read -r key email; do
+  [ -z "$key" ] && continue
+  curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
+    -d "$PAYLOAD" "$URL/agents/global" | jq -c '.permissions.deny | length'
+done < dev_api_keys.txt
+```
+
+**Set model on the `app` agent** (per-key):
+
+```bash
+URL="https://api.todofor.ai/api/v1"
+MODEL="anthropic:anthropic/claude-opus-4.6"   # or claude-opus-4.7, etc.
+while read -r key email; do
+  [ -z "$key" ] && continue
+  aid=$(curl -sS -H "x-api-key: $key" "$URL/agents?name=app" | jq -r '.[0].id')
+  curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
+    -d "{\"agentSettingsId\":\"$aid\",\"updates\":{\"model\":\"$MODEL\"}}" \
+    "$URL/agents/$aid/settings" > /dev/null
+  echo "$email: set"
+done < dev_api_keys.txt
+```
+
+Known model identifiers (verified working):
+- `anthropic:anthropic/claude-opus-4.6`
+- `anthropic:anthropic/claude-opus-4.7`
+
+**Note:** `GET /agents?name=app` returns `"model": "claude"` as the default/alias
+when no explicit model is set. Always set an explicit identifier before a
+benchmark run so results are attributable.
+
+**Per-agent systemMessage on the `app` agent** (bench-tuned reflection prompt):
+
+```bash
+URL="https://api.todofor.ai/api/v1"
+MSG="Before you finish go over each statement the user task has requested you to do."
+while read -r key email; do
+  [ -z "$key" ] && continue
+  aid=$(curl -sS -H "x-api-key: $key" "$URL/agents" | jq -r '.[] | select(.name=="app") | .id')
+  [ -z "$aid" ] || [ "$aid" = "null" ] && { echo "$email: no app agent"; continue; }
+  curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
+    -d "{\"agentSettingsId\":\"$aid\",\"updates\":{\"systemMessage\":$(jq -Rn --arg s "$MSG" '$s')}}" \
+    "$URL/agents/$aid/settings" > /dev/null
+  echo "$email: ok"
+done < dev_api_keys.txt
+```
+
+**Verify merged config (what the agent actually sees):**
+
+```bash
+while read -r key email; do
+  [ -z "$key" ] && continue
+  echo "=== $email ==="
+  curl -sS -H "x-api-key: $key" "$URL/agents?name=app" \
+    | jq '.[0] | {systemMessage, permissions: {allow: .permissions.allow, deny: .permissions.deny}}'
+done < dev_api_keys.txt
+```
+
+**Known backend bug:** `GET /api/v1/agents/global` returns 500
+(`Agent settings not found : agentSettingsId global`) because route
+`/agents/{agentSettingsId}` is matched before `/agents/global`. `PUT
+/agents/global` works fine (different path segment count). Verify via
+`GET /agents?name=app` which returns merged view.
+
+Relevant tool keys: `todoai_cloud:*` (browser_automation, intro, todoforai_api,
+vault_access, business_context, image_gen, create_todo, update_agent_settings,
+webfetch, google_search) and `todoai_edge:*` (READ, SEARCH, EXPLORE, REVIEW,
+rclone, WRITE, UPDATE, BASH, CLI_INSTALLER, DOWNLOAD, PLAN).
+
+## Failure categorisation (from 4.7 run, 35 failed / 89)
+
+1. **Infra / task's own `test.sh` broke** — ~4 trials
+   (`dna-assembly`, `merge-diff-arc-agi-task`, `model-extraction-relu-logits`,
+   `adaptive-rejection-sampler`). Each `test.sh` does `apt-get install curl`
+   then `curl https://astral.sh/uv/... | sh`. Two failure modes:
+   - apt-get lock contention against our install script (race)
+   - `releases.astral.sh` TCP timeout (network flake)
+   Not an agent problem. Adapter-side workaround: pre-install `uv` in the base
+   image (or `install-todoforai.sh.j2`) and ensure `apt-get` finishes before
+   signalling ready.
+2. **Agent produced no output file** — ~7 trials
+   (`extract-moves-from-video`, `pytorch-model-recovery`, `regex-chess`,
+   `extract-elf`, `feal-linear-cryptanalysis`, `caffe-cifar-10`,
+   `compile-compcert`). Usually timeout / agent gave up.
+3. **Agent produced wrong output** — ~18 trials (core agent quality).
+   Examples: `chess-best-move` (missed one of two moves), polyglot tasks
+   (extra build artefacts left in output dir — a cleanup prompt would fix),
+   `gpt2-codegolf` (6426 B > 5000 B limit on 4.7, retry produced nothing),
+   `prove-plus-comm` (Coq `Admitted` instead of `Qed`).
+4. **Threshold/performance just under** — 2 trials
+   (`largest-eigenval` 3% slow; `install-windows-3-11` image diff < 10%).
+5. **Crash** — 1 trial (`torch-tensor-parallelism` multiprocessing spawn).
+
+`make-doom-for-mips` / `make-mips-interpreter` consistently fail with
+`TimeoutError: Timeout waiting for frame.bmp`. DOOM on MIPS seems out of reach
+for both 4.6 and 4.7.
+
+## Retry policy finding
+
+Selective rerun on reward=0.0 is **not reliably helpful**. Evidence from the
+5-task retry after the 4.7 sweep:
+
+| Task | 4.7 first run | Retry |
+|------|--------------:|------:|
+| `merge-diff-arc-agi-task` | infra fail | ✅ PASS (infra flake resolved) |
+| `dna-assembly` | infra fail | ❌ different fail (`primers.fasta` missing) |
+| `model-extraction-relu-logits` | infra fail | ❌ matrix mismatch (agent wrong) |
+| `gpt2-codegolf` | ❌ size 6426 > 5000 | ❌ file not even created |
+| `adaptive-rejection-sampler` | infra fail | killed (other test was slow) |
+
+Takeaway: agent runs are **non-deterministic**. Retry helps for infra-flakes,
+rarely for agent-side errors, and can regress (gpt2-codegolf got worse).
+Harbor's built-in `-k N` retries are only worth using if we report best-of-N.
+
 ## What needs to happen next
 
 1. **Set `thinkingLevel` on the benchmark agent** before runs — the API keys
@@ -175,21 +331,53 @@ Key sources (priority): `TODOFORAI_API_KEYS` (csv) > `TODOFORAI_API_KEYS_FILE`
    GPT-5.x) or `xhigh` (Claude Opus 4.7, GPT-5.x) via the Agent Settings UI
    (cog icon next to LLM Model) or API:
    ```bash
-   curl -X PUT -H "x-api-key: $TODOFORAI_API_KEY" \
-     -H "content-type: application/json" \
-     -d '{"agentSettingsId":"<ID>","updates":{"thinkingLevel":"xhigh"}}' \
-     https://api.todofor.ai/api/v1/agents/<ID>/settings
+   URL="https://api.todofor.ai/api/v1"
+   LEVEL="high"
+   while read -r key email; do
+     [ -z "$key" ] && continue
+     aid=$(curl -sS -H "x-api-key: $key" "$URL/agents?name=app" | jq -r '.[0].id')
+     curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
+       -d "{\"agentSettingsId\":\"$aid\",\"updates\":{\"thinkingLevel\":\"$LEVEL\"}}" \
+       "$URL/agents/$aid/settings" > /dev/null
+     echo "$email: set"
+   done < dev_api_keys.txt
    ```
    Backend appends `(level)` to the model string at `prepareForAgent` —
    verify in agent logs that the model id arrives as e.g.
    `claude-opus-4.7(xhigh)`.
-2. **Run full parallel benchmark** with 6 keys, `-n 6`.
-3. **Auto-cleanup half-finished trial dirs on resume** — harbor doesn't
+
+   **Known issue 2026-04-23:** PUT 200 OK but `GET /agents?name=app` and
+   `GET /agents/<id>` both return `thinkingLevel: null` (and the field is
+   missing entirely from `keys`). Either the GET serializer drops it, or the
+   PUT silently no-ops. Verify by checking the agent payload at runtime: the
+   model string should arrive as `claude-opus-4.6(high)`. If not, backend
+   change is needed before relying on this.
+2. **Write `model.json` into each job dir** on start — record `model`,
+   `thinkingLevel`, API-key list, git commit of adapter/CLI/edge.
+   `--job-name <model>__<ts>` is not enough: we want model ID queryable
+   inside the dir. Add to the adapter's `setup()` or a wrapper script.
+3. **`todoai_edge:REVIEW` is now denied globally** (applied to all 6 dev keys
+   2026-04-23). Reasoning: `REVIEW` spawns a sub-agent for evaluation which
+   doesn't help on benchmark tasks (no evaluator in the loop), burns tokens,
+   and can confuse the main agent. Deny payload above includes it.
+4. **Per-run results archive** — `benchmarks/results/` is currently empty and
+   `terminal-bench/jobs/` is gitignored. Decide: do we commit aggregated
+   result summaries (no trial logs) into `results/terminal-bench/<model>.json`
+   for long-term comparison? Leaderboard-like.
+5. **4.6 vs 4.7 model comparison report** — tabulate per-task winner; which
+   tasks did 4.6 pass that 4.7 failed and vice versa. Put in
+   `common/reporting/` as a small script.
+6. **Auto-cleanup half-finished trial dirs on resume** — harbor doesn't
    currently rerun a trial dir that exists without `result.json`; adapter or a
    pre-resume script should `rm -rf` them.
-4. **Retry policy for known-flaky tasks** — add `-k 2` (n-attempts) or a
-   selective rerun of `reward=0.0` trials after the full sweep.
-5. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
+7. **Pre-install `uv` in adapter install script** — would fix ~3-4 infra
+   flakes per run. Task `test.sh` checks `command -v uv` before running the
+   `curl astral.sh` bootstrap? Need to verify. If so, ship `uv` in the
+   container from our side.
+8. **Retry policy for known-flaky tasks** — add `-k 2` (n-attempts) or a
+   selective rerun of `reward=0.0` trials after the full sweep (note: see
+   "Retry policy finding" above — limited value).
+9. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
    on todo create. Currently the backend stores phantom IDs from client payload.
 
 ## Relevant paths
