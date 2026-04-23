@@ -1,0 +1,25 @@
+{
+    "id": "df8f755f-20bf-4bd8-bd7e-a4fd321aa991",
+    "started_at": "2026-04-16T13:32:20.610689",
+    "finished_at": "2026-04-16T13:33:23.560854",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "todoforai__terminal-bench-terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [],
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "openssl-selfsigned-cert__PyNwKB6"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

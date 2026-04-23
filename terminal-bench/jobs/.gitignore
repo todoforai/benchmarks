@@ -1,0 +1,6 @@
+# Override root *.json and *.log ignores for job results
+!*.json
+!*.txt
+
+# But ignore resume/run logs at top level
+*.log

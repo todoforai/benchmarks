@@ -1,0 +1,100 @@
+{
+    "id": "c3ea21f6-801f-4df5-bd82-5fcd660ee354",
+    "task_name": "terminal-bench/make-mips-interpreter",
+    "trial_name": "make-mips-interpreter__VCZwMhj",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/2026-04-22__16-17-47/make-mips-interpreter__VCZwMhj",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "make-mips-interpreter",
+        "ref": "sha256:608e82ecd67ce469824a34181b580cbd0e1096cdfc05fe40edda3e6bfada9773"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "f7e68fab72321eeaf465b53a98a4c3aaf7b66d57a3d3465708a15ed2c9f55f70",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/make-mips-interpreter",
+            "ref": "sha256:608e82ecd67ce469824a34181b580cbd0e1096cdfc05fe40edda3e6bfada9773",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "make-mips-interpreter__VCZwMhj",
+        "trials_dir": "jobs/2026-04-22__16-17-47",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "db73dcf3-27e2-4c66-ae4c-34cfb5dac612"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-04-22T14:17:58.883881Z",
+    "finished_at": "2026-04-22T14:29:53.179414Z",
+    "environment_setup": {
+        "started_at": "2026-04-22T14:17:58.885591Z",
+        "finished_at": "2026-04-22T14:18:16.668490Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-04-22T14:18:16.668524Z",
+        "finished_at": "2026-04-22T14:18:17.697861Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-04-22T14:18:17.698102Z",
+        "finished_at": "2026-04-22T14:29:32.629503Z"
+    },
+    "verifier": {
+        "started_at": "2026-04-22T14:29:32.629628Z",
+        "finished_at": "2026-04-22T14:29:41.848894Z"
+    }
+}

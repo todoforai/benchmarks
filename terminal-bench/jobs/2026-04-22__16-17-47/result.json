@@ -1,0 +1,64 @@
+{
+    "id": "db73dcf3-27e2-4c66-ae4c-34cfb5dac612",
+    "started_at": "2026-04-23T08:23:33.796812",
+    "finished_at": null,
+    "n_total_trials": 89,
+    "stats": {
+        "n_trials": 28,
+        "n_errors": 2,
+        "evals": {
+            "todoforai__terminal-bench-terminal-bench-2": {
+                "n_trials": 28,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.6071428571428571
+                    }
+                ],
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "circuit-fibsqrt__u3sjKoT",
+                            "overfull-hbox__GMZbifC",
+                            "crack-7z-hash__4mGwJLd",
+                            "path-tracing__HFjrfSe",
+                            "vulnerable-secret__h7XpNMT",
+                            "make-mips-interpreter__VCZwMhj",
+                            "openssl-selfsigned-cert__ATjNo7k",
+                            "log-summary-date-ranges__bMYksFa",
+                            "distribution-search__WdkCaMS",
+                            "build-pov-ray__HReYvGq",
+                            "dna-insert__MNSK838",
+                            "cancel-async-tasks__Pq6ek8z",
+                            "rstan-to-pystan__aTvt3Ri",
+                            "git-leak-recovery__LDBcdhv",
+                            "headless-terminal__VMxbzuu",
+                            "constraints-scheduling__tsc7dAM",
+                            "winning-avg-corewars__3M3xELJ"
+                        ],
+                        "0.0": [
+                            "caffe-cifar-10__CMpY6SA",
+                            "dna-assembly__VFkQmiY",
+                            "protein-assembly__x6qs6hL",
+                            "polyglot-rust-c__VL8KjsX",
+                            "video-processing__8EFiMdk",
+                            "compile-compcert__M7cFRn8",
+                            "break-filter-js-from-html__dp4CVXE",
+                            "feal-linear-cryptanalysis__pbmCVZo",
+                            "install-windows-3-11__aXeptmi",
+                            "db-wal-recovery__jMHN3DG",
+                            "extract-elf__N2XJ9Jb"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "path-tracing__HFjrfSe",
+                        "compile-compcert__M7cFRn8"
+                    ]
+                }
+            }
+        }
+    },
+    "trial_results": []
+}

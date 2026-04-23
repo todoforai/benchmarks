@@ -1,0 +1,25 @@
+{
+    "id": "fee051c0-9845-4577-94c8-6c27452523ce",
+    "started_at": "2026-04-22T15:55:53.660114",
+    "finished_at": "2026-04-22T15:57:12.910384",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "todoforai__terminal-bench-terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [],
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "openssl-selfsigned-cert__GAufHau"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

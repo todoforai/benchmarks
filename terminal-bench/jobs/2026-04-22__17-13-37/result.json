@@ -1,0 +1,25 @@
+{
+    "id": "21aaf6aa-a5d1-4b87-a5a1-feb0b28ce186",
+    "started_at": "2026-04-22T17:13:41.323479",
+    "finished_at": "2026-04-22T18:01:38.740056",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "todoforai__terminal-bench-terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [],
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video-processing__mBeRCei"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

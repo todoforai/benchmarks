@@ -39,6 +39,15 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         await environment.exec(
             command=f"echo {self.MACHINE_ID} > /etc/machine-id", user="root",
         )
+        # Prevent apt/dpkg from blocking on debconf prompts (e.g. tzdata) in agent shells.
+        # /etc/environment for login shells; /root/.bashrc for interactive non-login bash -c.
+        await environment.exec(
+            command=(
+                "echo 'DEBIAN_FRONTEND=noninteractive' >> /etc/environment && "
+                "echo 'export DEBIAN_FRONTEND=noninteractive' >> /root/.bashrc"
+            ),
+            user="root",
+        )
         dist_dir = Path(__file__).parent / "dist"
         if dist_dir.is_dir():
             await environment.exec(command="mkdir -p /installed-agent/dist")
@@ -59,10 +68,25 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         if api_url:
             todoai_flags += f" --api-url {shlex.quote(api_url)}"
 
-        await self.exec_as_agent(
-            environment,
-            command=(
-                f"todoforai-edge{edge_flags} & sleep 5 && "
-                f"echo {shlex.quote(instruction)} | todoai --non-interactive --allow-all --path /app{todoai_flags}"
-            ),
-        )
+        try:
+            await self.exec_as_agent(
+                environment,
+                command=(
+                    f"todoforai-edge{edge_flags} & sleep 5 && "
+                    f"echo {shlex.quote(instruction)} | todoai --non-interactive --allow-all --path /app{todoai_flags}"
+                ),
+            )
+        finally:
+            # Kill leftover processes (edge, background apt-get from agent) so they
+            # don't hold the dpkg lock or hijack tool calls for the next trial.
+            # Runs even on agent timeout.
+            await environment.exec(
+                command=(
+                    "pkill -9 -f todoforai-edge 2>/dev/null; "
+                    "pkill -9 -f todoai 2>/dev/null; "
+                    "pkill -9 -f 'apt-get|^apt |dpkg' 2>/dev/null; "
+                    "timeout 30 sh -c 'while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done'; "
+                    "true"
+                ),
+                user="root",
+            )
