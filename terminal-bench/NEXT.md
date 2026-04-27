@@ -169,13 +169,27 @@ Key sources (priority): `TODOFORAI_API_KEYS` (csv) > `TODOFORAI_API_KEYS_FILE`
 
 ## What needs to happen next
 
-1. **Run full parallel benchmark** with 6 keys, `-n 6`.
-2. **Auto-cleanup half-finished trial dirs on resume** — harbor doesn't
+1. **Set `thinkingLevel` on the benchmark agent** before runs — the API keys
+   (`dev_api_keys.txt`) point at user agents whose `thinkingLevel` defaults to
+   none. For competitive benchmark runs set it to `high` (Claude Sonnet/Opus,
+   GPT-5.x) or `xhigh` (Claude Opus 4.7, GPT-5.x) via the Agent Settings UI
+   (cog icon next to LLM Model) or API:
+   ```bash
+   curl -X PUT -H "x-api-key: $TODOFORAI_API_KEY" \
+     -H "content-type: application/json" \
+     -d '{"agentSettingsId":"<ID>","updates":{"thinkingLevel":"xhigh"}}' \
+     https://api.todofor.ai/api/v1/agents/<ID>/settings
+   ```
+   Backend appends `(level)` to the model string at `prepareForAgent` —
+   verify in agent logs that the model id arrives as e.g.
+   `claude-opus-4.7(xhigh)`.
+2. **Run full parallel benchmark** with 6 keys, `-n 6`.
+3. **Auto-cleanup half-finished trial dirs on resume** — harbor doesn't
    currently rerun a trial dir that exists without `result.json`; adapter or a
    pre-resume script should `rm -rf` them.
-3. **Retry policy for known-flaky tasks** — add `-k 2` (n-attempts) or a
+4. **Retry policy for known-flaky tasks** — add `-k 2` (n-attempts) or a
    selective rerun of `reward=0.0` trials after the full sweep.
-4. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
+5. **Backend hardening (separate concern):** reject unknown `agentSettings.id`
    on todo create. Currently the backend stores phantom IDs from client payload.
 
 ## Relevant paths
