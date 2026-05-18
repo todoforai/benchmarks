@@ -1,0 +1,42 @@
+{
+    "id": "bb37e35f-df71-4e55-98b0-3920fc84cb58",
+    "started_at": "2026-04-28T16:53:41.868610",
+    "finished_at": "2026-04-28T17:24:16.170221",
+    "n_total_trials": 6,
+    "stats": {
+        "n_trials": 6,
+        "n_errors": 2,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 6,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.16666666666666666
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "dna-assembly__VLVJeGB",
+                            "model-extraction-relu-logits__7Y3CZkF",
+                            "polyglot-c-py__bG4q2G8",
+                            "adaptive-rejection-sampler__WmHDCtL",
+                            "gpt2-codegolf__zZKwXR2"
+                        ],
+                        "1.0": [
+                            "merge-diff-arc-agi-task__QSyzRdb"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "dna-assembly__VLVJeGB",
+                        "gpt2-codegolf__zZKwXR2"
+                    ]
+                }
+            }
+        }
+    }
+}

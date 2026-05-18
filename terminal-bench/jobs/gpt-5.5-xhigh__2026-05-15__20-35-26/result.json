@@ -1,0 +1,30 @@
+{
+    "id": "593910a7-7348-410c-a11c-f94665ae09f5",
+    "started_at": "2026-05-15T20:35:29.292170",
+    "finished_at": "2026-05-15T20:44:55.201327",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "adaptive-rejection-sampler__vTmPPew"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

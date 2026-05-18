@@ -1,0 +1,107 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 9,
+            "passed": 7,
+            "failed": 2,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1776952851.7772918,
+            "stop": 1776953135.304293
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_python_file_exists",
+                "status": "passed",
+                "duration": 0.0004085500004293863,
+                "start": 1776952853.1397808,
+                "stop": 1776952853.1403596,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_run_script",
+                "status": "passed",
+                "duration": 282.0414362870015,
+                "start": 1776952853.1405015,
+                "stop": 1776953135.1822288,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_csv_output_exists",
+                "status": "passed",
+                "duration": 0.0005178829978831345,
+                "start": 1776953135.1825655,
+                "stop": 1776953135.1832666,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_csv_shape_cols",
+                "status": "passed",
+                "duration": 0.0034394409995002206,
+                "start": 1776953135.1834614,
+                "stop": 1776953135.1870384,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_masks_are_no_longer_rect",
+                "status": "passed",
+                "duration": 0.008440442001301562,
+                "start": 1776953135.1871793,
+                "stop": 1776953135.195769,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_mask_alignment",
+                "status": "passed",
+                "duration": 0.02497487400069076,
+                "start": 1776953135.1959236,
+                "stop": 1776953135.2210596,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_no_polyline_overlaps",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.011301422999167698,
+                "start": 1776953135.221234,
+                "stop": 1776953135.2895184,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_no_polyline_overlaps():\n        \"\"\"\n        Checks that there are no significant overlaps between any of the predicted masks.\n        \"\"\"\n        df = _read_polylines_csv(\"/app/test_output.csv\")\n        polygons = []\n        for index, row in df.iterrows():\n            points = list(zip(row['coords_x'], row['coords_y']))\n            poly = _as_polygon(points)\n            if poly:\n                polygons.append(poly)\n    \n        # Check for overlaps between all pairs of polygons\n        for poly1, poly2 in itertools.combinations(polygons, 2):\n            if poly1.intersects(poly2):\n                intersection_area = poly1.intersection(poly2).area\n                # Fail if intersection area is more than a tiny fraction of either polygon's\n                # area this avoids failures due to simple touching boundaries\n                assert intersection_area / poly1.area < 1e-3, (\"Polygons \"\n                                                               \"overlap significantly\")\n>               assert intersection_area / poly2.area < 1e-3, (\"Polygons \"\n                                                               \"overlap significantly\")\nE               AssertionError: Polygons overlap significantly\nE               assert (1.8791874791874363 / 687.0) < 0.001\nE                +  where 687.0 = <MULTIPOLYGON (((288 129, 289 126, 288 128, 288 129)), ((278 133, 275 133, 2...>.area\n\n/tests/test_outputs.py:243: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_single_contiguous_mask_per_cell",
+                "status": "passed",
+                "duration": 0.00897951099977945,
+                "start": 1776953135.2896972,
+                "stop": 1776953135.298816,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_coords_are_flat_lists",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0013854700009687804,
+                "start": 1776953135.2989633,
+                "stop": 1776953135.3041618,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_coords_are_flat_lists():\n        \"\"\"\n        Checks that 'coords_x' and 'coords_y' columns contain flat lists of numbers,\n        allowing for them to be stored as strings.\n        \"\"\"\n        df = pd.read_csv(\"/app/test_output.csv\")\n        for col in ['coords_x', 'coords_y']:\n            for index, value in df[col].items():\n                parsed_value = None\n                if isinstance(value, str):\n                    try:\n                        # Use ast.literal_eval for safe evaluation of string\n                        parsed_value = ast.literal_eval(value)\n                    except (ValueError, SyntaxError):\n                        assert False, (f\"Row {index}, column '{col}': \"\n                                       f\"could not parse string.\")\n                elif isinstance(value, (list, np.ndarray)):\n                    parsed_value = value\n                else:\n                    assert False, (f\"Row {index}, column '{col}': value is\"\n                                   f\" not a list or string (got {type(value)}).\")\n    \n>               assert isinstance(parsed_value, list), \\\n                    (f\"Row {index}, column '{col}': parsed value is \"\n                     f\"not a list (got {type(parsed_value)}).\")\nE               AssertionError: Row 0, column 'coords_x': parsed value is not a list (got <class 'tuple'>).\nE               assert False\nE                +  where False = isinstance((69, 67, 70, 74, 71, 74, ...), list)\n\n/tests/test_outputs.py:280: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            }
+        ]
+    }
+}

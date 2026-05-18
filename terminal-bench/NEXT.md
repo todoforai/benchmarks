@@ -209,7 +209,7 @@ done < dev_api_keys.txt
 
 ```bash
 URL="https://api.todofor.ai/api/v1"
-PAYLOAD='{"permissions":{"allow":["todoai_cloud:webfetch","todoai_cloud:google_search"],"ask":[],"deny":["todoai_edge:REVIEW","todoai_cloud:browser_automation","todoai_cloud:intro","todoai_cloud:todoforai_api","todoai_cloud:vault_access","todoai_cloud:business_context","todoai_cloud:image_gen","todoai_cloud:create_todo","todoai_cloud:update_agent_settings"]}}'
+PAYLOAD='{"permissions":{"allow":["todoai_cloud:webfetch","todoai_cloud:google_search"],"ask":[],"deny":["todoai_edge:REVIEW","todoai_cloud:browser_automation","todoai_cloud:intro","todoai_cloud:todoforai_api","todoai_cloud:vault_access","todoai_cloud:business_context","todoai_cloud:image_gen","todoai_cloud:create_todo","todoai_cloud:update_agent_settings","todoai_cloud:skill"]}}'
 while read -r key email; do
   [ -z "$key" ] && continue
   curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \

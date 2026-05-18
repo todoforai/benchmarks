@@ -1,0 +1,42 @@
+{
+    "id": "4206d3fa-5a52-4534-be7d-703187352552",
+    "started_at": "2026-05-18T15:30:53.384495",
+    "finished_at": null,
+    "n_total_trials": 20,
+    "stats": {
+        "n_trials": 9,
+        "n_errors": 6,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 3,
+                "n_errors": 6,
+                "metrics": [
+                    {
+                        "mean": 0.3333333333333333
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "distribution-search__CZEPqJK",
+                            "crack-7z-hash__z3SXgnd",
+                            "feal-linear-cryptanalysis__9dxRyLw"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "CancelledError": [
+                        "dna-insert__UkAbJZ5",
+                        "dna-assembly__Ed3Cana",
+                        "constraints-scheduling__wNg552d",
+                        "extract-elf__Toajubv",
+                        "db-wal-recovery__GtrZFcV",
+                        "compile-compcert__sDwgCNB"
+                    ]
+                }
+            }
+        }
+    },
+    "trial_results": []
+}

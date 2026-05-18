@@ -1,0 +1,101 @@
+{
+    "id": "d57ac37b-f3a8-458d-809a-b99d8e5cc311",
+    "task_name": "terminal-bench/caffe-cifar-10",
+    "trial_name": "caffe-cifar-10__dtFXo9g",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/opus-4.6__2026-04-23__17-37-27/caffe-cifar-10__dtFXo9g",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "caffe-cifar-10",
+        "ref": "sha256:d41ec2d7249c3142f0db4f80b04a41c7e8fad1688c78ba3f5e09a7d6671d2697"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "53cce4d1ba6ad3f5c72c8b2652302d9123a026f74a74304b043db7b383ff3e27",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/caffe-cifar-10",
+            "ref": "sha256:d41ec2d7249c3142f0db4f80b04a41c7e8fad1688c78ba3f5e09a7d6671d2697",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "caffe-cifar-10__dtFXo9g",
+        "trials_dir": "jobs/opus-4.6__2026-04-23__17-37-27",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "596475c1-78fa-4385-8117-641f0dee6596"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-04-23T15:51:15.477200Z",
+    "finished_at": "2026-04-23T16:11:16.258275Z",
+    "environment_setup": {
+        "started_at": "2026-04-23T15:51:15.478130Z",
+        "finished_at": "2026-04-23T15:51:27.352029Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-04-23T15:51:27.352043Z",
+        "finished_at": "2026-04-23T15:51:29.051318Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-04-23T15:51:29.051381Z",
+        "finished_at": "2026-04-23T16:10:48.917290Z"
+    },
+    "verifier": {
+        "started_at": "2026-04-23T16:10:56.418219Z",
+        "finished_at": "2026-04-23T16:11:03.305248Z"
+    }
+}

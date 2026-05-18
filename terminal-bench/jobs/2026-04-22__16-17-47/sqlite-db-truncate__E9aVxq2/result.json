@@ -1,0 +1,101 @@
+{
+    "id": "727f0a3a-a000-4b45-b510-11d49d9546b7",
+    "task_name": "terminal-bench/sqlite-db-truncate",
+    "trial_name": "sqlite-db-truncate__E9aVxq2",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/2026-04-22__16-17-47/sqlite-db-truncate__E9aVxq2",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "sqlite-db-truncate",
+        "ref": "sha256:35f3ced08035d07527d186bdcfd668bb36fbd8996acf02457e08bfa2e0ce40b6"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "37c4af7bad7a988b4060314d37b015e11c2582c5cb23a8fc120f646537c50a46",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/sqlite-db-truncate",
+            "ref": "sha256:35f3ced08035d07527d186bdcfd668bb36fbd8996acf02457e08bfa2e0ce40b6",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "sqlite-db-truncate__E9aVxq2",
+        "trials_dir": "jobs/2026-04-22__16-17-47",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "db73dcf3-27e2-4c66-ae4c-34cfb5dac612"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-04-23T14:00:01.322203Z",
+    "finished_at": "2026-04-23T14:01:41.880949Z",
+    "environment_setup": {
+        "started_at": "2026-04-23T14:00:01.322933Z",
+        "finished_at": "2026-04-23T14:00:19.671310Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-04-23T14:00:19.671325Z",
+        "finished_at": "2026-04-23T14:00:21.499757Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-04-23T14:00:21.499814Z",
+        "finished_at": "2026-04-23T14:01:22.745643Z"
+    },
+    "verifier": {
+        "started_at": "2026-04-23T14:01:22.893230Z",
+        "finished_at": "2026-04-23T14:01:30.475862Z"
+    }
+}

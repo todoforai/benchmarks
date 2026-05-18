@@ -1,0 +1,43 @@
+{
+    "id": "fb296c56-4a17-4559-bd2e-d493aebb71b0",
+    "started_at": "2026-05-16T10:32:58.743118",
+    "finished_at": "2026-05-16T11:23:40.751440",
+    "n_total_trials": 9,
+    "stats": {
+        "n_trials": 9,
+        "n_errors": 1,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 8,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.7777777777777778
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "circuit-fibsqrt__B3fYSgP",
+                            "build-pov-ray__TAkDyTb",
+                            "break-filter-js-from-html__hWTP36R",
+                            "build-cython-ext__TBGzJV2",
+                            "chess-best-move__Qff6PQZ",
+                            "build-pmars__uoriWok",
+                            "bn-fit-modify__sMsdY4f"
+                        ],
+                        "0.0": [
+                            "cancel-async-tasks__urAiC9E"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "VerifierTimeoutError": [
+                        "caffe-cifar-10__AEsHKci"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,101 @@
+{
+    "id": "94666602-f8d7-4165-beac-414c95b9c9b6",
+    "task_name": "terminal-bench/gpt2-codegolf",
+    "trial_name": "gpt2-codegolf__gW2eJyh",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/2026-04-23__17-18-40/gpt2-codegolf__gW2eJyh",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "gpt2-codegolf",
+        "ref": "sha256:44f8158b34fd53f27e4eca45a93d466224c7b988f9bb735d2ae89be808249bb0"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "39fad44e7c6ec08b71e27e4d70dcd80e41d52fe93d5cc50e4d09b7651abb8ec7",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/gpt2-codegolf",
+            "ref": "sha256:44f8158b34fd53f27e4eca45a93d466224c7b988f9bb735d2ae89be808249bb0",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "gpt2-codegolf__gW2eJyh",
+        "trials_dir": "jobs/2026-04-23__17-18-40",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "33a98b5e-7249-4489-b521-bd1660f5356b"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-04-23T15:18:45.248801Z",
+    "finished_at": "2026-04-23T15:26:11.999838Z",
+    "environment_setup": {
+        "started_at": "2026-04-23T15:18:45.249215Z",
+        "finished_at": "2026-04-23T15:19:02.790086Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-04-23T15:19:02.790101Z",
+        "finished_at": "2026-04-23T15:19:04.609413Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-04-23T15:19:04.609465Z",
+        "finished_at": "2026-04-23T15:25:49.274174Z"
+    },
+    "verifier": {
+        "started_at": "2026-04-23T15:25:49.471031Z",
+        "finished_at": "2026-04-23T15:26:00.522202Z"
+    }
+}

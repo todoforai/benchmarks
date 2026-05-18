@@ -1,0 +1,40 @@
+{
+    "id": "33a98b5e-7249-4489-b521-bd1660f5356b",
+    "started_at": "2026-04-23T17:18:42.618360",
+    "finished_at": "2026-04-23T17:34:12.962717",
+    "n_total_trials": 5,
+    "stats": {
+        "n_trials": 5,
+        "n_errors": 1,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 5,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.2
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "dna-assembly__Ej53JS5",
+                            "model-extraction-relu-logits__79F6yDm",
+                            "adaptive-rejection-sampler__VrvoAyd",
+                            "gpt2-codegolf__gW2eJyh"
+                        ],
+                        "1.0": [
+                            "merge-diff-arc-agi-task__cBqcKKv"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "adaptive-rejection-sampler__VrvoAyd"
+                    ]
+                }
+            }
+        }
+    }
+}

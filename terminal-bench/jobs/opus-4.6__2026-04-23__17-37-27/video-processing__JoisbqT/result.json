@@ -1,0 +1,101 @@
+{
+    "id": "11745365-e42a-4bd5-abfd-5bc8ec942ac6",
+    "task_name": "terminal-bench/video-processing",
+    "trial_name": "video-processing__JoisbqT",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/opus-4.6__2026-04-23__17-37-27/video-processing__JoisbqT",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "video-processing",
+        "ref": "sha256:59730f0ccdc323eb45aa433d094cd7c2f29a0084d3670ce7cc93acee9b516ade"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "a09d41da0822cc6467ba7ee3631fd205130acb0008d8488b44084b0864ee499f",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/video-processing",
+            "ref": "sha256:59730f0ccdc323eb45aa433d094cd7c2f29a0084d3670ce7cc93acee9b516ade",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "video-processing__JoisbqT",
+        "trials_dir": "jobs/opus-4.6__2026-04-23__17-37-27",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "596475c1-78fa-4385-8117-641f0dee6596"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-04-23T15:37:34.804569Z",
+    "finished_at": "2026-04-23T15:49:50.896721Z",
+    "environment_setup": {
+        "started_at": "2026-04-23T15:37:34.806420Z",
+        "finished_at": "2026-04-23T15:37:53.596327Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-04-23T15:37:53.596338Z",
+        "finished_at": "2026-04-23T15:37:55.293270Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-04-23T15:37:55.293325Z",
+        "finished_at": "2026-04-23T15:49:26.341441Z"
+    },
+    "verifier": {
+        "started_at": "2026-04-23T15:49:26.534205Z",
+        "finished_at": "2026-04-23T15:49:39.611551Z"
+    }
+}

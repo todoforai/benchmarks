@@ -1,0 +1,72 @@
+{
+    "id": "bc0aad19-bf2f-48a2-b258-4a38a0f3e3bb",
+    "started_at": "2026-05-18T15:37:45.759743",
+    "finished_at": "2026-05-18T15:40:49.830345",
+    "n_total_trials": 20,
+    "stats": {
+        "n_trials": 20,
+        "n_errors": 20,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 20,
+                "n_errors": 20,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "distribution-search__E4xjVrY",
+                            "compile-compcert__CotAfXr",
+                            "dna-assembly__QRxwVuv",
+                            "crack-7z-hash__8vwoxF7",
+                            "feal-linear-cryptanalysis__fgEFHVk",
+                            "dna-insert__sgBEMtL",
+                            "db-wal-recovery__DVT5pg2",
+                            "extract-elf__vwmRCkB",
+                            "constraints-scheduling__4qyUcJu",
+                            "custom-memory-heap-crash__XuEXNJ4",
+                            "fix-git__Q6BeS4i",
+                            "extract-moves-from-video__7u4zRmu",
+                            "count-dataset-tokens__KzrEQAF",
+                            "cobol-modernization__GSVZNpo",
+                            "filter-js-from-html__ty5LKif",
+                            "feal-differential-cryptanalysis__7brzNiD",
+                            "fix-code-vulnerability__npbwm5o",
+                            "financial-document-processor__9RpRrPS",
+                            "code-from-image__dvpffLi",
+                            "configure-git-webserver__vdLksQo"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "NonZeroAgentExitCodeError": [
+                        "distribution-search__E4xjVrY",
+                        "compile-compcert__CotAfXr",
+                        "dna-assembly__QRxwVuv",
+                        "crack-7z-hash__8vwoxF7",
+                        "feal-linear-cryptanalysis__fgEFHVk",
+                        "dna-insert__sgBEMtL",
+                        "db-wal-recovery__DVT5pg2",
+                        "extract-elf__vwmRCkB",
+                        "constraints-scheduling__4qyUcJu",
+                        "custom-memory-heap-crash__XuEXNJ4",
+                        "fix-git__Q6BeS4i",
+                        "extract-moves-from-video__7u4zRmu",
+                        "count-dataset-tokens__KzrEQAF",
+                        "cobol-modernization__GSVZNpo",
+                        "filter-js-from-html__ty5LKif",
+                        "feal-differential-cryptanalysis__7brzNiD",
+                        "fix-code-vulnerability__npbwm5o",
+                        "financial-document-processor__9RpRrPS",
+                        "code-from-image__dvpffLi",
+                        "configure-git-webserver__vdLksQo"
+                    ]
+                }
+            }
+        }
+    }
+}
