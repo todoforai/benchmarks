@@ -118,6 +118,12 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         todoai_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
         if api_url:
             todoai_flags += f" --api-url {shlex.quote(api_url)}"
+        # Pin the pre-configured benchmark agent by exact name. Path-based
+        # matching (--path /app) races the edge's online registration: if the
+        # backend hasn't seen the edge yet, no agent matches the workspace path
+        # and the CLI auto-creates a fresh "app" agent with default model
+        # "claude" and no devicesConfig -> tool calls go nowhere -> reward 0.
+        todoai_flags += " --agent app"
 
         try:
             await self.exec_as_agent(
