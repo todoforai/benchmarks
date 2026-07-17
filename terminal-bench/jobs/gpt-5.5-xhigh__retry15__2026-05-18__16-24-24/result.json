@@ -1,0 +1,41 @@
+{
+    "id": "64bd9896-d446-4bdd-aa5c-0d2bf8625325",
+    "started_at": "2026-05-18T16:24:28.670594",
+    "finished_at": null,
+    "n_total_trials": 15,
+    "stats": {
+        "n_trials": 8,
+        "n_errors": 5,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 3,
+                "n_errors": 5,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "db-wal-recovery__6uQ3b4w",
+                            "compile-compcert__LWMLD3V",
+                            "dna-assembly__EHxyRRF"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "CancelledError": [
+                        "count-dataset-tokens__6BNKkKJ",
+                        "extract-moves-from-video__aTAdMTg",
+                        "custom-memory-heap-crash__KYYRY7i",
+                        "fix-git__CBQ7EZ4",
+                        "dna-insert__MQc9Gpo"
+                    ]
+                }
+            }
+        }
+    },
+    "trial_results": []
+}

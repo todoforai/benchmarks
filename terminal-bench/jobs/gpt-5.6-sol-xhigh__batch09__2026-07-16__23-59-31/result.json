@@ -1,0 +1,46 @@
+{
+    "id": "c6789c3e-30c2-4864-8de1-1b3fefc152ce",
+    "started_at": "2026-07-16T23:59:35.066440",
+    "finished_at": "2026-07-17T01:04:19.786954",
+    "n_total_trials": 9,
+    "stats": {
+        "n_trials": 9,
+        "n_errors": 3,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 9,
+                "n_errors": 3,
+                "metrics": [
+                    {
+                        "mean": 0.7777777777777778
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "video-processing__6uxLWeU",
+                            "train-fasttext__S6jVDrt"
+                        ],
+                        "1.0": [
+                            "vulnerable-secret__BmRgduc",
+                            "winning-avg-corewars__KuikatT",
+                            "write-compressor__px2mLti",
+                            "tune-mjcf__MVsKRaP",
+                            "sqlite-with-gcov__ZxaNCnu",
+                            "torch-tensor-parallelism__yWEQVJL",
+                            "torch-pipeline-parallelism__HwzPGHj"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "tune-mjcf__MVsKRaP",
+                        "train-fasttext__S6jVDrt",
+                        "torch-pipeline-parallelism__HwzPGHj"
+                    ]
+                }
+            }
+        }
+    }
+}

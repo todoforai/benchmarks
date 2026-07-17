@@ -1,0 +1,30 @@
+{
+    "id": "2576d89c-155f-4274-9362-217f3e8adaa3",
+    "started_at": "2026-07-17T16:32:46.151528",
+    "finished_at": "2026-07-17T16:34:54.699528",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 1.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "password-recovery__bn84WRr"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

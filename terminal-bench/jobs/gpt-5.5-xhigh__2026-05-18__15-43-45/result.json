@@ -1,0 +1,55 @@
+{
+    "id": "a35a9560-133b-4e9f-baaf-aa7b375f64f7",
+    "started_at": "2026-05-18T15:43:49.584264",
+    "finished_at": "2026-05-18T16:22:59.172459",
+    "n_total_trials": 20,
+    "stats": {
+        "n_trials": 20,
+        "n_errors": 1,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 20,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.25
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "distribution-search__7yLLfca",
+                            "crack-7z-hash__ujhhTB4",
+                            "feal-linear-cryptanalysis__8SK7fxS",
+                            "extract-elf__s2nfFAo",
+                            "constraints-scheduling__SoS2K5r"
+                        ],
+                        "0.0": [
+                            "compile-compcert__RYrYg7S",
+                            "dna-assembly__f8Djd49",
+                            "dna-insert__ugcdjd2",
+                            "db-wal-recovery__U5XZUyb",
+                            "custom-memory-heap-crash__w48i9Bc",
+                            "fix-git__t7XHzk9",
+                            "extract-moves-from-video__3tYXQta",
+                            "count-dataset-tokens__dm7yJfZ",
+                            "cobol-modernization__cFcYEuo",
+                            "filter-js-from-html__7JrqXbP",
+                            "feal-differential-cryptanalysis__kthDcoc",
+                            "fix-code-vulnerability__HReh3Ez",
+                            "financial-document-processor__h5vw2rR",
+                            "code-from-image__KrsBK68",
+                            "configure-git-webserver__djvoh9g"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "db-wal-recovery__U5XZUyb"
+                    ]
+                }
+            }
+        }
+    }
+}

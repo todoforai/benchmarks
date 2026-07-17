@@ -1,0 +1,47 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1784239642.6214082,
+            "stop": 1784239642.8500826
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_compressed_file_exists",
+                "status": "passed",
+                "duration": 0.05501277900475543,
+                "start": 1784239642.6710825,
+                "stop": 1784239642.7263494,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_decompression_produces_original",
+                "status": "passed",
+                "duration": 0.05910614900494693,
+                "start": 1784239642.7265255,
+                "stop": 1784239642.7859006,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_compression_size",
+                "status": "passed",
+                "duration": 0.06337268099741777,
+                "start": 1784239642.7862148,
+                "stop": 1784239642.8498323,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            }
+        ]
+    }
+}

@@ -1,0 +1,101 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 9,
+            "passed": 9,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1784220393.7762988,
+            "stop": 1784220408.2621849
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_ars_function_exists",
+                "status": "passed",
+                "duration": 0.000510235999172437,
+                "start": 1784220394.3635385,
+                "stop": 1784220394.3642223,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_can_generate_standard_distribution_samples",
+                "status": "passed",
+                "duration": 1.7485049570022966,
+                "start": 1784220394.3643608,
+                "stop": 1784220396.113079,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_has_test_function",
+                "status": "passed",
+                "duration": 0.0006542450009874301,
+                "start": 1784220396.1133003,
+                "stop": 1784220396.114063,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_formal_testing_with_known_truth",
+                "status": "passed",
+                "duration": 11.462809032000223,
+                "start": 1784220396.1141737,
+                "stop": 1784220407.5771978,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_sample_files_generated",
+                "status": "passed",
+                "duration": 0.007858378001401434,
+                "start": 1784220407.577464,
+                "stop": 1784220407.585502,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_implementation_is_modular",
+                "status": "passed",
+                "duration": 0.0007956789995660074,
+                "start": 1784220407.5857165,
+                "stop": 1784220407.5866723,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_implementation_handles_errors",
+                "status": "passed",
+                "duration": 0.0006121639999037143,
+                "start": 1784220407.5868678,
+                "stop": 1784220407.5876255,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_input_validation_functionality",
+                "status": "passed",
+                "duration": 0.2578756279999652,
+                "start": 1784220407.5878105,
+                "stop": 1784220407.8459468,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_log_concavity_functionality",
+                "status": "passed",
+                "duration": 0.4154355909995502,
+                "start": 1784220407.8462367,
+                "stop": 1784220408.2619379,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            }
+        ]
+    }
+}

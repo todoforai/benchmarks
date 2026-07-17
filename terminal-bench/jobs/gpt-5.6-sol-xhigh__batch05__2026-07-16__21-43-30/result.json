@@ -1,0 +1,47 @@
+{
+    "id": "ddbbc6d0-3cfb-4d8a-8dd3-18f87c9c5ed2",
+    "started_at": "2026-07-16T21:43:34.718416",
+    "finished_at": "2026-07-16T22:24:42.530606",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 3,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 10,
+                "n_errors": 3,
+                "metrics": [
+                    {
+                        "mean": 0.7
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "make-mips-interpreter__pdp4yzH",
+                            "model-extraction-relu-logits__Ph7AXPC",
+                            "make-doom-for-mips__eqZMzKT"
+                        ],
+                        "1.0": [
+                            "log-summary-date-ranges__oPR3PCW",
+                            "mailman__eCvrjLQ",
+                            "merge-diff-arc-agi-task__yykPjda",
+                            "largest-eigenval__LdGCxfr",
+                            "modernize-scientific-stack__wANrftL",
+                            "mcmc-sampling-stan__5UZbHhh",
+                            "llm-inference-batching-scheduler__WDYhoiF"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "model-extraction-relu-logits__Ph7AXPC",
+                        "largest-eigenval__LdGCxfr",
+                        "make-doom-for-mips__eqZMzKT"
+                    ]
+                }
+            }
+        }
+    }
+}

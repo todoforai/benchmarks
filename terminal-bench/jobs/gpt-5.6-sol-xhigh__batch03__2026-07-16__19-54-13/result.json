@@ -1,0 +1,48 @@
+{
+    "id": "45c6e2bf-f5a8-4066-84b2-81c0c434c38d",
+    "started_at": "2026-07-16T19:54:17.047786",
+    "finished_at": "2026-07-16T20:39:13.028230",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 4,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 10,
+                "n_errors": 4,
+                "metrics": [
+                    {
+                        "mean": 0.6
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "dna-assembly__6nk755Q",
+                            "dna-insert__4R9hSdo",
+                            "extract-moves-from-video__fCkXV9K",
+                            "filter-js-from-html__PVyPiJ6"
+                        ],
+                        "1.0": [
+                            "feal-linear-cryptanalysis__P6gFDqZ",
+                            "extract-elf__RHEwaG6",
+                            "fix-git__BQfeEYa",
+                            "feal-differential-cryptanalysis__uTgPouK",
+                            "fix-code-vulnerability__CrAWR63",
+                            "financial-document-processor__gRFmRcE"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "dna-assembly__6nk755Q",
+                        "extract-elf__RHEwaG6",
+                        "fix-git__BQfeEYa",
+                        "filter-js-from-html__PVyPiJ6"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,99 @@
+{
+    "id": "da0606b9-2757-4394-a4f2-8d3d0f9e9098",
+    "task_name": "terminal-bench/fix-git",
+    "trial_name": "fix-git__CBQ7EZ4",
+    "trial_uri": "file:///home/six/repo/todoforai/benchmarks/terminal-bench/jobs/gpt-5.5-xhigh__retry15__2026-05-18__16-24-24/fix-git__CBQ7EZ4",
+    "task_id": {
+        "org": "terminal-bench",
+        "name": "fix-git",
+        "ref": "sha256:66be7179f07f1aa8f0d60f88800a883a68c1ffb7a349aae76aa60fa679485473"
+    },
+    "source": "terminal-bench/terminal-bench-2",
+    "task_checksum": "e17451b4a53685be804467ab24e53c4f5816bf6a972ff6434ec20cc7d246048e",
+    "config": {
+        "task": {
+            "path": null,
+            "git_url": null,
+            "git_commit_id": null,
+            "name": "terminal-bench/fix-git",
+            "ref": "sha256:66be7179f07f1aa8f0d60f88800a883a68c1ffb7a349aae76aa60fa679485473",
+            "overwrite": false,
+            "download_dir": null,
+            "source": "terminal-bench/terminal-bench-2"
+        },
+        "trial_name": "fix-git__CBQ7EZ4",
+        "trials_dir": "jobs/gpt-5.5-xhigh__retry15__2026-05-18__16-24-24",
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": null,
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": null,
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {},
+            "env": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "mounts_json": null,
+            "env": {},
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "env": {},
+            "disable": false
+        },
+        "artifacts": [],
+        "job_id": "64bd9896-d446-4bdd-aa5c-0d2bf8625325"
+    },
+    "agent_info": {
+        "name": "todoforai",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": null,
+    "exception_info": {
+        "exception_type": "CancelledError",
+        "exception_message": "",
+        "exception_traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/base_events.py\", line 678, in run_until_complete\n    self.run_forever()\n  File \"/usr/lib/python3.12/asyncio/base_events.py\", line 645, in run_forever\n    self._run_once()\n  File \"/usr/lib/python3.12/asyncio/base_events.py\", line 1961, in _run_once\n    event_list = self._selector.select(timeout)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/selectors.py\", line 468, in select\n    fd_event_list = self._selector.poll(timeout, max_ev)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/cli/jobs.py\", line 279, in _handle_sigterm\n    raise KeyboardInterrupt\nKeyboardInterrupt\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/trial/trial.py\", line 547, in run\n    await self._execute_agent()\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/trial/trial.py\", line 285, in _execute_agent\n    await asyncio.wait_for(\n  File \"/usr/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/agents/installed/base.py\", line 41, in wrapper\n    return await fn(self, instruction, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/six/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/harbor_agent.py\", line 123, in run\n    await self.exec_as_agent(\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/agents/installed/base.py\", line 379, in exec_as_agent\n    return await self._exec(\n           ^^^^^^^^^^^^^^^^^\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/agents/installed/base.py\", line 326, in _exec\n    result = await environment.exec(\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/environments/docker/docker.py\", line 496, in exec\n    return await self._run_docker_compose_command(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/six/.todoforai/tools/venv/lib/python3.12/site-packages/harbor/environments/docker/docker.py\", line 296, in _run_docker_compose_command\n    stdout_bytes, stderr_bytes = await process.communicate()\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/subprocess.py\", line 201, in communicate\n    stdin, stdout, stderr = await tasks.gather(stdin, stdout, stderr)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/subprocess.py\", line 181, in _read_stream\n    output = await stream.read()\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/streams.py\", line 706, in read\n    block = await self.read(self._limit)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/asyncio/streams.py\", line 713, in read\n    await self._wait_for_data('read')\n  File \"/usr/lib/python3.12/asyncio/streams.py\", line 545, in _wait_for_data\n    await self._waiter\nasyncio.exceptions.CancelledError\n",
+        "occurred_at": "2026-05-18T16:25:26.980218"
+    },
+    "started_at": "2026-05-18T14:24:31.154739Z",
+    "finished_at": "2026-05-18T14:25:38.406932Z",
+    "environment_setup": {
+        "started_at": "2026-05-18T14:24:31.155287Z",
+        "finished_at": "2026-05-18T14:24:48.821483Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-18T14:24:48.821495Z",
+        "finished_at": "2026-05-18T14:24:50.527302Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-18T14:24:50.527343Z",
+        "finished_at": "2026-05-18T14:25:26.978991Z"
+    },
+    "verifier": null
+}

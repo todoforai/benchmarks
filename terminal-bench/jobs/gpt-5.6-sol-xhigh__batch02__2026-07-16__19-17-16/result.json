@@ -1,0 +1,46 @@
+{
+    "id": "7cdc23f7-4ac1-4abc-9967-72053bb69e74",
+    "started_at": "2026-07-16T19:17:19.649696",
+    "finished_at": "2026-07-16T19:54:12.572458",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 2,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 10,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.5
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "distribution-search__UB2zUbz",
+                            "crack-7z-hash__4JkcfjG",
+                            "constraints-scheduling__WobvzzF",
+                            "custom-memory-heap-crash__UAEP5wx",
+                            "code-from-image__bJBDSaM"
+                        ],
+                        "0.0": [
+                            "compile-compcert__q2iLMLx",
+                            "db-wal-recovery__8s3bP9Z",
+                            "count-dataset-tokens__U7uNrdZ",
+                            "cobol-modernization__nPuWShj",
+                            "configure-git-webserver__PHUpueM"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "db-wal-recovery__8s3bP9Z",
+                        "cobol-modernization__nPuWShj"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 7,
+            "passed": 0,
+            "failed": 7,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1779114311.4418693,
+            "stop": 1779114311.5254042
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_recovered_json_exists",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0004404110077302903,
+                "start": 1779114311.4973261,
+                "stop": 1779114311.5136592,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_recovered_json_exists():\n        \"\"\"Test that the recovered.json file exists.\"\"\"\n>       assert os.path.exists(\"/app/recovered.json\"), \"recovered.json file does not exist\"\nE       AssertionError: recovered.json file does not exist\nE       assert False\nE        +  where False = <function exists at 0x7aa69e683240>('/app/recovered.json')\nE        +    where <function exists at 0x7aa69e683240> = <module 'posixpath' (frozen)>.exists\nE        +      where <module 'posixpath' (frozen)> = os.path\n\n/tests/test_outputs.py:9: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_recovered_json_is_valid",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.00029808602994307876,
+                "start": 1779114311.5137925,
+                "stop": 1779114311.5156708,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_recovered_json_is_valid():\n        \"\"\"Test that the recovered.json file is valid JSON.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:14: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            },
+            {
+                "name": "test_outputs.py::test_recovered_data_structure",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0002705029910430312,
+                "start": 1779114311.5157876,
+                "stop": 1779114311.5175633,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_recovered_data_structure():\n        \"\"\"Test that the recovered data has the correct structure.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:23: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            },
+            {
+                "name": "test_outputs.py::test_recovered_data_sorted",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0002634899865370244,
+                "start": 1779114311.5176742,
+                "stop": 1779114311.5194492,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_recovered_data_sorted():\n        \"\"\"Test that the recovered data is sorted by id.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:40: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            },
+            {
+                "name": "test_outputs.py::test_recovered_data_completeness",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.00026572399656288326,
+                "start": 1779114311.5195682,
+                "stop": 1779114311.5213323,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_recovered_data_completeness():\n        \"\"\"Test that all expected data is recovered including WAL changes.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:49: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            },
+            {
+                "name": "test_outputs.py::test_no_duplicate_ids",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.00026675601839087903,
+                "start": 1779114311.5214465,
+                "stop": 1779114311.5234182,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_no_duplicate_ids():\n        \"\"\"Test that there are no duplicate IDs in the recovered data.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:85: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            },
+            {
+                "name": "test_outputs.py::test_wal_was_decrypted",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0002638099540490657,
+                "start": 1779114311.523533,
+                "stop": 1779114311.5252988,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_wal_was_decrypted():\n        \"\"\"Test that the agent successfully decrypted the WAL file.\"\"\"\n>       with open(\"/app/recovered.json\", \"r\") as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       FileNotFoundError: [Errno 2] No such file or directory: '/app/recovered.json'\n\n/tests/test_outputs.py:94: FileNotFoundError",
+                "message": "The test failed in the call phase"
+            }
+        ]
+    }
+}

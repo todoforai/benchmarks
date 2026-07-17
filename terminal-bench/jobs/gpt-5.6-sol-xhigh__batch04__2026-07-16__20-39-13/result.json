@@ -1,0 +1,47 @@
+{
+    "id": "8aab5ca7-82c8-4ffe-ac24-02f767d813b8",
+    "started_at": "2026-07-16T20:39:17.081464",
+    "finished_at": "2026-07-16T21:43:30.201584",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 3,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 10,
+                "n_errors": 3,
+                "metrics": [
+                    {
+                        "mean": 0.9
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "install-windows-3-11__cUasyCr"
+                        ],
+                        "1.0": [
+                            "git-leak-recovery__V7ZWueN",
+                            "headless-terminal__oWyd7rd",
+                            "gcode-to-text__VeRR89h",
+                            "kv-store-grpc__u49smkG",
+                            "git-multibranch__Djqbw3J",
+                            "hf-model-inference__sVSmtGn",
+                            "fix-ocaml-gc__cVtYyyf",
+                            "gpt2-codegolf__PT5ymdA",
+                            "large-scale-text-editing__kAGyyb3"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "headless-terminal__oWyd7rd",
+                        "git-multibranch__Djqbw3J",
+                        "gpt2-codegolf__PT5ymdA"
+                    ]
+                }
+            }
+        }
+    }
+}

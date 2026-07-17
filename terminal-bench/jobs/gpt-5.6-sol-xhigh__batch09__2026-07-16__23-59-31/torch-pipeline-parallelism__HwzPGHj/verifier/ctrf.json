@@ -1,0 +1,49 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1784240661.7656732,
+            "stop": 1784240855.0993166
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_pipeline_parallel_exists",
+                "status": "passed",
+                "duration": 0.000366086998838,
+                "start": 1784240669.7732835,
+                "stop": 1784240669.773822,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_no_hooks_in_pipeline_parallel",
+                "status": "passed",
+                "duration": 0.00030824599525658414,
+                "start": 1784240669.773952,
+                "stop": 1784240669.7743554,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_pipeline_parallel",
+                "status": "passed",
+                "duration": 65.96137433500553,
+                "start": 1784240669.7744708,
+                "stop": 1784240735.7360723,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::world_size::[1, 2]"
+                ]
+            }
+        ]
+    }
+}

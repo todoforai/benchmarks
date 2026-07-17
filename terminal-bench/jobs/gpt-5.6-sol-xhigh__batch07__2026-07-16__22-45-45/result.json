@@ -1,0 +1,43 @@
+{
+    "id": "04bf9278-cede-4822-b047-aca894a7421f",
+    "started_at": "2026-07-16T22:45:48.843047",
+    "finished_at": "2026-07-16T23:11:06.138571",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 1,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 10,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 1.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "protein-assembly__FtorhxD",
+                            "polyglot-rust-c__KRho8pC",
+                            "prove-plus-comm__aiTTsMR",
+                            "pytorch-model-recovery__bv39bQ7",
+                            "qemu-alpine-ssh__F8oCkTA",
+                            "pypi-server__dETdUe8",
+                            "query-optimize__QfzsUjA",
+                            "pytorch-model-cli__qvoNY2k",
+                            "portfolio-optimization__RXFY7Bf",
+                            "qemu-startup__8XkYmKA"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "pytorch-model-recovery__bv39bQ7"
+                    ]
+                }
+            }
+        }
+    }
+}

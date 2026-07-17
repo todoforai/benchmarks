@@ -1,0 +1,48 @@
+{
+    "id": "8a80ab0e-967a-4dad-88c3-f0b415760b53",
+    "started_at": "2026-07-16T18:20:52.340048",
+    "finished_at": "2026-07-16T19:17:15.410595",
+    "n_total_trials": 10,
+    "stats": {
+        "n_trials": 10,
+        "n_errors": 3,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 9,
+                "n_errors": 3,
+                "metrics": [
+                    {
+                        "mean": 0.8
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "circuit-fibsqrt__aMRVfrh",
+                            "build-pov-ray__GftyMjC",
+                            "break-filter-js-from-html__7ybLTe2",
+                            "cancel-async-tasks__YdJxqAh",
+                            "build-cython-ext__NnfNjaM",
+                            "build-pmars__VtkK74V",
+                            "bn-fit-modify__g4HLCCL",
+                            "adaptive-rejection-sampler__dJStYyj"
+                        ],
+                        "0.0": [
+                            "chess-best-move__7Uu75co"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "VerifierTimeoutError": [
+                        "caffe-cifar-10__p2xeSfE"
+                    ],
+                    "AgentTimeoutError": [
+                        "build-cython-ext__NnfNjaM",
+                        "adaptive-rejection-sampler__dJStYyj"
+                    ]
+                }
+            }
+        }
+    }
+}
