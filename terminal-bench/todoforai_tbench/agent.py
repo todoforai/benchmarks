@@ -99,7 +99,7 @@ class TODOforAIAgent(AbstractInstalledAgent):
         edge_url_flag = f" --api-url {shlex.quote(api_url)}" if api_url else ""
         return [
             TerminalCommand(
-                command=f"export PATH=\"$HOME/.bun/bin:$PATH\" && todoforai-edge --path /app{edge_url_flag} &",
+                command=f"export PATH=\"$HOME/.bun/bin:$PATH\" && todoforai-edge --path /app --no-auto-update{edge_url_flag} &",
                 max_timeout_sec=10.0,
                 block=False,
             ),

@@ -114,7 +114,7 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         edge_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
         if api_url:
             edge_flags += f" --api-url {shlex.quote(api_url)}"
-        edge_flags += " --add-path /app"
+        edge_flags += " --add-path /app --no-auto-update"
         todoai_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
         if api_url:
             todoai_flags += f" --api-url {shlex.quote(api_url)}"
