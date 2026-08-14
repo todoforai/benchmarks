@@ -123,7 +123,7 @@ tb list-tasks --dataset "terminal-bench-core==0.1.1"
 
 ## Rebuilding Dist
 
-The adapter ships pre-built JS bundles for `todoai` and `todoforai-edge` in `todoforai_tbench/dist/`. These are copied into Docker containers during task setup.
+The adapter ships pre-built JS bundles for `todoforai-cli` and `todoforai-edge` in `todoforai_tbench/dist/`. These are copied into Docker containers during task setup.
 
 After modifying either package, rebuild:
 
@@ -139,10 +139,10 @@ Override source paths with `CLI_DIR` and `EDGE_DIR` env vars.
 
 1. Terminal-bench spins up a Docker container for each task
 2. The adapter copies dist files into the container and runs `install.sh`
-3. `install.sh` installs bun, then installs `todoai` and `todoforai-edge` (from dist or npm)
+3. `install.sh` installs bun, then installs `todoforai-cli` and `todoforai-edge` (from dist or npm)
 4. `todoforai-edge --path /app` is started in the background
-5. The task instruction is piped into `todoai --non-interactive --allow-all`
-6. `todoai` creates a TODO and streams output; the edge executes blocks inside the container
+5. The task instruction is piped into `todoforai-cli --non-interactive --allow-all`
+6. `todoforai-cli` creates a TODO and streams output; the edge executes blocks inside the container
 7. Terminal-bench runs pytest to verify the task was completed correctly
 
 ## Troubleshooting

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build compiled todoai + todoforai-edge binaries for terminal-bench Docker containers.
+# Build compiled todoforai-cli + todoforai-edge binaries for terminal-bench Docker containers.
 # Uses `bun build --compile` so containers need no bun/npm/curl at runtime.
 #
 # Usage: ./scripts/rebuild_binaries.sh
@@ -30,9 +30,9 @@ echo "  -> $DIST_DIR/todoforai-edge ($(du -sh "$DIST_DIR/todoforai-edge" | cut -
 
 cd "$CLI_DIR"
 bun install --silent
-bun build src/index.ts --compile --outfile "$DIST_DIR/todoai"
-echo "  -> $DIST_DIR/todoai ($(du -sh "$DIST_DIR/todoai" | cut -f1))"
+bun build src/index.ts --compile --outfile "$DIST_DIR/todoforai-cli"
+echo "  -> $DIST_DIR/todoforai-cli ($(du -sh "$DIST_DIR/todoforai-cli" | cut -f1))"
 
 echo ""
 echo "=== Done ==="
-ls -lh "$DIST_DIR"/todoai "$DIST_DIR"/todoforai-edge
+ls -lh "$DIST_DIR"/todoforai-cli "$DIST_DIR"/todoforai-edge

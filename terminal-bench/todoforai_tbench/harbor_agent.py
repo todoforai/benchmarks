@@ -236,8 +236,8 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                     "  sleep 1; "
                     "done && "
                     f'printf "%s" "${instr_var}" | '
-                    "todoai --non-interactive --allow-all --no-edge --path /app"
-                    f"{cli_flags} 2>&1 | tee /logs/agent/todoai.txt"
+                    "todoforai-cli --non-interactive --allow-all --no-edge --path /app"
+                    f"{cli_flags} 2>&1 | tee /logs/agent/todoforai-cli.txt"
                 ),
                 env=secret_env,
             )
@@ -249,7 +249,7 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                 await environment.exec(
                     command=(
                         "pkill -9 -f todoforai-edge 2>/dev/null; "
-                        "pkill -9 -f todoai 2>/dev/null; "
+                        "pkill -9 -f todoforai-cli 2>/dev/null; "
                         "pkill -9 -f 'apt-get|^apt |dpkg' 2>/dev/null; "
                         "timeout 30 sh -c 'while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done'; "
                         "true"

@@ -6,12 +6,12 @@
 - [ ] `--non-interactive` — confirm it exits cleanly (exit code 0) when the todo completes, not just on timeout.
 - [ ] `--agent Agent` — is `Agent` the right agent name? Check available agents, maybe needs a specific name.
 - [ ] `--path /app` — confirm the edge also sees `/app` as workspace and executes blocks there (not in `~` or cwd).
-- [ ] `echo instruction | todoai` vs `todoai "instruction"` — which is more reliable for multi-line task descriptions?
+- [ ] `echo instruction | todoforai-cli` vs `todoforai-cli "instruction"` — which is more reliable for multi-line task descriptions?
 
 ## Edge startup
 
 - [ ] `sleep 2` after starting edge — is 2s enough to connect to the server? Should poll for readiness instead.
-- [ ] Edge reconnect — if the edge disconnects mid-task, does `todoai` hang or fail gracefully?
+- [ ] Edge reconnect — if the edge disconnects mid-task, does `todoforai-cli` hang or fail gracefully?
 - [ ] Check edge logs (`/logs/agent/edge.txt`) are actually written and useful for debugging.
 
 ## Key pool / concurrency
@@ -37,4 +37,4 @@ harbor run -d "terminal-bench/terminal-bench-2" \
 ## Dist / install
 
 - [ ] `./scripts/rebuild_wheels.sh` — test that rebuilt dist installs correctly in a fresh container.
-- [ ] Confirm `install-todoforai.sh.j2` template installs both `todoai` and `todoforai-edge` from dist when wheels are present, falls back to npm otherwise.
+- [ ] Confirm `install-todoforai.sh.j2` template installs both `todoforai-cli` and `todoforai-edge` from dist when wheels are present, falls back to npm otherwise.

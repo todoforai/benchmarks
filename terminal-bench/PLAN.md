@@ -99,15 +99,16 @@ compliance requirement, keep it.
 
 ---
 
-## 6. Naming safety: keep `todoai` contracts until a staged migration exists
+## 6. Naming safety: `todoforai-cli` is canonical, persisted `todoai_*` keys stay
 
-The product brand, package scope, and repository names legitimately use `TODOforAI` / `todoforai`,
-but the currently shipped CLI command is `todoai` and persisted keys include `todoai_edge` and
-`todoai_cloud`. Do not mechanically replace these contracts.
+The product brand, package scope, and repository names legitimately use `TODOforAI` / `todoforai`.
+The canonical CLI command is now `todoforai-cli`, with `todoai` kept as a permanent alias in
+`@todoforai/cli`'s `bin` map. Persisted keys still include `todoai_edge` and `todoai_cloud` —
+do not mechanically replace those contracts.
 
-Any future rename must be handled as separate, reviewed migrations:
+Any further rename must be handled as separate, reviewed migrations:
 
-1. Add a new CLI alias while retaining `todoai` for backward compatibility.
+1. ✅ Done: `todoforai-cli` is the primary command; `todoai` stays as an alias for backward compatibility.
 2. Rename internal identifiers only where they are not serialized or externally consumed.
 3. Change persisted config and permission keys only through read-both/write-old compatibility,
    followed by a separately approved, record-by-record migration and verification.

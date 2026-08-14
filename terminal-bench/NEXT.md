@@ -33,8 +33,8 @@ needed approval, agent hung.
 
 **Fix:** rebuild + copy:
 ```
-cd ~/repo/todoforai/cli && bun build src/index.ts --compile --outfile dist/todoai
-cp dist/todoai ~/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/dist/
+cd ~/repo/todoforai/cli && bun build src/index.ts --compile --outfile dist/todoforai-cli
+cp dist/todoforai-cli ~/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/dist/
 ```
 
 ### 2. Stale harbor container left an edge alive that hijacked tool calls
@@ -72,7 +72,7 @@ module by switching to stdlib `subprocess` + `openssl` calls.
   Compiled bun binaries (`bun build --compile`) use native bun WebSocket which works.
 - **Compiled binaries skip all install deps** — no bun/npm/curl needed, install takes <1s.
 - **`--add-path /app`** on edge registers workspace path with server.
-- **`--api-key`** needed on both edge AND todoai CLI (no credentials.json in container).
+- **`--api-key`** needed on both edge AND `todoforai-cli` (no credentials.json in container).
 - **Production API key** uses `x-api-key` header (not Bearer).
 
 ## How to run

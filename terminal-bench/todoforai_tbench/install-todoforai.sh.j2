@@ -4,13 +4,13 @@ set -e
 echo "=== Installing TODOforAI for Terminal-Bench ==="
 
 # Compiled bun binaries (preferred — no runtime deps needed)
-if [ -f /installed-agent/dist/todoai ] && [ -f /installed-agent/dist/todoforai-edge ]; then
+if [ -f /installed-agent/dist/todoforai-cli ] && [ -f /installed-agent/dist/todoforai-edge ]; then
   echo "Installing from compiled binaries..."
-  cp /installed-agent/dist/todoai /usr/local/bin/todoai
+  cp /installed-agent/dist/todoforai-cli /usr/local/bin/todoforai-cli
   cp /installed-agent/dist/todoforai-edge /usr/local/bin/todoforai-edge
-  chmod +x /usr/local/bin/todoai /usr/local/bin/todoforai-edge
+  chmod +x /usr/local/bin/todoforai-cli /usr/local/bin/todoforai-edge
   echo "=== TODOforAI installation complete ==="
-  todoai --help 2>&1 | head -3 || true
+  todoforai-cli --help 2>&1 | head -3 || true
   exit 0
 fi
 
@@ -26,16 +26,16 @@ ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/node
 
 # JS dist files (bun wrappers)
 if [ -f /installed-agent/dist/todoforai-cli.js ]; then
-  echo "Installing todoai from local JS dist..."
+  echo "Installing todoforai-cli from local JS dist..."
   mkdir -p /usr/local/lib/todoforai-cli
   cp /installed-agent/dist/todoforai-cli.js /usr/local/lib/todoforai-cli/todoforai-cli.js
   chmod +x /usr/local/lib/todoforai-cli/todoforai-cli.js
-  printf '#!/bin/bash\nexec bun /usr/local/lib/todoforai-cli/todoforai-cli.js "$@"\n' > /usr/local/bin/todoai
-  chmod +x /usr/local/bin/todoai
+  printf '#!/bin/bash\nexec bun /usr/local/lib/todoforai-cli/todoforai-cli.js "$@"\n' > /usr/local/bin/todoforai-cli
+  chmod +x /usr/local/bin/todoforai-cli
 else
   echo "Installing @todoforai/cli from npm..."
   bun add -g @todoforai/cli
-  for f in "$HOME/.bun/bin/todoai"*; do
+  for f in "$HOME/.bun/bin/todoforai-cli"*; do
     [ -f "$f" ] && ln -sf "$f" /usr/local/bin/"$(basename "$f")"
   done
 fi
@@ -57,5 +57,5 @@ fi
 echo "=== TODOforAI installation complete ==="
 echo "Verifying installation..."
 which bun && bun --version
-which todoai && todoai --help 2>&1 | head -3 || true
+which todoforai-cli && todoforai-cli --help 2>&1 | head -3 || true
 which todoforai-edge || true
