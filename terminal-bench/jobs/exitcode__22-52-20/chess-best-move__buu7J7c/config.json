@@ -1,0 +1,13 @@
+{
+    "task": {
+        "name": "terminal-bench/chess-best-move",
+        "ref": "sha256:b1956d533c003b523a81fabe43de6f7c80b97fddb2c037e65b0cfc94dd1ba22a",
+        "source": "terminal-bench/terminal-bench-2"
+    },
+    "trial_name": "chess-best-move__buu7J7c",
+    "trials_dir": "jobs/exitcode__22-52-20",
+    "agent": {
+        "import_path": "todoforai_tbench:TODOforAIHarborAgent"
+    },
+    "job_id": "522776ce-9fcc-44f5-b73c-6771d9a11b07"
+}

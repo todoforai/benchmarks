@@ -1,0 +1,16 @@
+Agent: app │ Paths: [] │ Model: anthropic:anthropic/claude-opus-4.7
+Tip: Alt+Enter to insert a newline
+Auto-selected project: Default Project
+TODO: https://todofor.ai/608d2d01-9c95-472f-b7ba-0fab29afaf7d/a1a365a8-a2c9-493f-ad27-e35b9ae55898
+
+[todo:status] RUNNING
+
+[NOTIFY]
+
+[NOTIFY]
+
+[todo:status] 
+
+[todo:status] ERROR
+
+Warning: Stopped: ERROR

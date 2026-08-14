@@ -1,0 +1,14 @@
+Agent: app │ Paths: [] │ Model: anthropic:anthropic/claude-opus-4.7
+Tip: /exit or /quit to leave
+Auto-selected project: Default Project
+TODO: https://todofor.ai/608d2d01-9c95-472f-b7ba-0fab29afaf7d/c966e9a5-e925-4537-9531-ccc5c90a0bf7
+
+[todo:status] RUNNING
+
+[NOTIFY]
+
+[NOTIFY]
+
+[todo:status] ERROR
+
+Warning: Stopped: ERROR

@@ -1,0 +1,13 @@
+{
+    "task": {
+        "name": "terminal-bench/chess-best-move",
+        "ref": "sha256:b1956d533c003b523a81fabe43de6f7c80b97fddb2c037e65b0cfc94dd1ba22a",
+        "source": "terminal-bench/terminal-bench-2"
+    },
+    "trial_name": "chess-best-move__TE64FQz",
+    "trials_dir": "jobs/smoke__21-02-59",
+    "agent": {
+        "import_path": "todoforai_tbench:TODOforAIHarborAgent"
+    },
+    "job_id": "948f0acc-a468-48b2-b122-451845afcbdd"
+}

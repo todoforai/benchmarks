@@ -1,0 +1,5 @@
+[36m[1m👆 Fingerprint:[0m eyJtYWNoaW5lX2lkIjogIjA5ZTEwYWIyZWE3YjQ4ZWIzZTBjMTBiMzNhNGQzYmE4In0=
+[info] Connecting
+[browser-bridge] listening on ws://127.0.0.1:43127
+[info] WebSocket connected
+[32m[1m🔗 Connected edge=4cedebd1-1a1f-44bd-9945-928bc335f953 user=d5328c3d-1859-4e23-b46c-2fbdca000fbd[0m

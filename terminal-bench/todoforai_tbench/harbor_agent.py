@@ -4,11 +4,21 @@ TODOforAI agent adapter for Harbor (Terminal-Bench 2.0).
 
 import asyncio
 import hashlib
+import json
 import os
 import shlex
+import uuid
 from pathlib import Path
 
-from harbor.agents.installed.base import BaseInstalledAgent, with_prompt_template
+from harbor.agents.installed.base import (
+    AgentAuthenticationError,
+    ApiError,
+    BaseInstalledAgent,
+    ErrorPattern,
+    ModelNotFoundError,
+    NetworkConnectionError,
+    with_prompt_template,
+)
 from harbor.environments.base import BaseEnvironment
 from harbor.models.agent.context import AgentContext
 
@@ -29,6 +39,56 @@ def _load_api_key_pool() -> list[str]:
             return keys
     single = os.environ.get("TODOFORAI_API_KEY", "").strip()
     return [single] if single else [""]
+
+
+def _api_url() -> str:
+    """Resolve the backend URL the same way for preflight and trials.
+
+    NOTE precedence: a shell `TODOFORAI_API_URL` beats the repo `.env`, because
+    dotenv does not override real env vars. That mismatch (shell pointing at
+    production, `.env` at local dev) silently 401'd every trial in a run — hence
+    the preflight prints the resolved value.
+    """
+    return os.environ.get("TODOFORAI_API_URL", "").strip() or "https://api.todofor.ai"
+
+
+def preflight(agent_name: str = "app") -> None:
+    """Validate every credential before the first container starts.
+
+    Costs seconds; a bad key or missing agent otherwise burns the whole job as
+    reward-0 trials. Raises with an actionable message on the first failure.
+    """
+    import urllib.error
+    import urllib.request
+
+    url = _api_url()
+    keys = _load_api_key_pool()
+    if not any(keys):
+        raise RuntimeError(
+            "No API key configured. Set TODOFORAI_API_KEYS (comma-separated), "
+            "TODOFORAI_API_KEYS_FILE, or TODOFORAI_API_KEY."
+        )
+    print(f"[preflight] api_url={url} keys={len(keys)}")
+    for key in keys:
+        req = urllib.request.Request(
+            f"{url}/api/v1/agents", headers={"x-api-key": key}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                agents = json.loads(resp.read())
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(
+                f"[preflight] key {key[:6]}… rejected by {url}: HTTP {exc.code}. "
+                "Wrong backend for these keys, or key was deleted."
+            ) from exc
+        match = next((a for a in agents if a.get("name") == agent_name), None)
+        if match is None:
+            names = ", ".join(sorted(a.get("name", "?") for a in agents)) or "none"
+            raise RuntimeError(
+                f"[preflight] key {key[:6]}… has no agent named {agent_name!r} "
+                f"(has: {names}). Create it before running the benchmark."
+            )
+        print(f"[preflight]   {key[:6]}… ok  agent={agent_name} model={match.get('model')}")
 
 
 class _ApiKeyPool:
@@ -53,6 +113,30 @@ class _ApiKeyPool:
 
 
 class TODOforAIHarborAgent(BaseInstalledAgent):
+    # Our failure surface. Without these, an infra failure (dead LLM auth, bad
+    # API key, missing agent) is recorded as reward 0.0 with 0 exceptions —
+    # i.e. counted as "the agent tried and got it wrong", which silently
+    # depresses every score. Listed before the base patterns' generic
+    # "API Error" catch-all; the LAST match in the list wins, so base
+    # patterns stay authoritative for what they already classify.
+    ERROR_PATTERNS = [
+        *BaseInstalledAgent.ERROR_PATTERNS,
+        # Backend LLM proxy has no usable provider auth/session.
+        ErrorPattern(r"auth_unavailable", AgentAuthenticationError),
+        ErrorPattern(r"API key invalid", AgentAuthenticationError),
+        ErrorPattern(r"Not authenticated", AgentAuthenticationError),
+        ErrorPattern(r"Starting device login", AgentAuthenticationError),
+        # Bench agent profile missing on the account (provisioning drift).
+        ErrorPattern(r"Agent '[^']*' not found", ModelNotFoundError),
+        ErrorPattern(r"Model '[^']*' not found", ModelNotFoundError),
+        # Device/daemon never came online, or dropped mid-run: no tool calls
+        # could land, so the trial says nothing about agent capability.
+        ErrorPattern(r"No edge connected", NetworkConnectionError),
+        ErrorPattern(r"WebSocket (closed|disconnected)", NetworkConnectionError),
+        # The todo ended in a non-success terminal state.
+        ErrorPattern(r"Stopped: ERROR", ApiError),
+    ]
+
     @staticmethod
     def name() -> str:
         return "todoforai"
@@ -110,28 +194,52 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         self, instruction: str, environment: BaseEnvironment, context: AgentContext
     ) -> None:
         api_key = self._api_key
-        api_url = os.environ.get("TODOFORAI_API_URL", "")
-        edge_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
-        if api_url:
-            edge_flags += f" --api-url {shlex.quote(api_url)}"
-        edge_flags += " --add-path /app --no-auto-update"
-        todoai_flags = f" --api-key {shlex.quote(api_key)}" if api_key else ""
-        if api_url:
-            todoai_flags += f" --api-url {shlex.quote(api_url)}"
+        api_url = _api_url()
+        # Credentials travel as env vars, never argv: harbor records the command
+        # verbatim into trial.log/job.log/result.json, so a `--api-key` flag
+        # publishes a live key into every committed job directory. Edge reads
+        # TODOFORAI_API_KEY, the CLI reads TODOFORAI_API_TOKEN, both read
+        # TODOFORAI_API_URL.
+        edge_flags = " --add-path /app --no-auto-update"
+        cli_flags = ""
         # Pin the pre-configured benchmark agent by exact name. Path-based
         # matching (--path /app) races the edge's online registration: if the
         # backend hasn't seen the edge yet, no agent matches the workspace path
         # and the CLI auto-creates a fresh "app" agent with default model
         # "claude" and no devicesConfig -> tool calls go nowhere -> reward 0.
-        todoai_flags += " --agent app"
+        cli_flags += " --agent app"
+        # Model comes from the harbor command (-m), like claude-code/codex, so a
+        # run is fully described by its invocation instead of by mutable
+        # per-account state. Falls back to the account's configured model.
+        if self.model_name:
+            cli_flags += f" --model {shlex.quote(self.model_name)}"
 
+        # Instruction travels via env var -> stdin (claude-code's approach):
+        # no argv length limit and no quoting hazards for multi-line tasks.
+        instr_var = f"TODOFORAI_INSTRUCTION_{uuid.uuid4().hex}"
+        secret_env = {instr_var: instruction}
+        if api_key:
+            secret_env["TODOFORAI_API_KEY"] = api_key
+            secret_env["TODOFORAI_API_TOKEN"] = api_key
+        if api_url:
+            secret_env["TODOFORAI_API_URL"] = api_url
         try:
             await self.exec_as_agent(
                 environment,
                 command=(
-                    f"todoforai-edge{edge_flags} & sleep 5 && "
-                    f"echo {shlex.quote(instruction)} | todoai --non-interactive --allow-all --no-edge --path /app{todoai_flags}"
+                    "mkdir -p /logs/agent && "
+                    f"todoforai-edge{edge_flags} > /logs/agent/edge.txt 2>&1 & "
+                    # Poll for the daemon instead of a fixed sleep: a slow start
+                    # used to mean the CLI ran before any device was online.
+                    "for i in $(seq 1 30); do "
+                    "  grep -q 'Connected edge=' /logs/agent/edge.txt 2>/dev/null && break; "
+                    "  sleep 1; "
+                    "done && "
+                    f'printf "%s" "${instr_var}" | '
+                    "todoai --non-interactive --allow-all --no-edge --path /app"
+                    f"{cli_flags} 2>&1 | tee /logs/agent/todoai.txt"
                 ),
+                env=secret_env,
             )
         finally:
             # Kill leftover processes (edge, background apt-get from agent) so they

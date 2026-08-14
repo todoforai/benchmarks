@@ -27,7 +27,7 @@ while [ $i -lt $TOTAL ]; do
   echo "$(date '+%F %T') === batch $batch_no: tasks $((i+1))-$((i+${#ARGS[@]}/2)) -> jobs/$JOB"
   # clean stale containers from previous batch
   docker ps -q | xargs -r docker rm -f >/dev/null 2>&1
-  ~/.todoforai/tools/venv/bin/harbor run \
+  "$PWD/.venv/bin/harbor" run \
     -d "terminal-bench/terminal-bench-2" \
     --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
     "${ARGS[@]}" \

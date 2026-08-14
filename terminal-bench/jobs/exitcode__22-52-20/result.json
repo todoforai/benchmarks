@@ -1,0 +1,43 @@
+{
+    "id": "522776ce-9fcc-44f5-b73c-6771d9a11b07",
+    "started_at": "2026-08-12T22:52:23.330111",
+    "updated_at": "2026-08-12T22:53:05.771792",
+    "finished_at": "2026-08-12T22:53:05.771792",
+    "n_total_trials": 1,
+    "stats": {
+        "n_completed_trials": 1,
+        "n_errored_trials": 1,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "todoforai__terminal-bench/terminal-bench-2": {
+                "n_trials": 1,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "chess-best-move__buu7J7c"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "ApiError": [
+                        "chess-best-move__buu7J7c"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null
+    }
+}

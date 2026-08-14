@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/.venv/lib/python3.13/site-packages/harbor/trial/single_step.py", line 77, in _run_agent
+    await self._run_agent_phase(
+    ...<5 lines>...
+    )
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/.venv/lib/python3.13/site-packages/harbor/trial/trial.py", line 480, in _run_agent_phase
+    await asyncio.wait_for(
+    ...<6 lines>...
+    )
+  File "/home/hm/.local/share/uv/python/cpython-3.13.3-linux-x86_64-gnu/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/.venv/lib/python3.13/site-packages/harbor/agents/installed/base.py", line 175, in wrapper
+    return await fn(self, instruction, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/todoforai_tbench/harbor_agent.py", line 129, in run
+    await self.exec_as_agent(
+    ...<5 lines>...
+    )
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/.venv/lib/python3.13/site-packages/harbor/agents/installed/base.py", line 884, in exec_as_agent
+    return await self._exec(
+           ^^^^^^^^^^^^^^^^^
+        environment, command, env=env, cwd=cwd, timeout_sec=timeout_sec
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/hm/repo/todoforai/benchmarks/terminal-bench/.venv/lib/python3.13/site-packages/harbor/agents/installed/base.py", line 851, in _exec
+    raise self._classify_exec_error(command, result)
+harbor.agents.installed.base.NonZeroAgentExitCodeError: Command failed (exit 1): todoforai-edge --api-key <redacted> --api-url http://172.17.0.1:4000 --add-path /app --no-auto-update & sleep 5 && echo 'The file chess_board.png has an image of a chess board. It is currently white to move. Write the best move for white to play to /app/move.txt in the form [src][dst], for example, e2e4 or h1h8. If there are multiple winning moves, print them all, one per line.
+' | todoai --non-interactive --allow-all --no-edge --path /app --api-key <redacted> --api-url http://172.17.0.1:4000 --agent app
+stdout: [36m[1m👆 Fingerprint:[0m eyJtYWNoaW5lX2lkIjogIjA5ZTEwYWIyZWE3YjQ4ZWIzZTBjMTBiMzNhNGQzYmE4In0=
+[info] Connecting
+[browser-bridge] listening on ws://127.0.0.1:43127
+[info] WebSocket connected
+[32m[1m🔗 Connected edge=4cedebd1-1a1f-44bd-9945-928bc335f953 user=d5328c3d-1859-4e23-b46c-2fbdca000fbd[0m
+[32m✅ Added workspace path: /app[0m
+Error: Agent 'app' not found
+
+stderr: None

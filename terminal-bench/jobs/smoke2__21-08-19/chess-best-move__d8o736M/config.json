@@ -1,0 +1,13 @@
+{
+    "task": {
+        "name": "terminal-bench/chess-best-move",
+        "ref": "sha256:b1956d533c003b523a81fabe43de6f7c80b97fddb2c037e65b0cfc94dd1ba22a",
+        "source": "terminal-bench/terminal-bench-2"
+    },
+    "trial_name": "chess-best-move__d8o736M",
+    "trials_dir": "jobs/smoke2__21-08-19",
+    "agent": {
+        "import_path": "todoforai_tbench:TODOforAIHarborAgent"
+    },
+    "job_id": "e1e70d8c-a307-4f5b-b179-6bad41c9307c"
+}

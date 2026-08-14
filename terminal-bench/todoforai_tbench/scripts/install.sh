@@ -12,12 +12,12 @@ echo 'export PATH="$HOME/.bun/bin:$PATH"' >> /etc/environment
 
 # Install todoai CLI (Bun) and todoforai-edge
 # Use local dist if available (from rebuild_wheels.sh), otherwise npm
-if [ -f /installed-agent/dist/todoai.js ]; then
+if [ -f /installed-agent/dist/todoforai-cli.js ]; then
   echo "Installing todoai from local dist..."
-  mkdir -p /usr/local/lib/todoai
-  cp /installed-agent/dist/todoai.js /usr/local/lib/todoai/todoai.js
-  chmod +x /usr/local/lib/todoai/todoai.js
-  printf '#!/bin/bash\nexec bun /usr/local/lib/todoai/todoai.js "$@"\n' > /usr/local/bin/todoai
+  mkdir -p /usr/local/lib/todoforai-cli
+  cp /installed-agent/dist/todoforai-cli.js /usr/local/lib/todoforai-cli/todoforai-cli.js
+  chmod +x /usr/local/lib/todoforai-cli/todoforai-cli.js
+  printf '#!/bin/bash\nexec bun /usr/local/lib/todoforai-cli/todoforai-cli.js "$@"\n' > /usr/local/bin/todoai
   chmod +x /usr/local/bin/todoai
 else
   echo "Installing @todoforai/cli from npm..."

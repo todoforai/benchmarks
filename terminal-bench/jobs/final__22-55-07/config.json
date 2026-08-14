@@ -1,0 +1,19 @@
+{
+    "job_name": "final__22-55-07",
+    "n_concurrent_trials": 1,
+    "agents": [
+        {
+            "import_path": "todoforai_tbench:TODOforAIHarborAgent",
+            "model_name": "anthropic:anthropic/claude-opus-4.7"
+        }
+    ],
+    "datasets": [
+        {
+            "name": "terminal-bench/terminal-bench-2",
+            "ref": "sha256:c6fc2e2382c1dbae99b2d5ecd2f4f4a60c3c01e0d84642d69b4afd92e99d078b",
+            "task_names": [
+                "terminal-bench/chess-best-move"
+            ]
+        }
+    ]
+}
