@@ -38,7 +38,22 @@ def _load_api_key_pool() -> list[str]:
         if keys:
             return keys
     single = os.environ.get("TODOFORAI_API_KEY", "").strip()
-    return [single] if single else [""]
+    if single:
+        return [single]
+    # Fallback: the checked-in key file next to the adapter. Harbor 0.22 runs
+    # trials without inheriting the launching shell's environment, so env-only
+    # configuration silently yields an empty pool (edge then falls into the
+    # interactive device-login flow and the trial dies).
+    default_file = Path(__file__).resolve().parent.parent / "dev_api_keys.txt"
+    if default_file.is_file():
+        keys = []
+        for line in default_file.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                keys.append(line.split()[0])
+        if keys:
+            return keys
+    return [""]
 
 
 def _api_url() -> str:
@@ -200,7 +215,11 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         # publishes a live key into every committed job directory. Edge reads
         # TODOFORAI_API_KEY, the CLI reads TODOFORAI_API_TOKEN, both read
         # TODOFORAI_API_URL.
-        edge_flags = " --add-path /app --no-auto-update"
+        # Edge 4ab0c3e dropped the TODOFORAI_API_KEY env var; the key must be
+        # explicit via --api-key. Referencing the env VAR NAME in the command
+        # keeps it out of harbor's verbatim command logs (expanded only by the
+        # in-container shell); the value still travels via secret_env.
+        edge_flags = ' --api-key "$TODOFORAI_API_KEY" --add-path /app --no-auto-update'
         cli_flags = ""
         # Pin the pre-configured benchmark agent by exact name. Path-based
         # matching (--path /app) races the edge's online registration: if the
@@ -228,6 +247,8 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                 environment,
                 command=(
                     "mkdir -p /logs/agent && "
+                    # Diagnostic: record whether the secret env arrived (lengths only).
+                    'echo "key_len=${#TODOFORAI_API_KEY} token_len=${#TODOFORAI_API_TOKEN} url=$TODOFORAI_API_URL" > /logs/agent/envcheck.txt && '
                     f"todoforai-edge{edge_flags} > /logs/agent/edge.txt 2>&1 & "
                     # Poll for the daemon instead of a fixed sleep: a slow start
                     # used to mean the CLI ran before any device was online.
