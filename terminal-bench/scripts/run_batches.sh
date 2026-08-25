@@ -10,6 +10,11 @@ PREFIX="${1:-gpt-5.6-sol-xhigh}"
 BATCH="${2:-10}"
 CONC="${3:-6}"
 TASKS_FILE="${TASKS_FILE:-tasks_all.txt}"
+# The model belongs in the harbor invocation, so a job is fully described by its
+# command instead of by mutable per-account state.
+MODEL="${TB_MODEL:-openai:openai/gpt-5.6-sol}"
+# Allow an out-of-tree venv (e.g. WSL native, when the repo lives on /mnt/c).
+HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
 export TODOFORAI_API_KEYS_FILE="$PWD/dev_api_keys.txt"
 
 mapfile -t TASKS < <(grep -v '^\s*$' "$TASKS_FILE")
@@ -27,9 +32,10 @@ while [ $i -lt $TOTAL ]; do
   echo "$(date '+%F %T') === batch $batch_no: tasks $((i+1))-$((i+${#ARGS[@]}/2)) -> jobs/$JOB"
   # clean stale containers from previous batch
   docker ps -q | xargs -r docker rm -f >/dev/null 2>&1
-  "$PWD/.venv/bin/harbor" run \
+  "$HARBOR" run \
     -d "terminal-bench/terminal-bench-2" \
     --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
+    -m "$MODEL" \
     "${ARGS[@]}" \
     --job-name "$JOB" \
     --yes -n "$CONC" > "jobs/$JOB.log" 2>&1
