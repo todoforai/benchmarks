@@ -45,7 +45,7 @@ while [ $i -lt $TOTAL ]; do
   # (AgentTimeoutError etc.) stay excluded by harbor's default list, so
   # retries never inflate the score -- they only remove provider noise.
   "$HARBOR" run \
-    -d "terminal-bench/terminal-bench-2" \
+    -d "terminal-bench/terminal-bench-2-1" \
     --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
     -m "$MODEL" \
     "${ARGS[@]}" \
