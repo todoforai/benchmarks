@@ -4,6 +4,11 @@
 #
 # start-batch resumes an interrupted sweep: batches below it are skipped, so a
 # run that died at batch 5 does not re-burn the four hours already measured.
+#
+# To pause between batches (e.g. before a backend deploy): `touch jobs/STOP`.
+# The running batch finishes, then the loop exits and prints its resume command.
+# Do NOT kill this script to achieve that: it dies as a process group and takes
+# the in-flight harbor -- and its trials -- with it.
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -31,6 +36,13 @@ while [ $i -lt $TOTAL ]; do
   if [ "$batch_no" -lt "$START_BATCH" ]; then
     echo "$(date '+%F %T') === batch $batch_no: skipped (resuming at $START_BATCH)"
     i=$((i+BATCH)); batch_no=$((batch_no+1)); continue
+  fi
+  # Graceful brake: `touch jobs/STOP` to let the running batch finish but start
+  # no new one (e.g. before a backend deploy, whose restart kills in-flight
+  # trials). Resume afterwards with the printed start-batch.
+  if [ -f jobs/STOP ]; then
+    echo "$(date '+%F %T') === jobs/STOP present: not starting batch $batch_no; resume with: $0 $PREFIX $BATCH $CONC $batch_no"
+    exit 0
   fi
   ARGS=()
   for t in "${TASKS[@]:$i:$BATCH}"; do
