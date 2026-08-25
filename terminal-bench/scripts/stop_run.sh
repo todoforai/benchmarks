@@ -9,5 +9,9 @@ pkill -9 -f 'harbor run' 2>/dev/null
 pkill -9 -f run_batches 2>/dev/null
 sleep 2
 docker ps -aq | xargs -r docker rm -f >/dev/null 2>&1
+# Killed compose runs leak their per-trial networks; ~30 leftovers exhaust the
+# daemon's address pools and every later trial dies with "all predefined
+# address pools have been fully subnetted".
+docker network prune -f >/dev/null 2>&1
 
 echo "harbor=$(pgrep -cf 'harbor run' || echo 0) containers=$(docker ps -aq | wc -l)"

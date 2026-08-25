@@ -38,8 +38,10 @@ while [ $i -lt $TOTAL ]; do
   done
   JOB="${PREFIX}__batch$(printf '%02d' $batch_no)__$(date +%Y-%m-%d__%H-%M-%S)"
   echo "$(date '+%F %T') === batch $batch_no: tasks $((i+1))-$((i+${#ARGS[@]}/2)) -> jobs/$JOB"
-  # clean stale containers from previous batch
+  # clean stale containers + leaked compose networks from previous batch
+  # (leftover networks exhaust the docker address pools -> every trial fails)
   docker ps -q | xargs -r docker rm -f >/dev/null 2>&1
+  docker network prune -f >/dev/null 2>&1
   # Retry infra-flavoured failures (ApiError = provider stall / todo ERROR,
   # NetworkConnectionError = edge dropped). Genuine agent outcomes
   # (AgentTimeoutError etc.) stay excluded by harbor's default list, so
