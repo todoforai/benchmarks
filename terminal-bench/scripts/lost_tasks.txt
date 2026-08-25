@@ -1,0 +1,8 @@
+# Tasks whose trial directories no longer exist, so failed_tasks.sh cannot see
+# them. Killing run_batches.sh sends SIGTERM to the whole process group, which
+# takes the running harbor and its in-flight trials with it; their half-written
+# dirs were removed to keep the stats honest.
+# Use `touch jobs/STOP` to pause a sweep instead -- it never loses a trial.
+cobol-modernization
+compile-compcert
+custom-memory-heap-crash
