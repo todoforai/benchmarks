@@ -8,7 +8,9 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 JOB="${1:?usage: verify_model.sh <job-dir>}"
 URL="${TODOFORAI_API_URL:-https://api.todofor.ai}"
-KEY=$(awk 'NF && $1 !~ /^#/ {print $1; exit}' dev_api_keys.txt)
+# Trials are spread across the whole key pool, and a todo is only readable by
+# the account that owns it -- so try every key, not just the first one.
+mapfile -t KEYS < <(awk 'NF && $1 !~ /^#/ {print $1}' dev_api_keys.txt)
 
 for log in "$JOB"/*/agent/todoforai-cli.txt; do
   [ -f "$log" ] || continue
@@ -17,6 +19,7 @@ for log in "$JOB"/*/agent/todoforai-cli.txt; do
   todo=$(grep -o 'todofor.ai/t/[a-f0-9-]*' "$log" | head -1 | sed 's|.*/t/||')
   served="(no todo id)"
   if [ -n "$todo" ]; then
+   for KEY in "${KEYS[@]}"; do
     served=$(curl -sS -m 30 -H "x-api-key: $KEY" "$URL/api/v1/todos/$todo/messages" 2>/dev/null \
       | python3 -c '
 import json, sys
@@ -38,6 +41,8 @@ def scan(o):
         for v in o: scan(v)
 scan(msgs)
 print(", ".join(f"{m} x{c}" for m, c in seen.most_common(3)) or "(no model in messages)")' 2>/dev/null)
+    case "$served" in *"/"*) break ;; esac
+   done
   fi
   printf '%-38s\n  asked : %s\n  served: %s\n' "${trial:0:38}" "$asked" "$served"
 done
