@@ -38,3 +38,6 @@ logs/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Raw harbor job output (tens of MB per sweep); summaries are committed instead
+terminal-bench/jobs/

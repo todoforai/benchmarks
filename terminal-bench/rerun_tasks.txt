@@ -1,0 +1,16 @@
+adaptive-rejection-sampler
+break-filter-js-from-html
+build-cython-ext
+build-pov-ray
+caffe-cifar-10
+circuit-fibsqrt
+cobol-modernization
+compile-compcert
+custom-memory-heap-crash
+dna-assembly
+dna-insert
+extract-moves-from-video
+mailman
+make-mips-interpreter
+mcmc-sampling-stan
+torch-pipeline-parallelism
