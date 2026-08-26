@@ -11,28 +11,32 @@
 // Note cache reads dominate an agent loop (the same context is re-sent every turn),
 // so any estimate that ignores them is off by more than half.
 //
+// Also note a trial is not one model: explore/review/webfetch are sub-agents with
+// their own models, and review's opus-5 can outspend the main model. See SUB_TODO.
+//
 // Usage: node scripts/run_tokens.mjs <job-dir-prefix>
 //   node scripts/run_tokens.mjs tb21-
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// $ per 1M tokens. Source: openrouter.ai model page, checked 2026-08-26.
-// `promo` is the provider's own temporary cut (gpt-5.6-sol, through Nov 21).
+// $ per 1M tokens, from the provider price list the product itself ships:
+// frontend/src/assets/models_data.json (endpoints[].pricing, $ per token).
+// `promo` is the provider's own temporary cut, not ours.
 const PRICES = {
   'openai:openai/gpt-5.6-sol': {
     list:  { in: 4, out: 20, cacheRead: 0.4, cacheWrite: 5 },
     promo: { in: 2, out: 10, cacheRead: 0.2, cacheWrite: 2.5 },
   },
-  'anthropic:anthropic/claude-haiku-4.5': {
-    list: { in: 1, out: 5, cacheRead: 0.1, cacheWrite: 1.25 },
-  },
+  'anthropic:anthropic/claude-opus-5':   { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },
+  'anthropic:anthropic/claude-haiku-4.5': { list: { in: 1, out: 5,  cacheRead: 0.1, cacheWrite: 1.25 } },
 };
+const tierOf = (p) => p.promo || p.list;   // what this run would actually be charged
 
 // Sub-agent tools bill their own model, but SubAgentStats carries no model name
 // (EasyContext.jl/src/tools/SubAgentStats.jl), so runMeta arrives model-less and
-// only the description identifies it. Their default model is hardcoded in the
-// tool, e.g. OpenContentBroker.jl/src/tools/WebFetchTool.jl -> haiku-4.5.
+// only the description identifies it. The default is hardcoded in each tool, e.g.
+// OpenContentBroker.jl/src/tools/WebFetchTool.jl -> haiku-4.5.
 const SUBAGENT_MODEL = {
   'Web Fetch': 'anthropic:anthropic/claude-haiku-4.5',
   'Google Search': 'anthropic:anthropic/claude-haiku-4.5',
@@ -59,47 +63,71 @@ for (const job of readdirSync(join(root, 'jobs'), { withFileTypes: true })
     byTask.set(trial.name.replace(/__[A-Za-z0-9]+$/, ''), { todoId: m[1], trial: `${job}/${trial.name}` });
   }
 }
-const trials = new Map([...byTask.values()].map(v => [v.todoId, v.trial]));
 
 const keys = readFileSync(join(root, 'dev_api_keys.txt'), 'utf8')
   .split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
   .map(l => l.split(/\s+/)[0]);
 
-const byModel = new Map();
-let unreachable = 0;
-
-for (const [todoId] of trials) {
-  // Each todo belongs to one of the dev accounts; try keys until one is allowed.
-  let messages = null;
+// Each todo belongs to one of the dev accounts; try keys until one is allowed.
+const getMessages = async (todoId) => {
   for (const key of keys) {
     const r = await fetch(`${BASE}/api/v1/todos/${todoId}/messages?limit=500`, { headers: { 'x-api-key': key } });
     if (!r.ok) continue;
     const j = await r.json();
-    if (j.messages) { messages = j.messages; break; }
+    if (j.messages) return j.messages;
   }
+  return null;
+};
+
+const byModel = new Map();
+let unreachable = 0;
+const subTodos = new Map();   // sub todo id -> tool type that spawned it
+
+const add = (model, e, todoId) => {
+  const t = byModel.get(model) || { in: 0, out: 0, cacheRead: 0, cacheWrite: 0, msgs: 0, todos: new Set() };
+  t.in += e.inputTokens || 0; t.out += e.outputTokens || 0;
+  t.cacheRead += e.cacheReadTokens || 0; t.cacheWrite += e.cacheWriteTokens || 0;
+  t.msgs++; t.todos.add(todoId);
+  byModel.set(model, t);
+};
+
+// runMeta hides at several depths (message-level and per block), so walk the tree.
+// Blocks that ran a sub-agent in its own todo (explore, review) keep their tokens
+// there and expose only a `subTodoId`; collect those and drain them afterwards.
+const walk = (o, todoId) => {
+  if (!o || typeof o !== 'object') return;
+  if (Array.isArray(o)) return o.forEach(v => walk(v, todoId));
+  if (o.subTodoId && o.type) subTodos.set(o.subTodoId, o.type);
+  const e = o.extras;
+  if (e && (e.inputTokens != null || e.outputTokens != null))
+    add(e.model || SUBAGENT_MODEL[o.description] || `unknown (${o.description || '?'})`, e, todoId);
+  for (const v of Object.values(o)) walk(v, todoId);
+};
+
+for (const { todoId } of byTask.values()) {
+  const messages = await getMessages(todoId);
   if (!messages) { unreachable++; continue; }
-  // runMeta hides at several depths (message-level and per block), so walk the tree.
-  const walk = (o) => {
-    if (!o || typeof o !== 'object') return;
-    if (Array.isArray(o)) return o.forEach(walk);
-    const e = o.extras;
-    if (e && (e.inputTokens != null || e.outputTokens != null)) {
-      const m = e.model || SUBAGENT_MODEL[o.description] || `unknown (${o.description || '?'})`;
-      const t = byModel.get(m) || { in: 0, out: 0, cacheRead: 0, cacheWrite: 0, msgs: 0, todos: new Set() };
-      t.in += e.inputTokens || 0; t.out += e.outputTokens || 0;
-      t.cacheRead += e.cacheReadTokens || 0; t.cacheWrite += e.cacheWriteTokens || 0;
-      t.msgs++; t.todos.add(todoId);
-      byModel.set(m, t);
-    }
-    for (const v of Object.values(o)) walk(v);
-  };
-  walk(messages);
+  walk(messages, todoId);
+}
+// Sub-agents can spawn sub-agents, so drain until the frontier is empty.
+for (const seen = new Set(); subTodos.size > seen.size; ) {
+  for (const [subId] of [...subTodos]) {
+    if (seen.has(subId)) continue;
+    seen.add(subId);
+    const messages = await getMessages(subId);
+    if (!messages) { unreachable++; continue; }
+    walk(messages, subId);
+  }
 }
 
 const M = n => (n / 1e6).toFixed(2) + 'M';
 const price = (t, p) => (t.in * p.in + t.out * p.out + t.cacheRead * p.cacheRead + t.cacheWrite * p.cacheWrite) / 1e6;
 
-console.log(`${trials.size} tasks, last attempt each${unreachable ? ` (${unreachable} unreachable)` : ''}\n`);
+const nTasks = byTask.size;
+console.log(`${nTasks} tasks, last attempt each; ${subTodos.size} sub-agent todos` +
+  `${unreachable ? ` (${unreachable} unreachable)` : ''}\n`);
+
+let grand = 0;
 for (const [model, t] of [...byModel].sort((a, b) => b[1].out - a[1].out)) {
   console.log(model);
   console.log(`  ${t.msgs} messages over ${t.todos.size} todos`);
@@ -108,9 +136,11 @@ for (const [model, t] of [...byModel].sort((a, b) => b[1].out - a[1].out)) {
   if (!p) { console.log('  (no published price on record)\n'); continue; }
   for (const [label, tier] of Object.entries(p)) {
     const total = price(t, tier);
-    console.log(`  ${label.padEnd(5)} $${total.toFixed(2)} total, $${(total / trials.size).toFixed(2)}/task` +
+    console.log(`  ${label.padEnd(5)} $${total.toFixed(2)} total, $${(total / nTasks).toFixed(2)}/task` +
       `   [in $${(t.in * tier.in / 1e6).toFixed(2)} · out $${(t.out * tier.out / 1e6).toFixed(2)}` +
       ` · cacheR $${(t.cacheRead * tier.cacheRead / 1e6).toFixed(2)} · cacheW $${(t.cacheWrite * tier.cacheWrite / 1e6).toFixed(2)}]`);
   }
+  grand += price(t, tierOf(p));
   console.log();
 }
+console.log(`TOTAL (promo where the provider offers one): $${grand.toFixed(2)}, $${(grand / nTasks).toFixed(2)}/task`);

@@ -104,40 +104,49 @@ from assistant message metadata (CLI header only echoes the request).
 
 Scored as 89 tasks, so costed as 89 tasks: each task's LAST attempt only.
 Abandoned infra-damaged attempts are not paid for twice (counting all 102 trials
-would inflate the total by the 13 retried tasks). 2172 metered assistant
-messages, from the provider's own usage report in each message's runMeta `extras`:
+would inflate the total by the 13 retried tasks).
 
-| | tokens |
-|---|---|
-| input (cache miss) | 7.49M |
-| output | 0.94M |
-| **cache read** | **144.10M** |
-| cache write | ~0 |
+A trial is not one model. The main loop runs gpt-5.6-sol, but the explore,
+review and webfetch tools each spawn a sub-agent on its own model — review on
+claude-opus-5, the rest on claude-haiku-4.5. Those sub-agents run in their own
+todos (`subTodoId` on the block), so their tokens are invisible unless you
+follow the link; 83 sub-agent todos hang off the 89 task todos here.
 
-Cache reads are 94% of everything sent: an agent loop re-sends the same context
+Tokens per model, from the provider's own usage report in each message's
+runMeta `extras`:
+
+| model | in | out | cache read | cache write |
+|---|---|---|---|---|
+| gpt-5.6-sol (main loop) | 7.65M | 0.95M | 144.94M | 0 |
+| claude-opus-5 (review) | ~0 | 1.74M | 24.31M | 2.68M |
+| claude-haiku-4.5 (explore, webfetch) | 0.24M | 0.50M | 18.98M | 2.96M |
+
+Cache reads are 93% of everything sent: an agent loop re-sends the same context
 every turn. Any estimate that ignores them is off by more than half.
 
-Six tasks also used the webfetch tool, whose summarization step is its own
-sub-agent on claude-haiku-4.5 (OpenContentBroker.jl WebFetchTool): 52 calls,
-0.05M in / 0.02M out / 0.21M cacheWrite = $0.42 at list. Rounding noise next to
-the main model, but it is a real second model in the run, so it is counted.
-Its runMeta carries no model name (SubAgentStats has no model field), so the
-script maps it by tool description.
+Priced at the provider list the product itself ships
+(`frontend/src/assets/models_data.json`, $/Mtok):
 
-Priced at published rates (openrouter.ai, checked 2026-08-26):
+| model | rate in/out/cacheR/cacheW | total | per task |
+|---|---|---|---|
+| gpt-5.6-sol (provider promo) | 2 / 10 / 0.2 / 2.5 | $53.82 | $0.60 |
+| claude-opus-5 | 5 / 25 / 0.5 / 6.25 | $72.37 | $0.81 |
+| claude-haiku-4.5 | 1 / 5 / 0.1 / 1.25 | $8.32 | $0.09 |
+| **total** | | **$134.51** | **$1.51** |
 
-| gpt-5.6-sol price/Mtok | total (incl. $0.42 haiku) | per task |
-|---|---|---|
-| provider promo — in 2 / out 10 / cacheRead 0.2 | **$53.59** | $0.60 |
-| full list — in 4 / out 20 / cacheRead 0.4 | $106.75 | $1.20 |
+At gpt-5.6-sol full list (4/20/0.4/5) instead of the promo the total is $188.33.
+
+Worth naming: the review sub-agent costs MORE than the model being benchmarked
+($72.37 vs $53.82) off 50 calls, almost all of it opus-5 output and cache
+writes. Cutting review to a cheaper model would roughly halve the run.
 
 The tokens are the measurement; the price is a parameter. What our billing
 ledger actually charged is deliberately NOT the headline: it includes our own
 promotional discounts (`agent/src/model_promos.jl`, 85-90% off during this run),
 so nobody outside can reproduce it and it changes when a promo ends.
 
-Reproduce: `node scripts/run_tokens.mjs tb21-` (price table lives at the top of
-that script).
+Reproduce: `node scripts/run_tokens.mjs tb21-` (price table at the top of that
+script).
 
 For scale, the tbench.ai 2.1 entries above us report $552.67 (Claude Code ·
 Fable 5) and $2,059.19 (Codex · GPT-5.5) — but their trials-per-task is not
