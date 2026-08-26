@@ -102,34 +102,36 @@ from assistant message metadata (CLI header only echoes the request).
 
 ## Token usage and cost
 
-Measured over all 102 trials (2977 metered assistant messages), from the
-provider's own usage report in each message's runMeta `extras`:
+Scored as 89 tasks, so costed as 89 tasks: each task's LAST attempt only.
+Abandoned infra-damaged attempts are not paid for twice (counting all 102 trials
+would inflate the total by the 13 retried tasks). 2172 metered assistant
+messages, from the provider's own usage report in each message's runMeta `extras`:
 
 | | tokens |
 |---|---|
-| input (cache miss) | 9.92M |
-| output | 1.27M |
-| **cache read** | **233.61M** |
+| input (cache miss) | 7.49M |
+| output | 0.94M |
+| **cache read** | **144.10M** |
 | cache write | ~0 |
 
-Cache reads are 96% of everything sent: an agent loop re-sends the same context
+Cache reads are 94% of everything sent: an agent loop re-sends the same context
 every turn. Any estimate that ignores them is off by more than half.
 
 Priced at published gpt-5.6-sol rates (openrouter.ai, checked 2026-08-26):
 
-| price/Mtok | total | per trial |
+| price/Mtok | total | per task |
 |---|---|---|
-| provider promo — in 2 / out 10 / cacheRead 0.2 | **$79.24** | $0.78 |
-| full list — in 4 / out 20 / cacheRead 0.4 | $158.48 | $1.55 |
+| provider promo — in 2 / out 10 / cacheRead 0.2 | **$53.17** | $0.60 |
+| full list — in 4 / out 20 / cacheRead 0.4 | $106.33 | $1.19 |
 
 The tokens are the measurement; the price is a parameter. What our billing
-ledger actually charged ($22.20) is deliberately NOT the headline: it includes
-our own promotional discounts (`agent/src/model_promos.jl`, 85-90% off during
-this run), so nobody outside can reproduce it and it changes when a promo ends.
+ledger actually charged is deliberately NOT the headline: it includes our own
+promotional discounts (`agent/src/model_promos.jl`, 85-90% off during this run),
+so nobody outside can reproduce it and it changes when a promo ends.
 
 Reproduce: `node scripts/run_tokens.mjs tb21-` (price table lives at the top of
 that script).
 
 For scale, the tbench.ai 2.1 entries above us report $552.67 (Claude Code ·
 Fable 5) and $2,059.19 (Codex · GPT-5.5) — but their trials-per-task is not
-documented, so per-trial ratios are estimates, not measured claims.
+documented, so per-task ratios are estimates, not measured claims.

@@ -31,17 +31,23 @@ const prefix = (process.argv[2] || 'tb21-').replace(/^jobs\//, '').replace(/\*$/
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 // Trial -> todo id, from the CLI banner each trial's agent log starts with.
-const trials = new Map();
-for (const job of readdirSync(join(root, 'jobs'), { withFileTypes: true })) {
-  if (!job.isDirectory() || !job.name.startsWith(prefix)) continue;
-  for (const trial of readdirSync(join(root, 'jobs', job.name), { withFileTypes: true })) {
+// A task retried after an infra failure has several trials; the score counts its
+// LAST attempt, so the cost must too — otherwise abandoned runs are paid twice.
+// Job dir names carry batch + timestamp, so sorting them puts the latest last.
+const byTask = new Map();   // task -> { todoId, trial }
+for (const job of readdirSync(join(root, 'jobs'), { withFileTypes: true })
+       .filter(d => d.isDirectory() && d.name.startsWith(prefix))
+       .map(d => d.name).sort()) {
+  for (const trial of readdirSync(join(root, 'jobs', job), { withFileTypes: true })) {
     if (!trial.isDirectory()) continue;
-    const f = join(root, 'jobs', job.name, trial.name, 'agent', 'todoforai-cli.txt');
+    const f = join(root, 'jobs', job, trial.name, 'agent', 'todoforai-cli.txt');
     if (!existsSync(f)) continue;
     const m = readFileSync(f, 'utf8').match(/todofor\.ai\/t\/([0-9a-f-]{36})/i);
-    if (m) trials.set(m[1], `${job.name}/${trial.name}`);
+    if (!m) continue;
+    byTask.set(trial.name.replace(/__[A-Za-z0-9]+$/, ''), { todoId: m[1], trial: `${job}/${trial.name}` });
   }
 }
+const trials = new Map([...byTask.values()].map(v => [v.todoId, v.trial]));
 
 const keys = readFileSync(join(root, 'dev_api_keys.txt'), 'utf8')
   .split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
@@ -81,7 +87,7 @@ for (const [todoId] of trials) {
 const M = n => (n / 1e6).toFixed(2) + 'M';
 const price = (t, p) => (t.in * p.in + t.out * p.out + t.cacheRead * p.cacheRead + t.cacheWrite * p.cacheWrite) / 1e6;
 
-console.log(`${trials.size} trials${unreachable ? ` (${unreachable} unreachable)` : ''}\n`);
+console.log(`${trials.size} tasks, last attempt each${unreachable ? ` (${unreachable} unreachable)` : ''}\n`);
 for (const [model, t] of [...byModel].sort((a, b) => b[1].out - a[1].out)) {
   console.log(model);
   console.log(`  ${t.msgs} messages over ${t.todos.size} todos`);
@@ -90,7 +96,7 @@ for (const [model, t] of [...byModel].sort((a, b) => b[1].out - a[1].out)) {
   if (!p) { console.log('  (no published price on record)\n'); continue; }
   for (const [label, tier] of Object.entries(p)) {
     const total = price(t, tier);
-    console.log(`  ${label.padEnd(5)} $${total.toFixed(2)} total, $${(total / trials.size).toFixed(2)}/trial` +
+    console.log(`  ${label.padEnd(5)} $${total.toFixed(2)} total, $${(total / trials.size).toFixed(2)}/task` +
       `   [in $${(t.in * tier.in / 1e6).toFixed(2)} · out $${(t.out * tier.out / 1e6).toFixed(2)}` +
       ` · cacheR $${(t.cacheRead * tier.cacheRead / 1e6).toFixed(2)} · cacheW $${(t.cacheWrite * tier.cacheWrite / 1e6).toFixed(2)}]`);
   }
