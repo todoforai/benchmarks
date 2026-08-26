@@ -41,3 +41,6 @@ htmlcov/
 
 # Raw harbor job output (tens of MB per sweep); summaries are committed instead
 terminal-bench/jobs/
+
+# Raw per-trial message dumps; preserved in the versioned tar archive
+terminal-bench/trajectories/
