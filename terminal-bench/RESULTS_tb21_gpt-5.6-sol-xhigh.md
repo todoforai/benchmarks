@@ -98,3 +98,20 @@ from assistant message metadata (CLI header only echoes the request).
 1 vulnerable-secret (sweep)
 1 winning-avg-corewars (sweep)
 1 write-compressor (sweep)
+
+## Cost
+
+**$22.20 for the whole run** — 102 trials (89 sweep + 16 rerun, some tasks twice),
+$0.22/trial, 4020 assistant messages, 12.7M input / 1.53M output tokens.
+
+Harbor records `cost_usd: null`, so this comes from the billing ledger instead:
+every trial ran as a real todo on a dev account, and each AI message is a DEBIT
+whose amount is the priced cost (cache reads/writes already included — only the
+input/output token counts survive in the metadata). Scoped by the 102 trial todo
+ids parsed from each `agent/todoforai-cli.txt` banner, so the $36 of unrelated
+work on the same accounts in that window stays out. Reproduce:
+`node scripts/run_cost.mjs tb21-`.
+
+For scale, the tbench.ai 2.1 entries above us report $552.67 (Claude Code ·
+Fable 5) and $2,059.19 (Codex · GPT-5.5) — but their trials-per-task is not
+documented, so treat any per-trial ratio as an estimate, not a measured claim.
