@@ -117,12 +117,19 @@ messages, from the provider's own usage report in each message's runMeta `extras
 Cache reads are 94% of everything sent: an agent loop re-sends the same context
 every turn. Any estimate that ignores them is off by more than half.
 
-Priced at published gpt-5.6-sol rates (openrouter.ai, checked 2026-08-26):
+Six tasks also used the webfetch tool, whose summarization step is its own
+sub-agent on claude-haiku-4.5 (OpenContentBroker.jl WebFetchTool): 52 calls,
+0.05M in / 0.02M out / 0.21M cacheWrite = $0.42 at list. Rounding noise next to
+the main model, but it is a real second model in the run, so it is counted.
+Its runMeta carries no model name (SubAgentStats has no model field), so the
+script maps it by tool description.
 
-| price/Mtok | total | per task |
+Priced at published rates (openrouter.ai, checked 2026-08-26):
+
+| gpt-5.6-sol price/Mtok | total (incl. $0.42 haiku) | per task |
 |---|---|---|
-| provider promo — in 2 / out 10 / cacheRead 0.2 | **$53.17** | $0.60 |
-| full list — in 4 / out 20 / cacheRead 0.4 | $106.33 | $1.19 |
+| provider promo — in 2 / out 10 / cacheRead 0.2 | **$53.59** | $0.60 |
+| full list — in 4 / out 20 / cacheRead 0.4 | $106.75 | $1.20 |
 
 The tokens are the measurement; the price is a parameter. What our billing
 ledger actually charged is deliberately NOT the headline: it includes our own

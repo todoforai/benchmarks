@@ -24,6 +24,18 @@ const PRICES = {
     list:  { in: 4, out: 20, cacheRead: 0.4, cacheWrite: 5 },
     promo: { in: 2, out: 10, cacheRead: 0.2, cacheWrite: 2.5 },
   },
+  'anthropic:anthropic/claude-haiku-4.5': {
+    list: { in: 1, out: 5, cacheRead: 0.1, cacheWrite: 1.25 },
+  },
+};
+
+// Sub-agent tools bill their own model, but SubAgentStats carries no model name
+// (EasyContext.jl/src/tools/SubAgentStats.jl), so runMeta arrives model-less and
+// only the description identifies it. Their default model is hardcoded in the
+// tool, e.g. OpenContentBroker.jl/src/tools/WebFetchTool.jl -> haiku-4.5.
+const SUBAGENT_MODEL = {
+  'Web Fetch': 'anthropic:anthropic/claude-haiku-4.5',
+  'Google Search': 'anthropic:anthropic/claude-haiku-4.5',
 };
 
 const BASE = process.env.TODOFORAI_API_URL || 'https://api.todofor.ai';
@@ -72,7 +84,7 @@ for (const [todoId] of trials) {
     if (Array.isArray(o)) return o.forEach(walk);
     const e = o.extras;
     if (e && (e.inputTokens != null || e.outputTokens != null)) {
-      const m = e.model || 'unknown';
+      const m = e.model || SUBAGENT_MODEL[o.description] || `unknown (${o.description || '?'})`;
       const t = byModel.get(m) || { in: 0, out: 0, cacheRead: 0, cacheWrite: 0, msgs: 0, todos: new Set() };
       t.in += e.inputTokens || 0; t.out += e.outputTokens || 0;
       t.cacheRead += e.cacheReadTokens || 0; t.cacheWrite += e.cacheWriteTokens || 0;
