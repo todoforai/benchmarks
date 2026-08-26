@@ -99,19 +99,37 @@ from assistant message metadata (CLI header only echoes the request).
 1 winning-avg-corewars (sweep)
 1 write-compressor (sweep)
 
-## Cost
 
-**$22.20 for the whole run** — 102 trials (89 sweep + 16 rerun, some tasks twice),
-$0.22/trial, 4020 assistant messages, 12.7M input / 1.53M output tokens.
+## Token usage and cost
 
-Harbor records `cost_usd: null`, so this comes from the billing ledger instead:
-every trial ran as a real todo on a dev account, and each AI message is a DEBIT
-whose amount is the priced cost (cache reads/writes already included — only the
-input/output token counts survive in the metadata). Scoped by the 102 trial todo
-ids parsed from each `agent/todoforai-cli.txt` banner, so the $36 of unrelated
-work on the same accounts in that window stays out. Reproduce:
-`node scripts/run_cost.mjs tb21-`.
+Measured over all 102 trials (2977 metered assistant messages), from the
+provider's own usage report in each message's runMeta `extras`:
+
+| | tokens |
+|---|---|
+| input (cache miss) | 9.92M |
+| output | 1.27M |
+| **cache read** | **233.61M** |
+| cache write | ~0 |
+
+Cache reads are 96% of everything sent: an agent loop re-sends the same context
+every turn. Any estimate that ignores them is off by more than half.
+
+Priced at published gpt-5.6-sol rates (openrouter.ai, checked 2026-08-26):
+
+| price/Mtok | total | per trial |
+|---|---|---|
+| provider promo — in 2 / out 10 / cacheRead 0.2 | **$79.24** | $0.78 |
+| full list — in 4 / out 20 / cacheRead 0.4 | $158.48 | $1.55 |
+
+The tokens are the measurement; the price is a parameter. What our billing
+ledger actually charged ($22.20) is deliberately NOT the headline: it includes
+our own promotional discounts (`agent/src/model_promos.jl`, 85-90% off during
+this run), so nobody outside can reproduce it and it changes when a promo ends.
+
+Reproduce: `node scripts/run_tokens.mjs tb21-` (price table lives at the top of
+that script).
 
 For scale, the tbench.ai 2.1 entries above us report $552.67 (Claude Code ·
 Fable 5) and $2,059.19 (Codex · GPT-5.5) — but their trials-per-task is not
-documented, so treat any per-trial ratio as an estimate, not a measured claim.
+documented, so per-trial ratios are estimates, not measured claims.
