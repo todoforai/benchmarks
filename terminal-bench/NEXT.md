@@ -205,11 +205,15 @@ while read -r key email; do
 done < dev_api_keys.txt
 ```
 
-**Global deny (cloud tools except webfetch + google_search):**
+**Global deny (bench tool surface: read/write/edit/grep/list/review/bash/webfetch).**
+NOTE: the old `todoai_cloud:*` / `todoai_edge:*` patterns are DEAD — the agent
+matches `builtin:<name>` for cloud tools and `device:todoforai-<name>` for
+sub-agent tools (ToolPermissions.jl). A stale-pattern deny silently loads
+everything. Verified 2026-08-28 via `--debug-dump` toolSchemas capture:
 
 ```bash
 URL="https://api.todofor.ai/api/v1"
-PAYLOAD='{"permissions":{"allow":["todoai_cloud:webfetch","todoai_cloud:google_search"],"ask":[],"deny":["todoai_edge:REVIEW","todoai_cloud:browser_automation","todoai_cloud:intro","todoai_cloud:todoforai_api","todoai_cloud:vault_access","todoai_cloud:business_context","todoai_cloud:image_gen","todoai_cloud:create_todo","todoai_cloud:update_agent_settings","todoai_cloud:skill"]}}'
+PAYLOAD='{"permissions":{"allow":["builtin:webfetch"],"ask":[],"deny":["builtin:skill","builtin:google_search","builtin:question","builtin:html_snippet","builtin:business_onboarding","builtin:image_gen","builtin:todoforai_api","device:todoforai-explore"]}}'
 while read -r key email; do
   [ -z "$key" ] && continue
   curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
