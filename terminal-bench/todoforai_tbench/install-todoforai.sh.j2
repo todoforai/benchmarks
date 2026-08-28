@@ -3,14 +3,17 @@ set -e
 
 echo "=== Installing TODOforAI for Terminal-Bench ==="
 
-# Compiled bun binaries (preferred — no runtime deps needed)
-if [ -f /installed-agent/dist/todoforai-cli ] && [ -f /installed-agent/dist/todoforai-edge ]; then
+# Compiled binaries (preferred — no runtime deps needed).
+# todoforai-bridge is a static musl C binary (~200 KB); todoforai-cli is a
+# bun-compiled single file. `tfa-cli --isolated` spawns the bridge itself.
+if [ -f /installed-agent/dist/todoforai-cli ] && [ -f /installed-agent/dist/todoforai-bridge ]; then
   echo "Installing from compiled binaries..."
   cp /installed-agent/dist/todoforai-cli /usr/local/bin/todoforai-cli
-  cp /installed-agent/dist/todoforai-edge /usr/local/bin/todoforai-edge
-  chmod +x /usr/local/bin/todoforai-cli /usr/local/bin/todoforai-edge
+  cp /installed-agent/dist/todoforai-bridge /usr/local/bin/todoforai-bridge
+  chmod +x /usr/local/bin/todoforai-cli /usr/local/bin/todoforai-bridge
   echo "=== TODOforAI installation complete ==="
-  todoforai-cli --help 2>&1 | head -3 || true
+  todoforai-cli --version || true
+  todoforai-bridge --version || true
   exit 0
 fi
 
@@ -24,7 +27,7 @@ ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/bun
 ln -sf "$HOME/.bun/bin/bunx" /usr/local/bin/bunx
 ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/node
 
-# JS dist files (bun wrappers)
+# JS dist file (bun wrapper) for the CLI
 if [ -f /installed-agent/dist/todoforai-cli.js ]; then
   echo "Installing todoforai-cli from local JS dist..."
   mkdir -p /usr/local/lib/todoforai-cli
@@ -40,22 +43,14 @@ else
   done
 fi
 
-if [ -f /installed-agent/dist/todoforai-edge.js ]; then
-  echo "Installing todoforai-edge from local JS dist..."
-  mkdir -p /usr/local/lib/todoforai-edge
-  cp /installed-agent/dist/todoforai-edge.js /usr/local/lib/todoforai-edge/index.js
-  printf '#!/bin/bash\nexec bun /usr/local/lib/todoforai-edge/index.js "$@"\n' > /usr/local/bin/todoforai-edge
-  chmod +x /usr/local/bin/todoforai-edge
-else
-  echo "Installing @todoforai/edge from npm..."
-  bun add -g @todoforai/edge
-  for f in "$HOME/.bun/bin/todoforai-edge"*; do
-    [ -f "$f" ] && ln -sf "$f" /usr/local/bin/"$(basename "$f")"
-  done
+# The bridge has no JS form — install the released binary.
+if [ ! -f /usr/local/bin/todoforai-bridge ]; then
+  echo "Installing todoforai-bridge from release..."
+  curl -fsSL https://raw.githubusercontent.com/todoforai/bridge/main/install.sh | bash
+  command -v todoforai-bridge >/dev/null || ln -sf "$HOME/.local/bin/todoforai-bridge" /usr/local/bin/todoforai-bridge
 fi
 
 echo "=== TODOforAI installation complete ==="
 echo "Verifying installation..."
-which bun && bun --version
-which todoforai-cli && todoforai-cli --help 2>&1 | head -3 || true
-which todoforai-edge || true
+which todoforai-cli && todoforai-cli --version || true
+which todoforai-bridge && todoforai-bridge --version || true
