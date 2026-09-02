@@ -35,6 +35,11 @@ Keys: `TODOFORAI_API_KEYS_FILE` (default `dev_api_keys.txt`, `<key> <email>`, he
 `x-api-key`), one per concurrent container. Never commit keys or run artifacts
 (`runs/`, `logs/`, `*.json` are gitignored).
 
+Prompt size: per-call cost is `runMeta.extras.contextTokens` on the first assistant
+message (`GET /api/v1/todos/<id>/messages`). Exact sysmsg + tool schemas:
+`TODOFORAI_DEBUG_SECRET=<backend SECRET_DEBUG_MODE_ADMIN, vault secrets/todoforai-debug-dump>
+todoforai-cli --debug-dump ...` → `systemPrompt`/`toolSchemas` fields on that message.
+
 ## Reporting
 Final score = sweep result overridden by rerun where one exists. Cost from the billing
 ledger (`scripts/run_tokens.mjs`) at published rates, last attempt per task only.
