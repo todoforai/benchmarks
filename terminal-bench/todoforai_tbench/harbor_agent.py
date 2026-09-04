@@ -196,7 +196,9 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                     # Diagnostic: record whether the secret env arrived (lengths only).
                     'echo "token_len=${#TODOFORAI_API_TOKEN} url=$TODOFORAI_API_URL" > /logs/agent/envcheck.txt && '
                     f'printf "%s" "${instr_var}" | '
-                    "todoforai-cli --isolated --non-interactive --allow-all --path /app"
+                    # Workspace = the image's WORKDIR (harbor execs there); 119/120
+                    # tasks use /app, prove-plus-comm uses /workspace.
+                    'todoforai-cli --isolated --non-interactive --allow-all --path "$PWD"'
                     f"{cli_flags} 2>&1 | tee /logs/agent/todoforai-cli.txt"
                 ),
                 env=secret_env,

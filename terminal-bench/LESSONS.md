@@ -67,3 +67,21 @@ result overridden by rerun where one exists; reruns of that run confirmed
 - Dev key file format is `<key> <email>`; auth header is `x-api-key`.
 - TB 2.0 has 28 known-broken tasks; 2.1 fixes them (same 89 names except
   install-windows-3-11 -> 3.11). Don't measure on 2.0.
+
+## 10. Sweep 2026-09-02 (review off, sysmsg diet) — traps
+- `run_batches.sh` prunes ALL docker containers before each batch: never start a
+  second run_batches while one is running — it kills the other run's trials
+  (exit 137, no reward). Chain reruns with `until grep -q 'ALL DONE' <log>`.
+- `schtasks /create /sc once /st 23:59` + `/run`: the task ALSO fires at 23:59.
+  Delete it right after `/run`, or the whole sweep repeats overnight (~$47).
+- The keepalive task (`wsl -d Ubuntu -- true` every 3 min) pops a WSL console
+  window each time; delete it when no sweep is running.
+- nginx per-IP limit: 10 r/s 429s at 5 concurrent `--isolated` mints; 50 r/s is
+  clean at 12 concurrent.
+- First-chunk stream timeout: sol xhigh legitimately thinks >2 min; 120 s
+  killed 3 tasks that had already done the work. Now 600 s.
+- `read` is loaded and shows PNGs to the model (verified by hand in a mayfly
+  session), but no bench trial ever called it: the model defaults to bash +
+  ffmpeg/tesseract. A tool description alone doesn't change that.
+- Review sub-agent: −2 tasks without it, −65 % cost. The lost tasks are the
+  "almost" ones (1/2 moves, 3/4 tests) — exactly what a review pass catches.
