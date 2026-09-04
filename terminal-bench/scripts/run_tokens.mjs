@@ -50,10 +50,17 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 // A task retried after an infra failure has several trials; the score counts its
 // LAST attempt, so the cost must too — otherwise abandoned runs are paid twice.
 // Job dir names carry batch + timestamp, so sorting them puts the latest last.
+// tb2: schtasks re-fired every clean/rerun1/rerun2 batch overnight 09-03 — not
+// part of the sweep. And rerun jobs supersede the clean sweep regardless of the
+// dir-name sort (tb2-clean-win__…09-03 > tb2-rerun*), so order by sweep phase.
+const isAccident = j => j.includes('__2026-09-03__') && !j.startsWith('tb2-visual');
+const PHASES = ['-clean', '-rerun1', '-rerun2', '-visual', '-rerun3', '-rerun'];
+const phase = j => { const i = PHASES.findIndex(p => j.includes(p)); return i < 0 ? 0 : i; };
+const byJobOrder = (a, b) => phase(a) - phase(b) || a.localeCompare(b);
 const byTask = new Map();   // task -> { todoId, trial }
 for (const job of readdirSync(join(root, 'jobs'), { withFileTypes: true })
-       .filter(d => d.isDirectory() && d.name.startsWith(prefix))
-       .map(d => d.name).sort()) {
+       .filter(d => d.isDirectory() && d.name.startsWith(prefix) && !isAccident(d.name))
+       .map(d => d.name).sort(byJobOrder)) {
   for (const trial of readdirSync(join(root, 'jobs', job), { withFileTypes: true })) {
     if (!trial.isDirectory()) continue;
     const f = join(root, 'jobs', job, trial.name, 'agent', 'todoforai-cli.txt');
