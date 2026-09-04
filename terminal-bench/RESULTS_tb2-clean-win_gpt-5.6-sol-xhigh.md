@@ -1,11 +1,13 @@
 # Terminal-Bench 2.1 — gpt-5.6-sol (xhigh), review OFF, sysmsg diet — 2026-09-02/03
 
-FINAL: 71/89 = 79.8%   (baseline tb21 with review sub-agent: 73/89 = 82.0%)
+FINAL: 73/89 = 82.0%   (baseline tb21 with review sub-agent: 73/89 = 82.0%, $134.51)
+(71/89 before tb2-rerun3; +install-windows-3.11 +torch-pipeline-parallelism after the mayfly token TTL fix)
 
 Sweep: tb2-clean-win__0901-1800 (batches 1-9, Windows/WSL, 5 concurrent) +
 tb2-rerun1__0902 (7 infra victims, 10 conc) + tb2-rerun2__0902 (5 batch-9 tasks I
 killed by starting rerun1 in parallel — run_batches.sh prunes all containers) +
-tb2-visual__0903 (3 image tasks after ReadTool description fix).
+tb2-visual__0903 (3 image tasks after ReadTool description fix) +
+tb2-rerun3__0904 (8 harness-timeout tasks after mayfly token TTL 15 min → 6 h).
 Final = last rerun result where one exists.
 
 ## What changed vs tb21
@@ -37,6 +39,19 @@ pass used to catch.
 - agent (6): chess-best-move dna-insert feal-linear-cryptanalysis filter-js-from-html
   fix-ocaml-gc model-extraction-relu-logits
 - task-design/other (2): raman-fitting git-multibranch
+
+## tb2-rerun3 (2026-09-04): the 8 harness-timeout tasks after mayfly TTL fix
+Root cause of the Sept 2 timeouts: CLI mints ONE 15-min session token for the
+mayfly bridge; bridge reconnects with the same token; after 15 min any drop →
+4403 → bridge exits for good → MACHINE_NOT_FOUND until harness timeout.
+Fix: MAYFLY_TOKEN_TTL_SEC 15 min → 6 h (backend 407c286d, deployed 09-04).
+PASS (2): install-windows-3.11, torch-pipeline-parallelism
+FAIL (6): query-optimize, gpt2-codegolf, make-doom-for-mips (900 s harness
+timeout, bridge alive to the end — prod log shows bridge_exec every few seconds
+until 14:26:17, the exact second harbor's `pkill -9 todoforai-bridge` cleanup
+runs; the earlier "waitpid wedge" hypothesis is NOT supported), pytorch-model-
+recovery, sanitize-git-repo (finished, wrong), train-fasttext (3600 s timeout).
+These are genuinely slow tasks under cpus=1, not infra.
 
 ## Cost (tokens × published price, last attempt per task, `run_tokens.mjs`)
 | | tb21 (review on) | this run |
