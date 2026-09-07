@@ -7,7 +7,7 @@ echo "JOB=$JOB TASK=$TASK"
 # Validate credentials before spending container time.
 "$PWD/.venv/bin/python" -c 'from todoforai_tbench.harbor_agent import preflight; preflight()'
 exec "$PWD/.venv/bin/harbor" run \
-  -d "${TB_DATASET:-terminal-bench/terminal-bench-2}" \
+  -d "${TB_DATASET:-terminal-bench/terminal-bench-2-1}" \
   --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
   ${TB_MODEL:+-m "$TB_MODEL"} \
   -i "$TASK" \
