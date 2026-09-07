@@ -11,6 +11,16 @@ tb2-visual__0903 (3 image tasks after ReadTool description fix) +
 tb2-rerun3__0904 (8 harness-timeout tasks after mayfly token TTL 15 min → 6 h).
 Final = last rerun result where one exists.
 
+## What the 82% rests on (the shipped "Terminal-Bench 82%" agent template)
+- Sol xhigh; same harness got 60.7 % with Opus 4.7, 47.2 % with Opus 4.6 → model is factor #1
+- narrow tool set: bash + read + webfetch, 16 deny patterns (question, explore, review,
+  skill, html_snippet, todoforai_api, image_gen, WRITE/UPDATE/SEARCH/LIST, …). Fewer
+  schemas in context = less noise per turn; review/explore sub-agents added cost, not score
+- never blocks on the user (`question` denied), 600 s stream timeout, `--isolated`
+  mayfly bridge = one clean device, no browser/extension/multi-device context
+- sysmsg diet 7.4k → 1.0k tokens: cost only, score unchanged (tb21 == tb2)
+- `read` was never called by any trial — bash/cat does it all
+
 ## What changed vs tb21
 - review tool denied (was opus-5, $72 of the $134 baseline)
 - sysmsg diet: ~7.4k → ~1.0k tokens first call (bash identity into tool label,
