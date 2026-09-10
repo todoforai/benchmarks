@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" width="800" height="600">
+  <title>California brown pelican (breeding plumage) riding a bicycle</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fd3ef"/>
+      <stop offset="1" stop-color="#e6f3fa"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a39a90"/>
+      <stop offset="0.55" stop-color="#7b6e63"/>
+      <stop offset="1" stop-color="#4f3f34"/>
+    </linearGradient>
+    <linearGradient id="pouchGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e63b2a"/>
+      <stop offset="0.65" stop-color="#c8392a"/>
+      <stop offset="1" stop-color="#7c5a33"/>
+    </linearGradient>
+    <!-- one row of overlapping feather tips (scallops) -->
+    <path id="row" fill="none" stroke-width="1.6"
+          d="M0,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0"/>
+    <clipPath id="bodyClip"><ellipse cx="330" cy="215" rx="95" ry="60" transform="rotate(-8 330 215)"/></clipPath>
+    <clipPath id="wingClip"><path d="M365,170 C410,155 450,195 470,225 C485,245 500,258 506,270 L494,286 C470,270 440,262 410,262 C380,262 350,248 335,225 C325,205 340,180 365,170 Z"/></clipPath>
+    <g id="wheel">
+      <circle r="75" fill="none" stroke="#1d1d1d" stroke-width="10"/>
+      <circle r="66" fill="none" stroke="#d2d2d2" stroke-width="5"/>
+      <g stroke="#a6a6a6" stroke-width="1.8">
+        <line id="spoke" x1="0" y1="-64" x2="0" y2="64"/>
+        <use xlink:href="#spoke" transform="rotate(22.5)"/>
+        <use xlink:href="#spoke" transform="rotate(45)"/>
+        <use xlink:href="#spoke" transform="rotate(67.5)"/>
+        <use xlink:href="#spoke" transform="rotate(90)"/>
+        <use xlink:href="#spoke" transform="rotate(112.5)"/>
+        <use xlink:href="#spoke" transform="rotate(135)"/>
+        <use xlink:href="#spoke" transform="rotate(157.5)"/>
+      </g>
+      <circle r="7" fill="#444"/>
+      <circle r="3" fill="#999"/>
+    </g>
+  </defs>
+
+  <!-- scene -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="95" cy="85" r="38" fill="#ffd96a"/>
+  <rect y="430" width="800" height="90" fill="#4c9cc2"/>
+  <rect y="430" width="800" height="4" fill="#8fcbe4"/>
+  <rect y="520" width="800" height="80" fill="#e3d09e"/>
+  <ellipse cx="190" cy="522" rx="80" ry="6" fill="#c9b47e"/>
+  <ellipse cx="610" cy="522" rx="80" ry="6" fill="#c9b47e"/>
+  <g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.85">
+    <line x1="30" y1="380" x2="105" y2="380"/>
+    <line x1="15" y1="412" x2="80" y2="412"/>
+    <line x1="40" y1="444" x2="100" y2="444"/>
+  </g>
+
+  <!-- far leg, far crank at top of stroke -->
+  <polyline points="338,262 386,322 330,405" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="360" y1="440" x2="328" y2="413" stroke="#2a2a2a" stroke-width="6" stroke-linecap="round"/>
+  <rect x="315" y="409" width="26" height="7" rx="2" fill="#222"/>
+  <polygon points="330,400 316,417 323,415 330,420 337,415 344,417" fill="#333"/>
+
+  <!-- bicycle -->
+  <use xlink:href="#wheel" x="190" y="445"/>
+  <use xlink:href="#wheel" x="610" y="445"/>
+  <path fill="none" stroke="#1f7a8c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"
+        d="M545,300 L560,345 M315,305 L545,300 M360,440 L560,345 M360,440 L315,305 L190,445 M360,440 L190,445 M560,345 Q582,395 610,445"/>
+  <line x1="545" y1="300" x2="540" y2="278" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+  <line x1="315" y1="305" x2="308" y2="272" stroke="#333" stroke-width="6"/>
+  <path d="M276,270 C290,262 320,262 342,268 C330,278 292,282 276,276 Z" fill="#222"/>
+  <circle cx="190" cy="445" r="10" fill="none" stroke="#444" stroke-width="4"/>
+  <circle cx="360" cy="440" r="26" fill="none" stroke="#444" stroke-width="5"/>
+  <circle cx="360" cy="440" r="5" fill="#666"/>
+  <path d="M360,414 L190,435 M360,466 L190,455" stroke="#333" stroke-width="3.5" fill="none"/>
+  <path d="M360,414 L190,435 M360,466 L190,455" stroke="#9a9a9a" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+
+  <!-- tail feathers -->
+  <g stroke-linecap="round" fill="none">
+    <path d="M262,226 L186,232 M262,232 L184,250 M262,240 L190,268 M262,248 L200,283" stroke="#5b4e44" stroke-width="11"/>
+    <path d="M262,226 L186,232 M262,232 L184,250 M262,240 L190,268 M262,248 L200,283" stroke="#b3a99d" stroke-width="1.5"/>
+  </g>
+
+  <!-- neck: dark chestnut hindneck with white foreneck stripe -->
+  <path d="M380,178 C375,140 420,120 470,105 L498,130 C455,140 425,175 412,220 Z" fill="#6e3b1f"/>
+  <path d="M494,134 C458,146 432,180 420,215" fill="none" stroke="#f4efe4" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- body with feather rows -->
+  <ellipse cx="330" cy="215" rx="95" ry="60" transform="rotate(-8 330 215)" fill="url(#bodyGrad)"/>
+  <g clip-path="url(#bodyClip)" stroke="#d3cabf" opacity="0.6">
+    <use xlink:href="#row" x="232" y="168"/>
+    <use xlink:href="#row" x="224" y="183"/>
+    <use xlink:href="#row" x="232" y="198"/>
+    <use xlink:href="#row" x="224" y="213"/>
+    <use xlink:href="#row" x="232" y="228"/>
+    <use xlink:href="#row" x="224" y="243"/>
+    <use xlink:href="#row" x="232" y="258"/>
+  </g>
+
+  <!-- near crank at bottom of stroke, near leg extended, webbed foot on pedal -->
+  <line x1="360" y1="440" x2="392" y2="467" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="352,262 400,350 393,458" fill="none" stroke="#484848" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="379" y="463" width="26" height="7" rx="2" fill="#222"/>
+  <polygon points="393,453 379,471 386,469 393,474 400,469 407,471" fill="#3d3d3d"/>
+  <ellipse cx="352" cy="272" rx="26" ry="18" transform="rotate(20 352 272)" fill="#5e4d41"/>
+  <path d="M334,270 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0 M342,281 a8,8 0 0 0 16,0 a8,8 0 0 0 16,0" fill="none" stroke="#d3cabf" stroke-width="1.6" opacity="0.6"/>
+
+  <!-- near wing reaching to the handlebar -->
+  <path d="M365,170 C410,155 450,195 470,225 C485,245 500,258 506,270 L494,286 C470,270 440,262 410,262 C380,262 350,248 335,225 C325,205 340,180 365,170 Z" fill="#6b6058" stroke="#4a4038" stroke-width="1.5"/>
+  <g clip-path="url(#wingClip)" stroke="#b9afa3" opacity="0.8">
+    <use xlink:href="#row" x="330" y="186"/>
+    <use xlink:href="#row" x="322" y="200"/>
+    <use xlink:href="#row" x="330" y="214"/>
+    <use xlink:href="#row" x="322" y="228"/>
+    <use xlink:href="#row" x="330" y="242"/>
+    <use xlink:href="#row" x="322" y="256"/>
+  </g>
+  <!-- handlebar and grip, then primary feathers wrapping over the grip -->
+  <path fill="none" stroke="#333" stroke-width="6" stroke-linecap="round" d="M540,278 Q524,262 498,270"/>
+  <line x1="500" y1="269" x2="484" y2="275" stroke="#222" stroke-width="9" stroke-linecap="round"/>
+  <g stroke-linecap="round" fill="none">
+    <path d="M462,232 L508,272 M458,238 L502,282 M453,244 L493,288 M448,250 L482,290 M443,255 L470,288" stroke="#544a42" stroke-width="9"/>
+    <path d="M462,232 L508,272 M458,238 L502,282 M453,244 L493,288 M448,250 L482,290 M443,255 L470,288" stroke="#b9afa3" stroke-width="1.5"/>
+  </g>
+
+  <!-- head: white with yellow crown, chestnut nape, pink orbital skin -->
+  <circle cx="492" cy="108" r="30" fill="#f7f2de"/>
+  <path d="M463,104 A30,30 0 0 1 521,104 Q492,112 463,104 Z" fill="#efd26c"/>
+  <path d="M468,92 A30,30 0 0 0 476,134 A22,22 0 0 1 468,92 Z" fill="#6e3b1f"/>
+  <circle cx="507" cy="103" r="7" fill="#e6a99c"/>
+  <circle cx="507" cy="103" r="4.8" fill="#f1eee6"/>
+  <circle cx="508" cy="103" r="2.6" fill="#141414"/>
+  <circle cx="509" cy="101.5" r="0.9" fill="#fff"/>
+
+  <!-- gular pouch (bright red, breeding) then upper mandible -->
+  <path d="M514,119 C518,178 570,222 612,196 C638,180 652,158 664,138 Z" fill="url(#pouchGrad)" stroke="#8b2418" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M532,138 C540,176 570,202 600,194 M548,130 C556,166 586,190 618,180" fill="none" stroke="#a52a1d" stroke-width="1.2" opacity="0.7"/>
+  <path d="M513,101 C565,104 625,114 668,124 C674,127 673,136 664,138 L514,119 Z" fill="#a89a7f" stroke="#7f7360" stroke-width="1"/>
+  <path d="M650,120 L668,124 C674,127 673,136 664,138 L648,135 Z" fill="#dd5a3a"/>
+  <line x1="514" y1="119" x2="664" y2="138" stroke="#6f6252" stroke-width="1.2"/>
+</svg>
