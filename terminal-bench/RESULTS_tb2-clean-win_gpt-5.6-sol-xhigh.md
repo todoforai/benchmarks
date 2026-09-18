@@ -48,9 +48,7 @@ pass used to catch.
 | **total promo** | **$134.51 ($1.51/task)** | **$46.87 ($0.53/task)** |
 | sol full list total | $188.33 | ~$89.6 |
 
-Per-task divides by the 89 scored tasks in BOTH columns (an earlier version of
-this table divided this run by its 104 trials, which made it look cheaper than
-it is).
+Per-task divides by the 89 scored tasks in both columns.
 
 −2.2 pp pass for −65 % cost. Cache reads halved (shorter sysmsg re-sent every
 turn); output tokens up (no review, sol does its own checking).
@@ -59,28 +57,16 @@ Not counted: an accidental overnight re-run of all three jobs (schtasks
 
 ## Comparability with tbench.ai (harbor `leaderboard/core/metrics.py`)
 
-Our numbers are NOT directly comparable to the board's COST/TOKENS columns:
+- Board COST sums EVERY trial of a ≥5-trials-per-task submission (~445), no
+  averaging. Ours is 1 trial/task → scale ~5x: **~$235 promo / ~$450 list**.
+- Board TOKENS is `input + output`; `cache_tokens` deliberately excluded. Ours
+  counts cache reads — we pay for them (93% of everything sent).
+- Board accuracy is `successes / ALL trials`: a rerun is averaged in, not
+  substituted. Our "last attempt per task" biases in our favour, so a submitted
+  run lands below 79.8%. Relaunching is allowed, cherry-picking is not.
 
-- A submission needs **≥5 trials per task**; the board's COST is the SUM over
-  every trial (~445 for 89 tasks), with no averaging. Ours is 1 trial/task.
-  Scaled to 5 trials, this run is **~$235 promo / ~$450 sol full list** (a bit
-  more in practice: the 8 tasks that burn the full 900 s timeout pay 5x for no
-  reward).
-- Their TOKENS column is `input + output` only — `cache_tokens` is carried as
-  separate telemetry and deliberately NOT added in. Our totals do count cache
-  reads, because we pay for them (93% of everything sent in tb21).
-- `cost_usd` comes from each trial's own hub metadata (the submitter's provider
-  report); the leaderboard does not price anything itself.
-- Accuracy there is `successful trials / all trials`, so a rerun does not
-  replace a bad trial, it is averaged in. Our "last attempt per task" rule is
-  ours alone and biases in our favour — a real submission of this run would
-  land below 79.8%.
-- Relaunching is explicitly allowed (CI re-reads the hub), so rerunning
-  infra-damaged trials is legitimate; what is not allowed is cherry-picking.
-
-No GPT-5.6 Sol entry exists on the 2.1 board. Nearest siblings, both Codex/max:
-**Terra 78.4% ± 2.5%** ($0.4k) and **Luna 75.7% ± 2.6%** ($0.2k); the top is
-GPT-6 Astra 87.4%, then Fable 5 xhigh 83.8% and GPT-5.5 xhigh 83.2%.
+No GPT-5.6 Sol entry on 2.1. Nearest siblings (Codex/max): Terra 78.4% ± 2.5%
+($0.4k), Luna 75.7% ± 2.6% ($0.2k). Top: Astra 87.4%, Fable 5 xhigh 83.8%.
 
 ## Reproduce
 node scripts/run_tokens.mjs tb2-clean-win__0901-1800__batch0

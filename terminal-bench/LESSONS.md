@@ -61,17 +61,12 @@ result overridden by rerun where one exists; reruns of that run confirmed
 10/14 infra victims as passes while both double-fails failed twice.
 
 ## 9. Our scoring rule is ours, not the leaderboard's
-"Final score = sweep overridden by rerun" is fine for internal A/B work: the
-infra zeroes we rerun are OUR damage (deploying the backend mid-sweep), not the
-model's, and they vanish once a real run is deploy-frozen. But a tbench.ai
-submission scores `successful trials / ALL trials` over ≥5 trials per task —
-reruns are averaged in, not substituted. So our headline is optimistic by
-construction; expect a submitted run to land below it. Relaunching is allowed
-(CI re-reads the hub); cherry-picking is not. Full methodology notes in
-RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md ("Comparability with tbench.ai").
-
-For a real submission: freeze backend+edge deploys for the whole sweep, budget
-~445 trials (~8-10 h at the current pace, ~$235 promo / ~$450 list).
+"Sweep overridden by rerun" is fine internally — the infra zeroes are OUR damage
+(deploying mid-sweep) and vanish once a run is deploy-frozen. But tbench.ai
+scores `successes / ALL trials` over ≥5 trials/task: reruns average in, not
+substitute. Expect a submitted run below our headline. Details in
+RESULTS_tb2-clean-win ("Comparability with tbench.ai"). Real submission: freeze
+backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
 
 ## 10. Small traps that ate time anyway
 - Windows checkout: CRLF breaks every shell script — `sed -i 's/\r$//'` after
