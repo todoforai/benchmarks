@@ -149,5 +149,7 @@ Reproduce: `node scripts/run_tokens.mjs tb21-` (price table at the top of that
 script).
 
 For scale, the tbench.ai 2.1 entries above us report $552.67 (Claude Code ·
-Fable 5) and $2,059.19 (Codex · GPT-5.5) — but their trials-per-task is not
-documented, so per-task ratios are estimates, not measured claims.
+Fable 5) and $2,059.19 (Codex · GPT-5.5). Those are NOT comparable to our total
+as printed: see "Comparability with tbench.ai" in
+RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md — the board sums every trial of a
+≥5-trials-per-task submission, so ours has to be scaled ~5x first.

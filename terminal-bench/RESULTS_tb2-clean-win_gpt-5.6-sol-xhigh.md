@@ -45,13 +45,42 @@ pass used to catch.
 | sol promo | $53.82 | $42.70 |
 | opus-5 review | $72.37 | — |
 | haiku (webfetch) | $8.32 | $4.17 |
-| **total promo** | **$134.51 ($1.51/task)** | **$46.9 ($0.45/task)** |
+| **total promo** | **$134.51 ($1.51/task)** | **$46.87 ($0.53/task)** |
 | sol full list total | $188.33 | ~$89.6 |
+
+Per-task divides by the 89 scored tasks in BOTH columns (an earlier version of
+this table divided this run by its 104 trials, which made it look cheaper than
+it is).
 
 −2.2 pp pass for −65 % cost. Cache reads halved (shorter sysmsg re-sent every
 turn); output tokens up (no review, sol does its own checking).
 Not counted: an accidental overnight re-run of all three jobs (schtasks
 `/sc once` fired again at 00:59) — same again, ~$47.
+
+## Comparability with tbench.ai (harbor `leaderboard/core/metrics.py`)
+
+Our numbers are NOT directly comparable to the board's COST/TOKENS columns:
+
+- A submission needs **≥5 trials per task**; the board's COST is the SUM over
+  every trial (~445 for 89 tasks), with no averaging. Ours is 1 trial/task.
+  Scaled to 5 trials, this run is **~$235 promo / ~$450 sol full list** (a bit
+  more in practice: the 8 tasks that burn the full 900 s timeout pay 5x for no
+  reward).
+- Their TOKENS column is `input + output` only — `cache_tokens` is carried as
+  separate telemetry and deliberately NOT added in. Our totals do count cache
+  reads, because we pay for them (93% of everything sent in tb21).
+- `cost_usd` comes from each trial's own hub metadata (the submitter's provider
+  report); the leaderboard does not price anything itself.
+- Accuracy there is `successful trials / all trials`, so a rerun does not
+  replace a bad trial, it is averaged in. Our "last attempt per task" rule is
+  ours alone and biases in our favour — a real submission of this run would
+  land below 79.8%.
+- Relaunching is explicitly allowed (CI re-reads the hub), so rerunning
+  infra-damaged trials is legitimate; what is not allowed is cherry-picking.
+
+No GPT-5.6 Sol entry exists on the 2.1 board. Nearest siblings, both Codex/max:
+**Terra 78.4% ± 2.5%** ($0.4k) and **Luna 75.7% ± 2.6%** ($0.2k); the top is
+GPT-6 Astra 87.4%, then Fable 5 xhigh 83.8% and GPT-5.5 xhigh 83.2%.
 
 ## Reproduce
 node scripts/run_tokens.mjs tb2-clean-win__0901-1800__batch0
