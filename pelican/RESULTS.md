@@ -59,3 +59,18 @@ Subjective: **Opus 5.5 is the nicer picture, Sol 6 is the more correct pelican-o
 Gotcha: a backend restart ~1 min into the run left both CLIs hanging with no output
 after the SVG was written; killed by hand ~20 min later. The SVG timings come from the
 arena `timeline/`, not from wall time.
+
+### Old vs new, same day, same harness (2026-09-23)
+
+Opus 5 and Sol 5.6 re-run through arena (`arena/runs/pelican/2026-09-23__12-53-15_2249944`,
+clean exits: Sol 5.6 330 s, Opus 5 490 s) so all four share the sandbox and date.
+Outputs in `results/rerun-0923/`.
+
+![old vs new](results/comparison-old-vs-new.png)
+
+- **Opus 5 → 5.5:** from a plain beach sketch (grey bird, pouch fine, feet just about on the pedals)
+  to a full scene with detailed plumage. The step is in scene and polish; the pedaling
+  is no clearer, and possibly less so.
+- **Sol 5.6 → 6:** 5.6 is a round dark blob with an orange pouch; 6 has the proper
+  long-necked pelican silhouette, breeding colours, and legs that really pedal. The bigger
+  jump of the two in *correctness*.
