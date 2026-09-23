@@ -72,6 +72,30 @@ for (const m of models) { const gs = groups.filter((g) => g.startsWith(m + " · 
 } }
 if (pairs.length) { console.log(`\n## Paired sysmsg diff (overall, per task)\n\n| diff | tasks | mean | 95% CI | wins/losses |\n|---|---|---|---|---|`); pairs.forEach((p) => console.log(p)); }
 
+// Pairwise win rate from judge rankings: for every (task, judge), each pair of runs from configs X≠Y
+// counts one comparison; X wins if ranked higher. Independent of each judge's score calibration.
+{
+  const win: Record<string, Record<string, [number, number]>> = {};
+  for (const j of judged) {
+    const rk: string[] = j.parsed?.ranking ?? []; if (!rk.length) continue;
+    const pos = (L: string) => rk.indexOf(L);
+    const ls = Object.keys(j.map).filter((L) => pos(L) >= 0);
+    for (const a of ls) for (const b of ls) {
+      const ra = recs.find((r) => r.base === j.map[a]), rb = recs.find((r) => r.base === j.map[b]);
+      if (!ra || !rb || cfg(ra) === cfg(rb)) continue;
+      const cell = ((win[cfg(ra)] ??= {})[cfg(rb)] ??= [0, 0]);
+      cell[1]++; if (pos(a) < pos(b)) cell[0]++;
+    }
+  }
+  console.log(`\n## Pairwise win rate (row beats column, from judge rankings)\n`);
+  console.log(`| | ${groups.join(" | ")} | overall |`); console.log(`|---|${groups.map(() => "---").join("|")}|---|`);
+  for (const g of groups) {
+    const cells = groups.map((h) => { const c = win[g]?.[h]; return g === h || !c ? "–" : `${Math.round((100 * c[0]) / c[1])}%`; });
+    const tot = Object.values(win[g] ?? {}).reduce((a, c) => [a[0] + c[0], a[1] + c[1]], [0, 0]);
+    console.log(`| ${g} | ${cells.join(" | ")} | ${tot[1] ? Math.round((100 * tot[0]) / tot[1]) + "%" : "–"} |`);
+  }
+}
+
 console.log(`\n## Per task: wall s / overall (mean over judges)\n`);
 const tasks = [...new Set(recs.map((r) => r.task))];
 console.log(`| task | ${groups.join(" | ")} |`); console.log(`|---|${groups.map(() => "---").join("|")}|`);

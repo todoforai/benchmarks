@@ -40,6 +40,9 @@ Procedure:
    - overall: how useful this report is to the calling agent (not an average)
    Count hallucinations = verifiably wrong paths/symbols/facts.
 Report length or formatting alone must not raise scores.
+Scores are ABSOLUTE, not relative to the other reports (a field of weak reports must not make the best one a 10):
+   10 = everything a senior engineer would need, every checked claim right; 8 = minor gap or one small error;
+   6 = useful but misses a sub-question or has a real error; 4 = partial, several errors or gaps; 2 = mostly wrong or unanswered; 1 = empty/nothing usable.
 
 Your FINAL message must be ONLY one JSON object, no code fence:
 {"sub_questions":[...],"reports":{"A":{"correctness":n,"coverage":n,"precision":n,"concision":n,"overall":n,"hallucinations":n,"notes":"<=2 sentences, cite what you verified"}, ...},"ranking":["A",...]}`;
