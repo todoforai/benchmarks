@@ -14,7 +14,7 @@ W=$(readlink -f "$1"); shift; [ "${1:-}" = -- ] && shift
 DIST=$(readlink -f ../terminal-bench/todoforai_tbench/dist)
 binds=(); for p in /snap /opt/google /etc/alternatives; do [ -e "$p" ] && binds+=(--ro-bind "$p" "$p"); done
 # Snap wrappers need cgroups/snapd (fail in bwrap) → call the real binaries.
-# (order matters: these come after --dev /dev.)
+# (order matters: these come after --dev /dev / --tmpfs /run; resolv.conf → /run/systemd/resolve.)
 # GPU passthrough (EEVEE/Cycles/WebGL): DRM render nodes + NVIDIA device nodes.
 for g in /dev/dri /dev/nvidia*; do [ -e "$g" ] && binds+=(--dev-bind "$g" "$g"); done
 # bun: modern JS runtime/bundler (host node is 18).
@@ -23,7 +23,7 @@ BUN=$(command -v bun || true); [ -n "$BUN" ] && binds+=(--ro-bind "$(readlink -f
 exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/bin /bin --symlink usr/sbin /sbin \
   --proc /proc --dev /dev --tmpfs /tmp --tmpfs /run --tmpfs /var --tmpfs /home \
-  "${binds[@]}" \
+  "${binds[@]}" --ro-bind-try /run/systemd/resolve /run/systemd/resolve \
   --dir /tmp/home --dir /tbin --bind "$W" /work --bind "$W" /tmp/todoforai --ro-bind "$DIST" /tfa --ro-bind "$PWD/rec" /rec --chdir /work \
   --unshare-pid --unshare-uts --unshare-ipc --die-with-parent --new-session \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \

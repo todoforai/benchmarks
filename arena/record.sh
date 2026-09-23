@@ -7,7 +7,7 @@ set -euo pipefail
 d=$1; W="$d/work"; T="$d/timeline"; mkdir -p "$T"; t0=$(date +%s); n=0
 inotifywait -m -r -q -e close_write -e moved_to --format '%w%f' "$W" 2>/dev/null |
 while read -r f; do
-  case "$f" in *.svg|*.html|*.png|*.jpg|*.mp4|*.blend|*.py) ;; *) continue;; esac
+  case "$f" in *.svg|*.html|*.png|*.jpg|*.blend|*.py) ;; *) continue;; esac
   # Never follow links: a model could point leak.svg at a host file (this runs outside the sandbox).
   [ -f "$f" ] && [ ! -L "$f" ] || continue
   n=$((n+1)); rel=${f#"$W"/}

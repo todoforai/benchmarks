@@ -31,7 +31,8 @@ runs/<task>/<ts>/<model>/   work/ (= sandbox /work), agent.log (timestamped stre
 
 Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `blender-island`
 (reference-image match, from `api-apps/blender-api/demo`), `blender-danger`
-(Breaking Bad pizza-throw scene from a reference gif, animated).
+(Breaking Bad pizza-throw scene from a reference gif, animated), `promo-gsap`
+(30 s TODO for AI promo in GSAP, cut to a Suno track via `beats.json`).
 
 ```bash
 (cd rec && bun install)        # once: playwright-core (uses host google-chrome)
@@ -44,6 +45,9 @@ Recording — no X/Xvfb, no screen grabbing:
   `timelapse.sh` → `rec/timelapse.ts` renders them (headless Chrome) into a labelled mp4.
 - Web/game outputs: `rec/rec.ts` = Playwright + CDP `Page.startScreencast` → system
   ffmpeg (scripted scroll; games are only watched idle for now, `game` script exists); page errors → `*.errors.txt`.
+- GSAP videos: `rec/frames.ts` pauses `window.tl`, seeks each frame, screenshots →
+  ffmpeg + music. Deterministic, no real-time jank. Music/beats: `tools/beats.py`
+  (librosa; Suno track via `suno-api generate … --instrumental`).
 - `agent.log` has the timestamped tool stream; the todo itself (`todofor.ai/t/<id>` in agent.log, or
 `GET /api/v1/todos/<id>/messages`) is the full replay for a Remotion cut later.
 

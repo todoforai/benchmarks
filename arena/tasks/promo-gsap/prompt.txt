@@ -1,0 +1,21 @@
+Make a 30-second marketing video for TODO for AI (https://todofor.ai), animated with GSAP and cut to the attached music.
+
+Product facts (use these, don't invent others):
+- "Your TODO list that thinks & acts." Drop a task; an AI agent logs into your tools (browser, email, code, calendar, CRM), does the work, shows you the result.
+- Runs on your own machines: Chrome extension drives your logged-in browser (no API keys), a ~90 KB bridge binary connects any machine, plus a cloud VM per account.
+- Every model on one plan: Claude, GPT, Gemini, Grok, Ollama.
+- 82.0% on Terminal-Bench 2.1 (GPT-5.6 Sol, own harness).
+- You stay in control: allow / ask first / block per capability.
+- Free to start. CTA: todofor.ai
+Voice: plain, short, declarative, builder-to-builder, no hype words ("revolutionary", "seamless", "supercharge").
+
+Files in the working directory:
+- music.mp3 — the soundtrack (30.0 s).
+- beats.json — {bpm, beats[], downbeats[], drop} in seconds from the start of music.mp3. Cut scenes on downbeats, hit accents on beats, make the biggest moment land on `drop`.
+- todoforai_logo_dark.svg / todoforai_logo_light.svg — the logo.
+
+Technical contract (the video is rendered from your page frame by frame, so follow it exactly):
+- Output a single index.html (inline CSS/JS) at 1920x1080. GSAP 3 from the jsDelivr CDN is the only allowed external script; Google Fonts are fine.
+- ALL motion must live on ONE GSAP timeline exposed as `window.tl`, total duration exactly 30 s. No CSS animations/transitions, no setTimeout/setInterval/requestAnimationFrame loops, no Date/performance.now-driven motion, no Math.random at render time (seed it or precompute). The renderer calls `tl.pause(); tl.seek(t)` for each frame, so anything outside the timeline will be frozen or wrong.
+- Do not play the audio in the page; the renderer adds music.mp3 itself.
+- To preview, `bun /rec/frames.ts /work/index.html /work/preview.mp4 --fps 10 --audio /work/music.mp3` renders a quick draft (use --fps 30 for the final). Look at a few frames (ffmpeg can extract stills) and fix what looks wrong. Chrome + ffmpeg are installed.
