@@ -93,3 +93,14 @@ Judges Opus 5.5 + GPT-6 Sol with absolute rubric anchors. 0 parse failures.
 - Sol ≈ Opus (44/56% head to head, overall 8.93 vs 8.80, Sol never hallucinated) at 1/6 of Opus's cost, but the slowest median.
 - Per judge: Sol judge 9.15 Sol / 8.65 Opus, Opus judge 8.70 Sol / 8.95 Opus, so each prefers its own vendor by ~0.3–0.5; the ordering holds.
 
+
+**r6**: Luna, explore-v3 vs explore-v3.1 (v3 minus "never from memory / don't guess", the Project-vs-Todo example and "~15 searches"). Same 10 tasks, 2 runs each, v3 runs reused from r5, same judges.
+
+| sysmsg | wall med s | p90 s | tools | overall | correct | coverage | precision | halluc/run | pairwise |
+|---|---|---|---|---|---|---|---|---|---|
+| v3 | 102 | 142 | 30 | 7.30 | 7.85 | 8.03 | 8.07 | 0.45 | 44% |
+| v3.1 | 95 | 122 | 27 | 7.60 | 8.03 | 8.22 | 8.53 | 0.38 | 56% |
+
+- v3.1 − v3: +0.30, 95% CI [−0.15, 0.75], 6/3 tasks. Not significant, but no loss, so the cut lines weren't doing the work. Both judges agree (+0.4 / +0.2).
+- Luna·v3 scored 6.65 in r5 and 7.30 here on the same runs: absolute scores shift with the candidate pool, so compare within a round only.
+- v3.1 is the production prompt (EasyContext ExploreTool.jl + tfa-explore cli.ts).
