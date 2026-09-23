@@ -100,3 +100,19 @@ Conclusions:
   Session-affinity pins a whole run to one account ⇒ one bad account skews a whole row.
 - glm-5.3 via OpenCode Go is ~0.7s p50 — second only to haiku — but its tail is noisy
   (earlier run had 40–50s samples). `(low)` is both faster and steadier than `(none)`.
+
+### 2026-09-23 16:30 — validation (`validate-streaming.mjs`): 150-word answer, interleaved, 6 runs
+| target | any p50 | **visible p50** | total p50 | deltas | served model |
+|---|---|---|---|---|---|
+| haiku-4.5(none) | 621–763 | **621–763** | ~3.1s | ~93 | claude-haiku-4-5-20251001 |
+| sonnet-5(none) | 660 | **660** | 4.6s | 84 | claude-sonnet-5 |
+| glm-5.3(none) via proxy | 1371 | **1858** | 5.6s | 220 | glm-5.3 |
+| glm-5.3(low) via proxy | 905 | **11263** | 12.8s | 1089 | glm-5.3 |
+| glm-5.3 low, direct OpenCode Go | 1130 | **8554** | 10.1s | 936 | glm-5.3 |
+
+- Streaming is real (total ≫ TTFT, 80–1000+ deltas) and the served model matches.
+- **The `Say "ok"` numbers overstate GLM.** On a trivial prompt its thinking is a few tokens, so
+  any ≈ visible ≈ 0.7s. On a real answer `(low)` thinks ~10s before the first visible word;
+  `(none)` still emits some thinking (any ≠ visible) → ~1.9s visible. For user-facing latency
+  compare **visible TTFT on a non-trivial prompt**.
+- Proxy overhead vs direct OpenCode Go is not measurable at this n (proxy was not slower).
