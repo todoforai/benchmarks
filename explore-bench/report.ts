@@ -48,4 +48,4 @@ for (const r of rows) console.log(`| ${r.g} | ${r.ok}/${r.n} | ${f(r.wall)} (${f
 console.log(`\n## Per task: wall s / overall (mean over judges)\n`);
 const tasks = [...new Set(recs.map((r) => r.task))];
 console.log(`| task | ${groups.join(" | ")} |`); console.log(`|---|${groups.map(() => "---").join("|")}|`);
-for (const t of tasks) console.log(`| ${t} | ${groups.map((g) => { const r = recs.find((x) => x.task === t && cfg(x) === g); if (!r) return "–"; return `${f(r.wall_s, 0)}s / ${f(mean((scores[r.base] ?? []).map((s) => s.overall)))}`; }).join(" | ")} |`);
+for (const t of tasks) console.log(`| ${t} | ${groups.map((g) => { const rs = recs.filter((x) => x.task === t && cfg(x) === g); if (!rs.length) return "–"; return `${f(mean(rs.map((r) => r.wall_s)), 0)}s / ${f(mean(rs.flatMap((r) => (scores[r.base] ?? []).map((s) => s.overall))))}`; }).join(" | ")} |`);
