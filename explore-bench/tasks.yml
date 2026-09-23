@@ -1,0 +1,351 @@
+# explore-bench tasks — real `explore` sub-agent calls harvested from the last 50 todos
+# (project "TODO for AI", 2026-09-10..22). 48 calls found, all via the `explore` tool
+# (0 via bash `tfa-explore`); 20 picked for diversity. {REPO} = monorepo root.
+# baseline = the original run (default explore model, agent/src/interfaces/clientAPI/subagent_todo.jl);
+# dur_s = sub-todo first->last message. reference = original report (repo has moved since: approximate).
+tasks:
+- id: pdf-attachment-css
+  category: frontend-lookup
+  tests: 'narrow UI lookup: component + exact CSS sizing'
+  source:
+    todo: 74e22978-e546-443a-bfb5-4e51de56c629
+    subtodo: 0ec0a874-830d-4b46-a9c1-772b5dbe65a4
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 32.5
+    tool_calls: 20
+    output_chars: 6446
+  reference: refs/pdf-attachment-css.md
+  prompt: |
+    In {REPO} frontend, find how PDF attachments are rendered in chat messages (user message attachments). Look for components handling attachment preview/rendering, especially pdf (iframe/embed/object/pdf.js). Report file paths, component names, and the exact CSS/height sizing that makes a PDF render "extremely big". Also report how images/other attachment types are sized for comparison.
+- id: message-model-persisted
+  category: schema-lookup
+  tests: yes/no fact across backend+agent schema
+  source:
+    todo: 56a06e6b-e6b0-449a-b705-9a9f3a01e31f
+    subtodo: c9ed2d67-3d19-46fb-a003-739d1f905c02
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 80.8
+    tool_calls: 44
+    output_chars: 4037
+  reference: refs/message-model-persisted.md
+  prompt: |
+    In {REPO}/backend and {REPO}/agent: do messages store which LLM model was used to generate them? Look for message schema/table (DB models, migrations), fields like model, modelId, llm, usage, metadata. Report exact field names/locations and whether per-message model is persisted.
+- id: big-red-button-scope
+  category: frontend-trace
+  tests: UI -> API mutation -> scoping logic
+  source:
+    todo: 5f08d895-a8ff-493b-ab03-d51f97ec37b0
+    subtodo: 370816bb-2d5b-470c-9eb1-a8a465159932
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 159.9
+    tool_calls: 50
+    output_chars: 5122
+  reference: refs/big-red-button-scope.md
+  prompt: |
+    In the repo {REPO}, find the frontend "big red button" — a stop/kill-all button that stops/cancels running todos (likely labeled "Stop all" or an emergency stop). Report: the component file, what API/mutation it calls, and whether it scopes by project or by user. Also find the "my todos" filter state (user filter) in the todo list UI and where it's stored. Also find the "autotrigger" / auto-trigger feature (auto starting next todo) — where it's implemented (backend and frontend), and whether it is scoped per project or per user.
+- id: list-models-source
+  category: cli-trace
+  tests: trace a CLI output back to its data source
+  source:
+    todo: b7b8219b-e3a6-47ca-9108-edd8d91ae32c
+    subtodo: 8bb9594f-5aec-4899-bcb7-768843b4c382
+    date: '2026-09-23'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 127.7
+    tool_calls: 46
+    output_chars: 3420
+  reference: refs/list-models-source.md
+  prompt: |
+    In {REPO}, find what backs `tfa-cli --list-models` (the CLI is tfa-cli / todoforai-cli). I need to know the SOURCE of the model list it prints: is it a static file, a backend API endpoint, a shared package constant, or the agent? Specifically find where the list `anthropic:anthropic/claude-opus-5`, `anthropic:anthropic/claude-fable-5.1` etc. comes from — which file/endpoint enumerates models in that `provider:author/model` form. Check the cli directory, backend routes, and packages/shared-fbe (e.g. frontend_catalog.json, modelNames.ts, frontendCatalog.ts). Report exact file paths and whether the list is generated/cached and how it is refreshed.
+- id: model-registry-cliproxy
+  category: cross-repo-map
+  tests: model id definitions across Julia/TS/frontend + routing
+  source:
+    todo: b7b8219b-e3a6-47ca-9108-edd8d91ae32c
+    subtodo: 3b40e4c7-0c20-4f39-838d-c5682fb08e72
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 118.9
+    tool_calls: 36
+    output_chars: 14942
+  reference: refs/model-registry-cliproxy.md
+  prompt: |
+    In {REPO}: how are LLM models registered/routed? Specifically: (1) where model ids like "claude-opus-5" / "anthropic:anthropic/claude-opus-5" are defined (agent/src/model_configs.jl, packages/shared-fbe/src/models.ts, frontend model lists), (2) what "cliproxy" means in this codebase — how the cliproxy provider works, where its config/env/base url lives, which model ids it supports, and how a new Anthropic model would be added to it. Give exact file paths + line numbers and the concrete list of steps to add a new model (e.g. opus-5.5).
+- id: cliproxyapi-external
+  category: external-repo
+  tests: explore a 3rd-party GitHub repo (gh/clone)
+  source:
+    todo: b7b8219b-e3a6-47ca-9108-edd8d91ae32c
+    subtodo: e2fe4f87-d013-46db-b67a-cb932f3050cb
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 43.7
+    tool_calls: 24
+    output_chars: 8241
+  reference: refs/cliproxyapi-external.md
+  prompt: |
+    Clone/inspect github repo router-for-me/CLIProxyAPI (use `gh api` or clone to /tmp). Questions: (1) how are Anthropic (claude OAuth channel) model ids registered — is internal/registry/models/models.json embedded at build time, and is there any config.yaml way to ADD a new model id without rebuilding? (2) what exactly produces the error "unknown provider for model X" and would adding an entry to models.json be enough for a new model like claude-opus-5-5 to route to the Claude OAuth upstream? (3) show the exact JSON entry format for claude-opus-5 in models.json so I can copy it for claude-opus-5-5. Give file paths + code snippets.
+- id: mobile-model-display
+  category: mobile
+  tests: Expo/RN app UI + runMeta handling
+  source:
+    todo: 56a06e6b-e6b0-449a-b705-9a9f3a01e31f
+    subtodo: 6b7c43f2-6a14-4607-83dc-c2bf34ba07f4
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 176.5
+    tool_calls: 60
+    output_chars: 4787
+  reference: refs/mobile-model-display.md
+  prompt: |
+    Inspect {REPO}/mobile read-only. User asks whether mobile has a place to see which model generated a message, analogous to frontend flow ⋮ details. Find message/flow actions UI, runMeta handling, any model display from runMeta.extras.model versus current settings. Report precise files and what user can currently see, and best existing place to add historical humanized model. Do not edit.
+- id: agent-uri-resolve
+  category: julia-agent
+  tests: 'Julia agent tools resolving todoforai: URIs'
+  source:
+    todo: 9b8bf130-f6fa-42d5-a0c8-657596f030d1
+    subtodo: 85657a08-5cce-44ad-8984-9daf79f708f0
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 49.5
+    tool_calls: 31
+    output_chars: 10124
+  reference: refs/agent-uri-resolve.md
+  prompt: |
+    In {REPO}, find how the agent's `read`/`list` file tools resolve `todoforai:` URIs (e.g. `todoforai:todos/<todoId>/<file>.pdf` and `todoforai:attachment/<id>`). Look in agent/src (Julia) — tools for read/list/write, any "todoforai:" prefix handling, what backend REST endpoints they call (backend/src/api/rest/RestApi.ts or similar), and how attachments of a todo are enumerated (DB table, storage key). Also find how the system prompt sentence "This todo's attachments: ls '/root/.todoforai/mnt/todoforai/todos/'$TODOFORAI_TODO_ID" is generated and whether it is conditioned on the mount actually being present on that device. Report file paths + line numbers and the concrete logic, including any difference between the "attachments of a todo" listing and the "todos/<id>" folder in the rclone backend.
+- id: rclone-mount
+  category: multi-lang-infra
+  tests: Go rclone backend + mount setup + API endpoints
+  source:
+    todo: 9b8bf130-f6fa-42d5-a0c8-657596f030d1
+    subtodo: 6945b0e0-5a20-4a8d-b615-64292ae09b4b
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 108.1
+    tool_calls: 58
+    output_chars: 13086
+  reference: refs/rclone-mount.md
+  prompt: |
+    In {REPO}, investigate how the `todoforai:` rclone remote mount at ~/.todoforai/mnt/todoforai is set up and served. Specifically: (1) rclone-backend/ — the custom rclone backend type=todoforai: how does it list `todos/<todoId>` directories and files, what API endpoints does it call (backend/src/api/rest/RestApi.ts), and how does it handle attachments vs todo "files" (the listing shows both attachment names like Invoice-*.pdf AND weird entries like `bash:cd___agent-browser...` and duplicate filenames — where do those come from?). (2) Who starts `rclone mount` on the user's PC bridge (edge/bun/src, cli/, bridge/) vs on the cloud sandbox (sandbox-manager/oci/entrypoint.sh, sandbox-manager/internal/vm/manager.go) — what conditions must hold for the mount to exist on a PC device, why might ~/.todoforai/mnt/todoforai be an empty dir on a PC with no rclone remote configured in ~/.config/rclone/rclone.conf. (3) agent/src/agents/machine_workspace_info.jl and agent/src/interfaces/clientAPI/client_types.jl — how does the agent decide to advertise the mount path in the bash tool description ("Cloud filesystem mounted on THIS machine at ..."). Report file paths + line numbers and the concrete logic.
+- id: cli-env-injection
+  category: mechanism
+  tests: how secrets/env vars reach device shells
+  source:
+    todo: 1a150d42-a04a-4bfc-8b1d-3d88d6c5b461
+    subtodo: 4ba9108e-ceb4-499e-ab30-c2b069f66ea2
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 139.1
+    tool_calls: 65
+    output_chars: 6525
+  reference: refs/cli-env-injection.md
+  prompt: |
+    In {REPO}: how do env-var-authenticated CLI tools (like exa-cli with EXA_API_KEY, suno-api with SUNO_API_KEY, meta-ads with ACCESS_TOKEN/AD_ACCOUNT_ID) get their API keys/env vars injected when the agent runs shell commands on the edge/cli device? Is there a UI or mechanism (vault, env settings, connector "connect" card) that lets the user enter an API key for such a tool, and does it work for tools without a loginCmd? Look at edge/ (bun or python), frontend connector/ToolConnectionSetup flow, and any env injection code.
+- id: zele-google-signin
+  category: e2e-flow
+  tests: frontend modal -> relay -> bridge OAuth flow
+  source:
+    todo: b579b9ec-24fc-4aa7-9263-20e343537c90
+    subtodo: 219357cf-8840-4629-8d36-461d9fa859a2
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 75.5
+    tool_calls: 36
+    output_chars: 9914
+  reference: refs/zele-google-signin.md
+  prompt: |
+    Find how the "Sign in with Google" flow works for the zele Gmail connector in this repo ({REPO}). Specifically:
+    1. Where is the connector/OAuth modal UI rendered in the frontend? (search for zele, connector, oauth, connect modal, todo.connect)
+    2. What backend/API endpoints does it hit? How does the auth popup/window work (popup window, iframe, redirect)?
+    3. How does `todo.connect(toolKey)` from html_snippet get wired to that UI?
+    Report file paths + key functions.
+- id: tfa-surface-system
+  category: broad-system
+  tests: explain a whole subsystem (CLI, renderers, frontend)
+  source:
+    todo: b579b9ec-24fc-4aa7-9263-20e343537c90
+    subtodo: 757417d4-3714-4620-89e1-dd656f4f6ba9
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 84.3
+    tool_calls: 40
+    output_chars: 24246
+  reference: refs/tfa-surface-system.md
+  prompt: |
+    In {REPO}, explore everything about "tfa-surface" — the surface system. What is it, where is the CLI, what adapters/renderers exist, how does a surface get displayed in the frontend chat? Also look at `tfa-cli show` / `--card` / custom cards / project renderer. Report file paths, the data model (message types, block types), and how the frontend decides how to render a surface.
+- id: react-jank-hunt
+  category: perf-analysis
+  tests: open-ended code smell hunt (judgement, not lookup)
+  source:
+    todo: 024c799c-941d-4caa-9929-60c1a40653d7
+    subtodo: d0773aae-5b7a-4efb-ae1e-2f8e12022d26
+    date: '2026-09-21'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 81.4
+    tool_calls: 51
+    output_chars: 8241
+  reference: refs/react-jank-hunt.md
+  prompt: |
+    In {REPO}/frontend/src, find likely causes of a non-fluid / janky UI in this React (TanStack router, zustand?) app. Look for: (1) global stores subscribed without selectors (useStore() returning whole state) in frequently rendered components, (2) context providers whose value is recreated each render, (3) setInterval/requestAnimationFrame loops that set state frequently (e.g. clock ticks, "time ago" every second), (4) infinite CSS animations (animate-pulse, keyframes infinite) on many elements, (5) heavy work in render (JSON.stringify, sort, markdown parsing without memo) especially in chat message list, (6) websocket message handlers that update a store and cause whole-list rerenders, (7) backdrop-filter / blur on large elements, (8) heavy libs loaded in main bundle. Report file:line evidence, top 10 most probable causes ranked, brief. Focus on the main app shell, sidebar, todo list/board, chat view, and message rendering.
+- id: llm-usage-cost
+  category: backend-data
+  tests: DB table/columns + model alias origin
+  source:
+    todo: c4b98556-48d4-4f3e-aeb7-f54ec9a1bf24
+    subtodo: be380d62-aeaf-4a88-8294-1b37300fd3c3
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 125.8
+    tool_calls: 50
+    output_chars: 3545
+  reference: refs/llm-usage-cost.md
+  prompt: |
+    In {REPO}/backend, find how LLM model usage/cost is recorded per request (DB table, columns, model name field) and where "fable" / "claude-fable-5.1" model naming comes from (model alias mapping, llm-gateway config). Report: table name, key columns, and any SQL/queries used to aggregate usage by model. Also check /opt/todoforai on the remote if referenced in repo docs, and note which DB (postgres? supabase?) and how to connect.
+- id: cli-isolated-workspace
+  category: cli-behaviour
+  tests: flag semantics + bench scripts
+  source:
+    todo: d117a989-71d4-4306-9467-9888fddd0075
+    subtodo: f14dbc2e-38be-47c5-beee-067f88054a05
+    date: '2026-09-23'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 48.6
+    tool_calls: 31
+    output_chars: 7260
+  reference: refs/cli-isolated-workspace.md
+  prompt: |
+    In {REPO}: (1) What does `todoforai-cli --isolated` do exactly — where does the isolated bridge put its bash workspace (/tmp/todoforai?), is it configurable (env var/flag), and how does --path relate? Look in packages/ or apps/ for the CLI source. (2) In benchmarks/terminal-bench/todoforai_tbench/ how does the harness run the agent inside a Docker container — which image, how the CLI binary gets in (dist/), how keys are passed. Give file paths + concise findings.
+- id: anon-vm-feasibility
+  category: feasibility
+  tests: design question answered from lifecycle code
+  source:
+    todo: 5086cbdb-48cc-460c-9b0c-bc31e99088c9
+    subtodo: b93e1c55-fefd-4e47-8a2f-07f3fa85afd1
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 119.7
+    tool_calls: 52
+    output_chars: 6811
+  reference: refs/anon-vm-feasibility.md
+  prompt: |
+    In {REPO}, investigate the cloud VM lifecycle to answer: could we give ANONYMOUS users a VM that is very preemptible (starts on demand, stops immediately when idle)?
+
+    Look at:
+    1. backend/src/services/CloudDeviceService.ts — ensureCloudVm, the anonymous refusal (~line 325), how VMs get created, cloudStoppedAt, the idle reaper (which file stops idle VMs, what timeout), start/resume path (sandbox.create), hibernate/restore support.
+    2. sandbox-manager/ and browser-manager/ — what backs the VM (Daytona? e2b? modal? docker?), cold start time, whether hibernate/restore exists, and per-VM cost/resource model.
+    3. Any quota/limits per user or tier (SUBSCRIPTION_PLANS, prewarm service, PrewarmService.ts) — is there a pool of prewarmed VMs? How long does a cold start take?
+    4. What abuse concerns exist for anonymous VMs (crypto mining, spam) — any rate limits, and does the anon user get $2 starter credit (models/index.ts) that would bound usage?
+
+    Report concretely: what it would take to allow an anonymous VM, cold start latency, and what stops it today.
+- id: kill-switch-map
+  category: design-prep
+  tests: 6-part map before implementing a feature
+  source:
+    todo: e3686a68-51ea-44c0-aec9-81e0a47bfe55
+    subtodo: aae01c20-ff74-4643-a1b2-e6e88fd2f74a
+    date: '2026-09-18'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 154.5
+    tool_calls: 47
+    output_chars: 6109
+  reference: refs/kill-switch-map.md
+  prompt: |
+    In {REPO} I need to build a project "kill switch": stop all running todos (mine or everyone's in a project), block new starts until released, plus an auto-kill when too many todos are running concurrently. Find and report with file paths + key code:
+    1. How a todo "starts" running server-side: which trpc/procedures start agent execution (todo.start? message send? resume), where todo status becomes IN_PROGRESS / running, and where scheduled (tfa-wait) wakeups, sub-agents (tfa-cli from agent shell), API-triggered todos enter execution. Is there a single chokepoint (e.g. a queue / runTodo function)?
+    2. How a running todo is stopped/interrupted today (INTERRUPT / abort / cancel path): frontend action, trpc procedure, backend implementation, and how bridges/edges are told to kill processes.
+    3. Project model: schema (prisma or otherwise), existing project settings JSON field, roles/admin/owner check helpers (isOwner/isAdmin/member), team membership.
+    4. How the frontend knows which todos are currently running (status field, store, "running" count), and which are mine (userId/ownerId on todo).
+    5. The wall kebab in frontend/src/components/main/CardWall.tsx (~line 930-960): props available in that scope (project, todos, canReorder), and how trpc mutations are used there (e.g. reorderGroups).
+    6. Any existing concurrency limit on running todos (max parallel agents per user/project).
+    Be concrete: file paths, function names, line numbers.
+- id: product-claims-verify
+  category: verification
+  tests: 'verify marketing claims: IMPLEMENTED/PARTIAL/NOT with evidence'
+  source:
+    todo: c464ef26-03cb-4805-a890-ef0b530bfcf6
+    subtodo: af1cd48b-58dc-47ea-a99d-df424ee1e5f2
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 50.8
+    tool_calls: 28
+    output_chars: 7632
+  reference: refs/product-claims-verify.md
+  prompt: |
+    In the repo at {REPO}, verify these product claims about TODO for AI itself, with file evidence:
+
+    1. Can a TODO item be assigned a specific agent, so that different items on the same board use different agents (different model, tools, prompt, permissions)? Look in frontend/ for agent selection on a todo, and backend/ for the todo->agent relation.
+    2. Is the board actually shared between humans and agents in a project/team: can multiple users see the same todos, is there attribution of who/which agent did what?
+    3. Per-agent tool permissions (allow / ask / block) — where is that implemented?
+    4. Can arbitrary CLI binaries be used as tools (not just MCP)?
+    5. Does an agent run on the user's own machine (bridge/edge) AND on a managed cloud VM?
+
+    Give short factual answers with file paths. Say clearly if something is NOT implemented or only partial.
+- id: voice-profile-e2e
+  category: e2e-flow
+  tests: learn -> store -> inject pipeline, quote prompt text
+  source:
+    todo: 2d3015c9-5f4a-4c78-afc3-10bbdefbb8bb
+    subtodo: 32ae4010-7120-499a-b900-106bfb05f5f3
+    date: '2026-09-21'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 70.8
+    tool_calls: 32
+    output_chars: 19901
+  reference: refs/voice-profile-e2e.md
+  prompt: |
+    In {REPO}, find how the "voice profile" (user's learned writing style, exposed as `todoforai:voice-profile`, with `?channel=X` variants) works end-to-end. Report with file paths + line numbers:
+    1. How the voice profile is LEARNED/generated: which data source (user posts? X/LinkedIn? past messages?), which LLM/prompt builds it, when it runs (trigger/cron/on-demand), and where it's stored (DB table / file / KV).
+    2. Its size: length limits, truncation, token caps, number of examples per channel.
+    3. How it's INJECTED into the agent: is the voice profile put directly into the system prompt, or only referenced (the "Read todoforai:voice-profile" instruction)? Find the exact system-prompt builder code that emits the "Business context" / "voice-profile" section and any conditionals (e.g. only if profile exists, only for certain agents/brands).
+    4. How `todoforai:voice-profile` and `todoforai:business-context` reads are resolved (the resource resolver code), including channel param handling.
+    5. Brand context: how the "brand" (todo brand / project brand / business-context) alters the system prompt — the code that selects brand and modifies prompt text.
+    Search terms: voice-profile, voiceProfile, voice_profile, business-context, businessContext, brand, "Business context", "learned writing style", channel=. Look in backend/, api/, agent/, cli/, edge/, packages/. Give a concise architecture summary with concrete code references and quote key prompt text.
+- id: brand-project-touchpoints
+  category: exhaustive-recall
+  tests: exhaustive refactor touch-point list (recall-heavy)
+  source:
+    todo: 2d3015c9-5f4a-4c78-afc3-10bbdefbb8bb
+    subtodo: 86eb9d9a-cc53-47f6-869b-8d18ed35ad72
+    date: '2026-09-22'
+  baseline:
+    model: anthropic:anthropic/claude-haiku-4.5
+    dur_s: 196.1
+    tool_calls: 36
+    output_chars: 5985
+  reference: refs/brand-project-touchpoints.md
+  prompt: |
+    In {REPO} (repos: backend, frontend, packages, cli, agent), I'm about to make "brand = project" strictly 1:1: a project owns its business context (the .md attachment) and its voice; todos inherit the project's brand; the user-level list/selection disappears. Map every touch point so I can plan. Exclude node_modules, dist, generated dirs, *.md docs, bench data.
+
+    Report, grouped by concept, with file:line and a one-line note of what each usage does:
+
+    A. `AppUser.businessContextIds` and `AppUser.selectedBusinessContextId` — every read/write in backend (services, routers, repositories, claim/fork/account-deletion/anonymous-merge paths), frontend (stores, hooks, components like brand picker/selector, settings), packages types, cli (`resolveBrand`, `--brand`), agent (Julia).
+    B. `Todo.businessContextId` — where set (create/update/startMessage), where read (system prompt, search index `businessContextId TAG`, filters, board lanes/groups), frontend usage (todo cards, filters), shared types, agent.
+    C. `Project.businessContextId` — set/read paths (ProjectService update, pinBusinessContextIfAbsent, unpinBusinessContexts, claim fork), frontend (BrandContextId.tsx / useEffectiveBrandContextId, /brand page, project settings).
+    D. `BusinessContextStore` and the `businessContext` tRPC router: list/get/create/update/delete/restartSetup/setSelected — who calls each from frontend/cli/agent. Also `todoforai:business-context` resolver write path (`writeBusinessContext`, register).
+    E. Onboarding flow: how the first business context gets created (analyzer todo? `useEnsureBrandContext`? `ensureContext`), how `boardMode: 'business'` relates, `Onboarding.styleAiAnswers[businessContextId]`.
+    F. The `BUSINESS_CONTEXT_UPDATED` realtime event and any WS/pubsub consumers.
+    G. Tests that reference any of the above.
+
+    Be exhaustive on file paths; brief on each. End with a count of files per repo.
