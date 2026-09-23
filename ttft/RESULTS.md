@@ -116,3 +116,32 @@ Conclusions:
   `(none)` still emits some thinking (any ≠ visible) → ~1.9s visible. For user-facing latency
   compare **visible TTFT on a non-trivial prompt**.
 - Proxy overhead vs direct OpenCode Go is not measurable at this n (proxy was not slower).
+
+### 2026-09-23 17:00 — long prompt, all models (`--prompt "Write exactly 150 words about the history of bridges. No preamble."`), 8 runs
+Ranked by **visible p50** (first answer word — what the user waits for). ms.
+
+| model | visible p50 | visible mean | any p50 | total | note |
+|---|---|---|---|---|---|
+| haiku-4.5(none) | **502** | 512 | 502 | 3.2s | tight 471–636 |
+| sonnet-5(none) | **593** | 599 | 593 | 4.4s | tight 575–626 |
+| glm-5.3(none) | 1031 | 2630 | 976 | 5.9s | one 13.6s sample |
+| glm-5.3(low) | 1060 | 1254 | 835 | 4.4s | this run all short; see bimodal note |
+| opus-5(none) | 1106 | 1120 | 1106 | 7.3s | |
+| sonnet-4.5(none) | 1126 | 1544 | 1126 | 7.0s | one 5s sample |
+| luna-6(none) | 1343 | 1275 | 1343 | 8.7s | |
+| sonnet-4.6(none) | 1530 | 1555 | 1530 | 6.4s | |
+| kimi-k3(none) | 1760 | 4019 | 1188 | 6.3s | 3/8 samples 6–12s (thinks anyway) |
+| sol-6(none) | 2499 | 3815 | 2499 | 9.7s | one 11.6s sample |
+| glm-5.3-flash(none) | 4945 | 7167 | 4934 | 12.0s | |
+| opus-5.5(default) | 11492 | 11225 | 1271 | 13.5s | adaptive thinking ~10s on every request |
+| luna-5.6(none) | 13859 | 12439 | 13859 | 16.1s | proxy logs "budget zero not allowed" → reasoning not disabled, hidden (not streamed) |
+| gemini-3.8-flash(none) | 18007 | 18476 | 18007 | 20.6s | `-high` variant, hidden reasoning |
+
+**GLM-5.3 thinking is bimodal** (`glm-thinking-variance.mjs`, 16 requests, `(low)`): thinking is
+either ~40 chars (visible 0.7–2s) or ~3000 chars (visible 8–17s), ~1/3 of requests long. Not caused
+by user-agent or session id. The 16:30 validation happened to hit mostly long ones (p50 11s), this
+run mostly short (p50 1.06s). Real expectation for GLM: ~1s typical, ~10s on a third of requests.
+
+Takeaways: on a real answer only haiku-4.5 and sonnet-5 are consistently ~0.5–0.6s. Opus 5.5,
+luna-5.6 and gemini-3.8-flash-high spend 10–18s thinking before the first word even when asked
+for no thinking. For latency-critical paths: haiku-4.5, then sonnet-5.
