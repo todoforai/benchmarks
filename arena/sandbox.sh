@@ -19,6 +19,8 @@ binds=(); for p in /snap /opt/google /etc/alternatives; do [ -e "$p" ] && binds+
 for g in /dev/dri /dev/nvidia*; do [ -e "$g" ] && binds+=(--dev-bind "$g" "$g"); done
 # bun: modern JS runtime/bundler (host node is 18).
 [ -x /snap/blender/current/blender ] && binds+=(--symlink /snap/blender/current/blender /tbin/blender)
+# Host's current bridge over dist's (old bridges don't advertise READ → no `read`/image tool).
+BR=$(readlink -f "$(command -v todoforai-bridge)" 2>/dev/null || true); [ -x "$BR" ] && binds+=(--ro-bind "$BR" /tbin/todoforai-bridge)
 BUN=$(command -v bun || true); [ -n "$BUN" ] && binds+=(--ro-bind "$(readlink -f "$BUN")" /tbin/bun --symlink bun /tbin/bunx)
 exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/bin /bin --symlink usr/sbin /sbin \
@@ -27,7 +29,7 @@ exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --dir /tmp/home --dir /tbin --bind "$W" /work --bind "$W" /tmp/todoforai --ro-bind "$DIST" /tfa --ro-bind "$PWD/rec" /rec --chdir /work \
   --unshare-pid --unshare-uts --unshare-ipc --die-with-parent --new-session \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \
-  --setenv PATH /tfa:/tbin:/usr/local/bin:/usr/bin:/bin \
+  --setenv PATH /tbin:/tfa:/usr/local/bin:/usr/bin:/bin \
   --setenv TODOFORAI_API_TOKEN "${TODOFORAI_API_TOKEN:-}" --setenv TODOFORAI_API_URL "${TODOFORAI_API_URL:-}" \
   --setenv TFA_PROMPT "${TFA_PROMPT:-}" --setenv TFA_MODEL "${TFA_MODEL:-}" --setenv TFA_AGENT "${TFA_AGENT:-}" \
   -- "$@"
