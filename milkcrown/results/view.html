@@ -1,0 +1,48 @@
+<!doctype html><meta charset=utf-8>
+<title>MILKCROWN</title>
+<style>
+ body{background:#06080c;color:#e7e7e7;font:14px/1.5 ui-sans-serif,system-ui;margin:0;padding:28px}
+ h1{font-size:16px;letter-spacing:2px;margin:0 0 2px}
+ .sub{font-size:11px;opacity:.5;margin-bottom:22px}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+ .lane{background:#0b0e14;border-radius:10px;padding:10px}
+ .lane img{width:100%;display:block;border-radius:6px;background:#06080c}
+ .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+ .nm{font-weight:600;font-size:13px}
+ .sc{font-variant-numeric:tabular-nums;font-weight:700}
+ .pass{color:#5ec26a}.fail{color:#8b95a3}
+ .mt{display:flex;gap:9px;font-size:10px;opacity:.55;margin-top:6px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+ .bad{color:#e06c5a;opacity:1}
+ .bar{margin-top:20px;font-size:11px;opacity:.4}
+</style>
+<h1>MILKCROWN</h1>
+<div class=sub>&ldquo;Drop milk into milk. Make a crown.&rdquo; &mdash; <span id=seeds></span></div>
+<div class=grid id=g></div>
+<div class=bar>0.35 crown &middot; 0.20 symmetry &middot; 0.20 response to impact speed &middot; 0.15 droplets &middot; 0.10 spreading &mdash; volume drift &gt;15% invalidates the run</div>
+<script src=scores.js></script>
+<script>
+(d => {
+  const esc = s => String(s).replace(/[<&]/g, c => ({ '<': '&lt;', '&': '&amp;' }[c]));
+  seeds.textContent = 'seeds ' + d.seeds.join(',');
+  g.innerHTML = d.entries.map((e, i) => `
+    <div class=lane>
+      <div class=hd><span class=nm>${esc(e.name)}</span>
+        <span class="sc ${e.total > .6 ? 'pass' : 'fail'}">${e.total.toFixed(3)}</span></div>
+      <img id=f${i}>
+      <div class=mt><span>crown ${e.crown.toFixed(2)}</span><span>sym ${e.sym.toFixed(2)}</span>
+        <span>response ${e.response.toFixed(2)}</span>
+        <span>drops ${e.droplets.toFixed(2)}</span><span>spread ${e.spread.toFixed(2)}</span>
+        ${e.seeds.filter(s => !s.valid).map(s => `<span class=bad>seed ${s.seed} ${s.error || 'drift ' + s.drift.toFixed(2)}</span>`).join('')}</div>
+    </div>`).join('');
+  // every lane plays the same timeline, so the impact is simultaneous
+  const n = Math.max(...d.entries.map(e => e.frames.length));
+  let k = 0;
+  setInterval(() => {
+    d.entries.forEach((e, i) => {
+      const img = document.getElementById('f' + i);
+      if (e.frames.length) img.src = e.frames[Math.min(k, e.frames.length - 1)];
+    });
+    k = (k + 1) % (n + 8);          // short hold on the last frame
+  }, 90);
+})(window.SCORES);
+</script>

@@ -1,0 +1,4 @@
+node_modules/
+runs/
+package-lock.json
+results/*.mp4
