@@ -79,3 +79,17 @@ Judges: Opus 5.5 + GPT-6 Sol. Gemini 3.1 Pro, as a third judge, hit 429/capacity
 - Sol ≈ Opus on these tasks (Opus in r3 on the same 10: 8.75–8.95) at ~1/4 of the Opus cost, but ~30× Luna and ~1.6× slower.
   Opus judge alone: Sol 8.75 vs Luna 5.45–5.95, so Sol's lead is not self-preference.
 
+**r5**: all four models in ONE judged field, same 10 tasks as r4, same code state, 2 runs each, Luna/Sol runs reused from r4.
+Judges Opus 5.5 + GPT-6 Sol with absolute rubric anchors. 0 parse failures.
+
+| model · sysmsg | wall med s | p90 s | LLM calls | tool calls | $ / run | overall | correct | coverage | halluc/run | chars | pairwise win |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| haiku-4.5 · v3 | 114 | 167 | 46 | 48 | 0.040 | 3.45 | 3.52 | 6.30 | 4.50 | 5790 | 0% |
+| luna · v3 | 102 | 142 | 10 | 30 | 0.001 | 6.65 | 7.53 | 7.33 | 0.55 | 3769 | 35% |
+| sol · v2 | 157 | 221 | 12 | 26 | 0.023 | 8.93 | 9.12 | 9.12 | 0.00 | 4961 | 81% |
+| opus-5.5 · v3 | 140 | 274 | 27 | 34 | 0.143 | 8.80 | 8.80 | 9.62 | 0.33 | 7184 | 83% |
+
+- Haiku loses every pairwise comparison (0%) and invents ~4.5 facts per report. Luna beats Haiku 100%, at 1/40 of its cost.
+- Sol ≈ Opus (44/56% head to head, overall 8.93 vs 8.80, Sol never hallucinated) at 1/6 of Opus's cost, but the slowest median.
+- Per judge: Sol judge 9.15 Sol / 8.65 Opus, Opus judge 8.70 Sol / 8.95 Opus, so each prefers its own vendor by ~0.3–0.5; the ordering holds.
+
