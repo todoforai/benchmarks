@@ -1,0 +1,11 @@
+Recreate the attached reference image in Blender as closely as you can (/work/ref/island_v4.png). Match it, don't reinterpret it — same camera, framing, colours and sky gradient.
+
+Pay attention to:
+- The island is 3 distinct tiers: a grey rock base that sticks out below the grass, a lower grass terrace (cottage), an upper grass plateau (lighthouse). Separate meshes, visible steps.
+- Pier planks are irregular: varying length, small random rotation and gaps, posts of different heights — like the reference, not a uniform grid.
+- Pine trees: stacked cone tiers with a blunt (truncated) top, each tree slightly different in size and tilted a few degrees in a random direction — not identical, not perfectly upright.
+- Bushes are simple faceted icospheres; grass tufts are 3-4 flat blades in varied sizes/angles.
+- "TODO for AI" floats in the air behind the island, no ground, no reflection.
+- Nothing intersects: check object bounding boxes in code.
+
+Start from scratch in the current default scene — do not load or reuse any existing .blend or scripts. Blender 4.5 is installed (NVIDIA GPU: Cycles OPTIX works); drive it headless (`blender -b --python …`), render low-res previews as you go and compare against the reference; before the final render do one careful side-by-side check and fix the differences. Save everything to /work/out/ (scene.blend, build script, final render as /work/out/render.png) and render a still to render.png.

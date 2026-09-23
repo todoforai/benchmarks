@@ -1,0 +1,8 @@
+# /etc/apparmor.d/bwrap — Ubuntu 24.04 blocks unprivileged user namespaces
+# by default; this lets /usr/bin/bwrap create them (same as the upstream profile).
+abi <abi/4.0>,
+include <tunables/global>
+profile bwrap /usr/bin/bwrap flags=(unconfined) {
+  userns,
+  include if exists <local/bwrap>
+}

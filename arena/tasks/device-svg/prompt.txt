@@ -1,0 +1,1 @@
+Generate an SVG of the new iPhone Duo (the 2026 dual-screen foldable iPhone) shown half-open at a three-quarter angle, both displays lit with the iOS lock screen. Include the camera bump with its lenses, the hinge, realistic reflections/shading and the Apple logo. Write only the file device.svg (hand-written SVG, no raster images embedded, no external tools needed).
