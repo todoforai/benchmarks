@@ -64,3 +64,18 @@ transcript that included thinking and dropped some WS-closed runs (tfa-subagent 
 - explore-v2 vs agent-explore: +0.15 (Luna) / +0.17 (Opus), 95% CI spans 0 → no measurable
   difference. Luna run-to-run spread is smaller with v2 (|r1−r2| 0.78 vs 1.23).
 - `cost` = billed runMeta cost, after promo discount (80% off + Ultra boost → ~86.7% off), ~1/7 of list.
+
+**r4**: Luna's coverage gap. The 10 tasks where Luna trailed Opus most in r3, {Luna, GPT-6 Sol} × {explore-v2, explore-v3} × 2 runs, -j 10.
+Judges: Opus 5.5 + GPT-6 Sol. Gemini 3.1 Pro, as a third judge, hit 429/capacity on 5 of 10 tasks, so it is kept aside (`runs/r4/judge-gemini`).
+
+| config | wall med s | p90 s | $ / run | overall | correct | coverage | halluc/run |
+|---|---|---|---|---|---|---|---|
+| luna · explore-v2 | 91 | 161 | 0.0008 | 6.03 | 7.17 | 7.22 | 0.88 |
+| luna · explore-v3 | 102 | 142 | 0.0010 | 6.58 | 7.80 | 7.55 | 0.47 |
+| sol · explore-v2 | 157 | 221 | 0.023 | 9.05 | 9.38 | 9.68 | 0.05 |
+| sol · explore-v3 | 151 | 250 | 0.025 | 8.90 | 9.25 | 9.68 | 0.07 |
+
+- v3 helps Luna: +0.55 overall, 95% CI [0.07, 0.95], better on 8 of 10 tasks, hallucinations about halved. It does nothing for Sol (−0.15, CI spans 0).
+- Sol ≈ Opus on these tasks (Opus in r3 on the same 10: 8.75–8.95) at ~1/4 of the Opus cost, but ~30× Luna and ~1.6× slower.
+  Opus judge alone: Sol 8.75 vs Luna 5.45–5.95, so Sol's lead is not self-preference.
+
