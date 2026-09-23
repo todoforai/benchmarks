@@ -4,7 +4,7 @@
 # Isolation (sandbox.sh / bwrap): /work = empty dir + tasks/<task>/assets copy is
 # the only writable path, private /tmp+HOME, no /home, one mayfly session per model.
 # Output: runs/<task>/<ts>/<model>/{work/,timeline/,timelapse.mp4,agent.log,meta.json}
-# meta.json: wall_s, cost_usd (tokens x list price), turns, tool_calls, solution_chars.
+# meta.json: wall_s, exit + cost_usd, turns (metrics.sh). Solution size: `wc -c work/<file>`.
 set -euo pipefail
 cd "$(dirname "$0")"
 TASK=${1:?task}; shift
@@ -16,8 +16,7 @@ PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
 TD="tasks/$TASK"; [ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
-[ -f "$TD/task.env" ] && . "$TD/task.env"          # TIMEOUT=, SOLUTION=
-set -f  # SOLUTION globs are expanded by metrics.mjs, not the shell
+[ -f "$TD/task.env" ] && . "$TD/task.env"          # TIMEOUT=...
 # One key per concurrent container (same rule as terminal-bench).
 mapfile -t KEYS < <(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | awk 'NF && !seen[$1]++{print $1}')
 [ ${#KEYS[@]} -ge "$PAR" ] || { echo "need $PAR keys, have ${#KEYS[@]}" >&2; exit 1; }
@@ -40,7 +39,7 @@ one() {  # $1 model  $2 key
   set -e; kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
   jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --argjson s "$(( $(date +%s) - t0 ))" \
     '{model:$m,task:$task,agent:$agent,exit:$rc,wall_s:$s}' >"$d/meta.json"
-  node metrics.mjs "$d" ${SOLUTION:-} || true          # cost, turns, tool calls, solution chars
+  ./metrics.sh "$d" "$KEY" || true                     # + cost_usd, turns (from the todo)
   [ -x "$TD/collect.sh" ] && "$TD/collect.sh" "$d" || true
   ./timelapse.sh "$d" || true
   echo "   $slug exit=$rc $(( $(date +%s) - t0 ))s"
