@@ -53,6 +53,8 @@ async function todoStats(todoId: string) {
     cost: +sum((x) => x.cost).toFixed(5), input_tokens: sum((x) => x.extras?.inputTokens),
     output_tokens: sum((x) => x.extras?.outputTokens), cache_read: sum((x) => x.extras?.cacheReadTokens),
     max_context: Math.max(0, ...metas.map((x) => x.extras?.contextTokens ?? 0)),
+    // LLM time = sum of per-call elapsed; the rest of dur_s is tools + orchestration.
+    llm_s: +sum((x) => (x.type === "todo:msg_meta_ai" ? x.elapsed : 0)).toFixed(1),
     dur_s: ts.length ? +((Math.max(...ts) - Math.min(...ts)) / 1000).toFixed(1) : undefined,
     final: texts.at(-1)?.content ?? "",
   };
