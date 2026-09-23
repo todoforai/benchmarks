@@ -145,3 +145,29 @@ run mostly short (p50 1.06s). Real expectation for GLM: ~1s typical, ~10s on a t
 Takeaways: on a real answer only haiku-4.5 and sonnet-5 are consistently ~0.5–0.6s. Opus 5.5,
 luna-5.6 and gemini-3.8-flash-high spend 10–18s thinking before the first word even when asked
 for no thinking. For latency-critical paths: haiku-4.5, then sonnet-5.
+
+### Same long-prompt run — reliability & speed stats (`tail -14 results.jsonl | node stats.cjs`)
+Sorted by worst sample. CV = stddev/mean of visible TTFT. gen = total − visible (time to stream
+~150 words). n=8, so "worst" is one sample; p50 here is lower-median (ttft-check prints upper).
+
+| model | vis p50 | worst | CV% | <1s | <2s | gen p50 | total p50 |
+|---|---|---|---|---|---|---|---|
+| sonnet-5(none) | 588 | **626** | **3** | 8/8 | 8/8 | 3795 | 4379 |
+| haiku-4.5(none) | **495** | 636 | 10 | 8/8 | 8/8 | 2615 | **3119** |
+| opus-5(none) | 1064 | 1446 | 13 | 3/8 | 8/8 | 6247 | 7244 |
+| luna-6(none) | 1217 | 1563 | 16 | 0/8 | 8/8 | 7238 | 8681 |
+| sonnet-4.6(none) | 1488 | 2018 | 20 | 0/8 | 7/8 | 4751 | 6037 |
+| glm-5.3(low) | 922 | 2497 | 50 | 4/8 | 6/8 | 3074 | 4116 |
+| sonnet-4.5(none) | 1058 | 4953 | 84 | 1/8 | 7/8 | 5339 | 6476 |
+| sol-6(none) | 2266 | 11563 | 82 | 0/8 | 2/8 | 6027 | 8908 |
+| opus-5.5(default) | 10928 | 12073 | 6 | 0/8 | 0/8 | 2211 | 13139 |
+| kimi-k3(none) | 1396 | 12263 | 96 | 0/8 | 5/8 | 2480 | 4477 |
+| glm-5.3(none) | 772 | 13626 | 159 | 4/8 | 7/8 | 3134 | 4159 |
+| luna-5.6(none) | 12408 | 17555 | 28 | 0/8 | 0/8 | 3629 | 16104 |
+| glm-5.3-flash(none) | 4917 | 22789 | 82 | 0/8 | 0/8 | 4912 | 10226 |
+| gemini-3.8-flash(none) | 18004 | 29930 | 27 | 0/8 | 0/8 | 764 | 18502 |
+
+- Only haiku-4.5 and sonnet-5 were under 1s on every request; both also have the lowest CV.
+- Full answer: haiku fastest (3.1s); GLM/kimi generate fast (~2.5–3s) but their thinking tail makes
+  first-word latency unpredictable. luna-6 and opus-5 generate slowly (6–7s for 150 words).
+- gen p50 ≠ throughput: gemini's 764ms means text arrives in one burst after hidden reasoning.
