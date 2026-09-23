@@ -1,0 +1,10 @@
+Recreate the Breaking Bad "pizza on the roof" scene as a short animated 3D clip in Blender, matching the reference: /work/ref/pizza.gif (and its extracted frames /work/ref/frame_*.png).
+
+The shot: a static camera looking at a suburban house front — beige wall, dark maroon garage door, brown shingle roof, blue sky, hedge on the left. A red station wagon with wood-panel sides is parked in the foreground left, a grey car's open door at the right edge. Walter White (bald, glasses, light-blue shirt, khaki trousers) stands in the driveway holding a large flat pizza box, winds up and flings it overhead; the box flies up and out of frame toward the roof while the pizza separates from the box mid-air. He stands and watches.
+
+Requirements:
+- Blender 4.5 is installed (NVIDIA GPU: Cycles OPTIX works). Drive it headless (`blender -b --python …`), build everything procedurally in Python — no downloaded assets.
+- Stylised low-poly is fine, but the composition, colours, camera and the throw's timing must read as this scene. Walter needs a simple rig or at least animated arm/torso so the throw looks like a throw.
+- ~4 seconds at 24 fps, 960x540. Physically plausible arc for the box, spinning; pizza separates.
+- Render preview frames as you go and compare them to the reference frames; fix what differs.
+- Save to /work/out/: scene.blend, the build script(s), pizza.mp4 (H.264), and compare.png (your frame next to the matching reference frame).

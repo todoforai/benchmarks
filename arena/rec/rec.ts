@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // Headless page recording: CDP screencast -> system ffmpeg (no X/Xvfb, no
 // Playwright ffmpeg download). Frames are resampled to a constant fps.
-//   bun rec.ts <url> <out.mp4> [--secs 12] [--w 1440 --h 900] [--script scroll|game] [--shot hero.png]
+//   bun rec.ts <url> <out.mp4> [--secs 12] [--w 1440 --h 900] [--script scroll|idle|game] [--shot hero.png]
 import { chromium } from "playwright-core";
 import { parseArgs } from "node:util";
 
@@ -29,7 +29,9 @@ await cdp.send("Page.startScreencast", { format: "jpeg", quality: 85, maxWidth: 
 const tick = setInterval(() => { if (last) ff.stdin.write(last); }, 1000 / FPS);
 
 const t0 = Date.now(), left = () => SECS * 1000 - (Date.now() - t0);
-if (o.script === "game") {           // click to start / pointer lock, walk, turn, shoot
+if (o.script === "idle") {           // just watch (attract mode / intro)
+  await new Promise(r => setTimeout(r, left()));
+} else if (o.script === "game") {           // click to start / pointer lock, walk, turn, shoot
   await page.mouse.click(W / 2, H / 2).catch(() => {});
   const keys = ["w", "w", "a", "w", "d", "w", "s", "w"];
   for (let i = 0; left() > 500; i++) {

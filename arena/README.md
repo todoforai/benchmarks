@@ -31,7 +31,7 @@ runs/<task>/<ts>/<model>/   work/ (= sandbox /work), agent.log (timestamped stre
 
 Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `blender-island`
 (reference-image match, from `api-apps/blender-api/demo`), `blender-danger`
-(free "I am the danger" scene + camera animation).
+(Breaking Bad pizza-throw scene from a reference gif, animated).
 
 ```bash
 (cd rec && bun install)        # once: playwright-core (uses host google-chrome)
@@ -43,7 +43,7 @@ Recording — no X/Xvfb, no screen grabbing:
 - `record.sh` (inotify) keeps every saved artifact version in `timeline/`;
   `timelapse.sh` → `rec/timelapse.ts` renders them (headless Chrome) into a labelled mp4.
 - Web/game outputs: `rec/rec.ts` = Playwright + CDP `Page.startScreencast` → system
-  ffmpeg (scripted scroll, or WASD/mouse/shoot for games); page errors → `*.errors.txt`.
+  ffmpeg (scripted scroll; games are only watched idle for now, `game` script exists); page errors → `*.errors.txt`.
 - `agent.log` has the timestamped tool stream; the todo itself (`todofor.ai/t/<id>` in agent.log, or
 `GET /api/v1/todos/<id>/messages`) is the full replay for a Remotion cut later.
 
