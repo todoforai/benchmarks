@@ -86,3 +86,17 @@ Prompt `Say "ok" and nothing else.`, 8 runs + 2 warmup unless noted. ms = mean a
 | glm-5.3-flash(none) | 3054 | 3517 | |
 | sonnet-4.5(none) | 8325 | 8283 | **account artifact**: every sample ~8.3s, pinned by session-affinity to `claude-marcellhavlik@todofor.ai`; 1.5s right after on another account. Rerun. |
 | glm-5.3(none) | 14022 | 5863 | samples 818ms…49950ms — `(none)` on OpenCode Go is unreliable (upstream retries/queueing?); use `(low)` |
+
+### 2026-09-23 16:00 — rerun of the two outliers, 15 runs + 2 warmup
+| model | mean | p50 | samples (ms) |
+|---|---|---|---|
+| haiku-4.5(none) | **545** | 524 | 461–906, tight |
+| glm-5.3(low) | 760 | 689 | 540–1576, 13/15 under 1s |
+| glm-5.3(none) | 1027 | 724 | 575–2065, bimodal (~650 vs ~1.8s) |
+| sonnet-4.5(none) | 1486 | 1092 | 850–3656, tail on account `havliktomi@` |
+
+Conclusions:
+- sonnet-4.5's 8.3s in the 15:31 run was the pinned `marcellhavlik@todofor.ai` account, not the model.
+  Session-affinity pins a whole run to one account ⇒ one bad account skews a whole row.
+- glm-5.3 via OpenCode Go is ~0.7s p50 — second only to haiku — but its tail is noisy
+  (earlier run had 40–50s samples). `(low)` is both faster and steadier than `(none)`.
