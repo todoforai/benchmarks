@@ -171,3 +171,15 @@ Sorted by worst sample. CV = stddev/mean of visible TTFT. gen = total − visibl
 - Full answer: haiku fastest (3.1s); GLM/kimi generate fast (~2.5–3s) but their thinking tail makes
   first-word latency unpredictable. luna-6 and opus-5 generate slowly (6–7s for 150 words).
 - gen p50 ≠ throughput: gemini's 764ms means text arrives in one burst after hidden reasoning.
+
+## TTFT ≠ JARVIS turn latency (2026-09-23)
+`frontend/jarvis-flows` (real persona + tool set, 13 flows / 27 turns), 3 runs per model:
+
+| model | failed turns | turn p50 | turn p90 | max | no-tool turn p50 | suite |
+|---|---|---|---|---|---|---|
+| claude-haiku-4-5 | 3/81 | 2.0s | 2.5s | 4.2s | 0.9s | ~48s |
+| claude-sonnet-5 | 2/81 | 2.6s | 5.1s | 8.2s | 1.6s | ~81s |
+
+With the large JARVIS system prompt and tools, Sonnet 5's short-prompt TTFT lead goes away: whole
+turns are 1.3–2× slower and it talks longer. Haiku's failures were all narration ("I'll check…");
+Sonnet's were one extra answer_todo call and a 13-word ack (limit 10). Kept JARVIS on Haiku.
