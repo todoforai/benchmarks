@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 // Deterministic frame-by-frame render of a GSAP page → mp4 (+ audio).
-// Contract: the page puts ALL motion on one GSAP timeline `window.tl` (no CSS
-// animations / rAF loops outside GSAP). We pause it, seek to i/fps, screenshot.
+// Seek modes: GSAP page → `window.tl` (all motion on one timeline);
+// otherwise SVG SMIL (svg.setCurrentTime) + CSS/WAAPI (document.getAnimations)
+// — pass --secs for those. We pause, seek to i/fps, screenshot.
 // Not real-time, so frame drops/jank can't happen; the result is reproducible.
 //   bun frames.ts <index.html> <out.mp4> [--fps 30] [--w 1920 --h 1080] [--audio music.mp3] [--secs N]
 import { chromium } from "playwright-core";
@@ -22,8 +23,18 @@ try {
   page.on("pageerror", e => errors.push(String(e)));
   await page.goto(html.startsWith("/") ? `file://${html}` : html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
-  const dur = await page.evaluate(() => { const tl = (window as any).tl; if (!tl?.seek) return -1; tl.pause(0); return tl.duration(); });
-  if (dur < 0) fail("page has no window.tl (GSAP timeline)");
+  const dur = await page.evaluate(() => {
+    const w = window as any, tl = w.tl;
+    if (tl?.seek) { tl.pause(0); w.__seek = (t: number) => tl.seek(t, false); return tl.duration(); }
+    const svgs = [...document.querySelectorAll("svg")] as any[];
+    if (document.documentElement instanceof SVGSVGElement && !svgs.includes(document.documentElement)) svgs.unshift(document.documentElement);
+    w.__seek = (t: number) => {
+      for (const s of svgs) { s.pauseAnimations?.(); s.setCurrentTime?.(t); }
+      for (const a of document.getAnimations()) { a.pause(); a.currentTime = t * 1000; }
+    };
+    return 0;
+  });
+  if (!dur && !o.secs) fail("no window.tl (GSAP) — pass --secs for SMIL/CSS animations");
   const secs = o.secs ? +o.secs : dur, n = Math.ceil(secs * FPS);
 
   const ff = Bun.spawn(["ffmpeg", "-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-",
@@ -31,7 +42,7 @@ try {
     "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out], { stdin: "pipe" });
   for (let i = 0; i < n; i++) {
     // seek + force GSAP to render this exact time; wait a paint so CSS/WebGL catch up
-    await page.evaluate(t => new Promise(r => { (window as any).tl.seek(t, false); requestAnimationFrame(() => requestAnimationFrame(r)); }), i / FPS);
+    await page.evaluate(t => new Promise(r => { (window as any).__seek(t); requestAnimationFrame(() => requestAnimationFrame(r)); }), i / FPS);
     ff.stdin.write(await page.screenshot({ type: "jpeg", quality: 92 }));
     await ff.stdin.flush();
   }

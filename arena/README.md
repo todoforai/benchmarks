@@ -31,7 +31,8 @@ runs/<task>/<ts>/<model>/   work/ (= sandbox /work), agent.log (timestamped stre
 
 Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `blender-island`
 (reference-image match, from `api-apps/blender-api/demo`), `blender-danger`
-(Breaking Bad pizza-throw scene from a reference gif, animated), `promo-gsap`
+(Breaking Bad pizza-throw scene from a reference gif, animated),
+`svg-pizza` (same scene as animated SMIL/CSS SVG), `promo-gsap`
 (30 s TODO for AI promo in GSAP, cut to a Suno track via `beats.json`).
 
 ```bash

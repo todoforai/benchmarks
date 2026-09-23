@@ -1,0 +1,10 @@
+Recreate the Breaking Bad "pizza on the roof" scene as an animated SVG, matching the reference: /work/ref/pizza.gif (and its extracted frames /work/ref/frame_*.png).
+
+The shot: a static camera looking at a suburban house front — beige wall, dark maroon garage door, brown shingle roof, blue sky, hedge on the left. A red station wagon with wood-panel sides is parked in the foreground left, a grey car's open door at the right edge. Walter White (bald, glasses, light-blue shirt, khaki trousers) stands in the driveway holding a large flat pizza box, winds up and flings it overhead; the box flies up and out of frame toward the roof while the pizza separates from the box mid-air. He stands and watches.
+
+Requirements:
+- One hand-written file /work/pizza.svg, viewBox 0 0 960 540. No raster images, no external resources, no JavaScript.
+- Animate with SVG SMIL (<animate>, <animateTransform>, <animateMotion>) and/or CSS @keyframes inside the SVG. Total animation 4 s, looping (the scene restarts after the throw).
+- The composition, colours and the throw's timing must read as this scene: wind-up, release, spinning box on an arc, pizza separating, Walt watching.
+- It is rendered frame by frame by seeking the animation clock (svg.setCurrentTime / document.getAnimations), so animations must be driven only by the document timeline (begin at 0 s, no event/click triggers).
+- Preview: `bun /rec/frames.ts /work/pizza.svg /work/preview.mp4 --secs 4 --fps 10` (Chrome + ffmpeg installed); extract stills with ffmpeg, compare them to the reference frames and fix what differs.
