@@ -40,3 +40,22 @@ Gotchas
   `pelican.svg` lands there; `run.sh` copies it back.
 - A shell started by an agent inherits `TODOFORAI_PROJECT_ID`/`TODO_ID`/`AGENT_SETTINGS_ID`;
   with a *different* API key that's a 403 "Unauthorized to modify project". `run.sh` `env -u`s them.
+
+## 2026-09-23 — GPT-6 Sol vs Claude Opus 5.5 (arena harness)
+
+Same prompt, same `--agent app` (xhigh), but run through `../arena` (bwrap sandbox per
+model, parallel). Run dir: `arena/runs/pelican/2026-09-23__11-57-38_1386161`.
+
+| Model | SVG done | SVG | Notes |
+|---|---|---|---|
+| gpt-6-sol (xhigh) | 3.5 min, 1 write | 10.4 KB, 1000×750 | Plain background, scalloped wing feathers, red pouch, wings on the handlebar, feet on both pedals, chain + chainring. Bird perched on the top tube; the neck is a stiff block |
+| claude-opus-5.5 (xhigh) | 7 min, 2 writes | 12.0 KB, 800×600 | Full beach scene (sun, sea, gulls, boardwalk, speed lines), crosshatched feathers, big red pouch, pedal-rotation arrow. The legs are hard to read and it isn't clear the feet reach the pedals |
+
+![sol6 vs opus5.5](results/comparison-sol6-opus55.png)
+
+Subjective: **Opus 5.5 is the nicer picture, Sol 6 is the more correct pelican-on-a-bike**
+(pedaling is clearer). Both clearly beat their predecessors (Sol 5.6, Opus 5).
+
+Gotcha: a backend restart ~1 min into the run left both CLIs hanging with no output
+after the SVG was written; killed by hand ~20 min later. The SVG timings come from the
+arena `timeline/`, not from wall time.
