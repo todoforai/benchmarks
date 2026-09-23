@@ -1,0 +1,48 @@
+Write a single file `milk.js`. A drop of milk falls into a shallow pool of milk.
+Simulate the impact in 2D cross-section. It must form a crown.
+
+Define exactly this global:
+
+  window.BENCH = {
+    reset(p) {},        // start a new run with the parameters in p
+    step(dt) {},        // advance the simulation by dt seconds
+    draw(ctx) {}        // draw the liquid into the 2D context
+  }
+
+`p` is given to you at reset, it changes between runs:
+
+  p.w, p.h            canvas size in pixels
+  p.pxPerMm           pixels per millimetre
+  p.surfaceY          y pixel of the undisturbed milk surface (y grows downward)
+  p.cx                x pixel of the impact point
+  p.poolDepth_mm      depth of the pool below the surface
+  p.dropD_mm          diameter of the falling drop
+  p.impactV_mps       speed of the drop at the moment it touches the surface
+  p.sigma_Npm         surface tension
+  p.mu_mPas           dynamic viscosity
+  p.rho_kgm3          density
+  p.g_mps2            gravity
+  p.seed              integer, if you need randomness use only this
+
+At reset the drop is already touching the surface: its lowest point is at
+p.surfaceY, its centre is at x = p.cx, and it is moving down at p.impactV_mps.
+
+Rules:
+- `step` gets a fixed dt (5e-5 s). Substep inside it if your scheme needs to.
+- `draw` draws only liquid, opaque. Do not clear the canvas, do not draw a
+  background, a sky, a table or a light. Transparent pixels are "not liquid".
+  The harness measures your pixels, so anything you draw is treated as milk.
+- No rAF, no timers, no network, no images. `step` must be deterministic.
+- Total liquid volume must be conserved. The harness rejects a run whose liquid
+  area drifts more than 15%.
+
+You are scored on physics, not on prettiness:
+  crown       do two sheets rise from the rim and later fall back
+  symmetry    left-right mirror agreement
+  response    the same code is run again at a different p.impactV_mps.
+              A faster impact must throw a visibly higher crown.
+  droplets    do the rims break into separate droplets
+  spreading   does the crown radius grow like t^0.5
+
+A shape that looks right but ignores p scores near zero: the harness replays
+your code at 0.55x and 1.7x the impact speed and compares the two.

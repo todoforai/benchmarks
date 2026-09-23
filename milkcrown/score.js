@@ -42,9 +42,9 @@ const RUN_MS = 60000;
       let r = await guarded(`(() => { try { return RUN(${seed}) } catch (e) { return { error: String(e && e.message || e) } } })()`);
       if (r.error) {
         console.log(`${name} seed ${seed}  ERROR  ${r.error}`);
-        r = { seed, total: 0, error: r.error, crown: 0, sym: 0, droplets: 0, spread: 0, valid: false };
+        r = { seed, total: 0, error: r.error, crown: 0, fingers: 0, droplets: 0, spread: 0, valid: false };
       } else {
-        console.log(`${name} seed ${seed}  ${r.total.toFixed(3)}  crown ${r.crown.toFixed(2)} sym ${r.sym.toFixed(2)} drops ${r.maxDrops} spread ${r.spread.toFixed(2)}${r.valid ? '' : '  INVALID drift=' + r.drift.toFixed(2)}`);
+        console.log(`${name} seed ${seed}  ${r.total.toFixed(3)}  crown ${r.crown.toFixed(2)} fingers ${r.fingers.toFixed(2)}(${r.peakN}) drops ${r.maxDrops} spread ${r.spread.toFixed(2)}${r.valid ? '' : '  INVALID drift=' + r.drift.toFixed(2)}`);
       }
       runs.push(r);
     }
@@ -52,12 +52,12 @@ const RUN_MS = 60000;
     // The physics probe runs once, on the first seed.
     const pr = await guarded(`(() => { try { return PROBE(${seeds[0]}) } catch (e) { return { error: String(e && e.message || e) } } })()`);
     const response = pr.error ? 0 : pr.response;
-    console.log(`${name} probe  response ${response.toFixed(2)}  (lo ${(pr.lo || 0).toFixed(0)}px -> hi ${(pr.hi || 0).toFixed(0)}px)`);
+    console.log(`${name} probe  response ${response.toFixed(2)}  higher ${(pr.higher||0).toFixed(2)} [${(1e3*(pr.loZ||0)).toFixed(1)}->${(1e3*(pr.hiZ||0)).toFixed(1)}mm, ${pr.loN|0}->${pr.hiN|0} fingers]  sooner ${(pr.sooner||0).toFixed(2)} [peak ${pr.hiT|0}<-${pr.loT|0}]  tension ${(pr.tension||0).toFixed(2)} [${pr.sigN|0}<-${pr.midN|0}]  viscous ${(pr.viscous||0).toFixed(2)}  deeper ${(pr.deeper||0).toFixed(2)}`);
 
     const frames = (runs.find(r => r.frames) || {}).frames || [];
     const e = { name, response,
-      total: avg(runs.map(r => r.total)) + (runs.some(r => r.valid) ? 0.20 * response : 0),
-      crown: avg(runs.map(r => r.crown)), sym: avg(runs.map(r => r.sym)),
+      total: avg(runs.map(r => r.total)) * response,
+      crown: avg(runs.map(r => r.crown)), fingers: avg(runs.map(r => r.fingers)),
       droplets: avg(runs.map(r => r.droplets)), spread: avg(runs.map(r => r.spread)),
       seeds: runs.map(r => ({ seed: r.seed, total: r.total, valid: !!r.valid, drift: r.drift, error: r.error || null })),
       error: runs.find(r => r.error)?.error || null, frames };

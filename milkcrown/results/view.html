@@ -18,7 +18,7 @@
 <h1>MILKCROWN</h1>
 <div class=sub>&ldquo;Drop milk into milk. Make a crown.&rdquo; &mdash; <span id=seeds></span></div>
 <div class=grid id=g></div>
-<div class=bar>0.35 crown &middot; 0.20 symmetry &middot; 0.20 response to impact speed &middot; 0.15 droplets &middot; 0.10 spreading &mdash; volume drift &gt;15% invalidates the run</div>
+<div class=bar>0.40 crown &middot; 0.30 fingers &middot; 0.15 droplets &middot; 0.15 spreading, all multiplied by the response to impact speed &mdash; volume drift &gt;10% of the drop invalidates the run</div>
 <script src=scores.js></script>
 <script>
 (d => {
@@ -29,7 +29,7 @@
       <div class=hd><span class=nm>${esc(e.name)}</span>
         <span class="sc ${e.total > .6 ? 'pass' : 'fail'}">${e.total.toFixed(3)}</span></div>
       <img id=f${i}>
-      <div class=mt><span>crown ${e.crown.toFixed(2)}</span><span>sym ${e.sym.toFixed(2)}</span>
+      <div class=mt><span>crown ${e.crown.toFixed(2)}</span><span>fingers ${e.fingers.toFixed(2)}</span>
         <span>response ${e.response.toFixed(2)}</span>
         <span>drops ${e.droplets.toFixed(2)}</span><span>spread ${e.spread.toFixed(2)}</span>
         ${e.seeds.filter(s => !s.valid).map(s => `<span class=bad>seed ${s.seed} ${s.error || 'drift ' + s.drift.toFixed(2)}</span>`).join('')}</div>

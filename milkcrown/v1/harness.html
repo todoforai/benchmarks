@@ -1,0 +1,177 @@
+<!doctype html><meta charset=utf-8>
+<title>milkcrown harness</title>
+<canvas id=c></canvas>
+<script>
+// The harness owns the canvas and the clock. A model only fills window.BENCH.
+// RUN() is called from the driver after the model source is injected.
+const DT = 5e-5, STEPS = 200, KEYFRAMES = 24;
+
+// splitmix32: small consecutive seeds must give unrelated parameters
+const rng = s => () => (s = s + 0x9e3779b9 | 0,
+  (t => (t = Math.imul(t ^ t >>> 15, t | 1), t ^= t + Math.imul(t ^ t >>> 7, t | 61),
+         ((t ^ t >>> 14) >>> 0) / 4294967296))(s));
+
+function params(seed) {
+  const r = rng(seed), jit = (v, p) => v * (1 + (r() * 2 - 1) * p);
+  return {
+    w: 480, h: 300, pxPerMm: 16, surfaceY: 210, cx: 240,
+    poolDepth_mm: jit(2.0, 0.25),
+    dropD_mm: jit(3.0, 0.15),
+    impactV_mps: jit(2.2, 0.20),
+    sigma_Npm: jit(0.052, 0.15),
+    mu_mPas: jit(2.0, 0.30),
+    rho_kgm3: 1030, g_mps2: 9.81, seed,
+  };
+}
+
+function RUN(seed, override) {
+  const p = Object.assign(params(seed), override), c = document.getElementById('c');
+  c.width = p.w; c.height = p.h;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  if (!window.BENCH) return { error: 'no window.BENCH' };
+
+  BENCH.reset(JSON.parse(JSON.stringify(p)));
+  const M = [], frames = [];
+  const every = Math.ceil(STEPS / (KEYFRAMES - 1));
+  for (let i = 0; i <= STEPS; i++) {
+    if (i) BENCH.step(DT);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);           // an entry must not leak state
+    ctx.clearRect(0, 0, p.w, p.h);
+    ctx.save(); BENCH.draw(ctx); ctx.restore();
+    M.push(mask(ctx.getImageData(0, 0, p.w, p.h).data, p));
+    if (i % every === 0 || i === STEPS) frames.push(c.toDataURL('image/png'));
+  }
+  return { seed, params: p, frames, ...score(M, p) };
+}
+
+// ---- measurement: everything below reads pixels only ----------------------
+
+const mask = (d, p) => {
+  const m = new Uint8Array(p.w * p.h);
+  for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] > 128 ? 1 : 0;
+  return m;
+};
+
+// Split the liquid above the surface into what hangs off the pool and what flies free.
+// Everything is judged on the pool-connected part, so a stray dot can't fake a rim.
+function split(m, p) {
+  const { w, surfaceY } = p, seen = new Uint8Array(m.length), st = [];
+  const joined = new Uint8Array(m.length);
+  let rim = 0, free = 0;
+  for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x;
+    if (!m[i] || seen[i]) continue;
+    st.length = 0; st.push(i); seen[i] = 1;
+    const comp = [];
+    let grounded = false;
+    while (st.length) {
+      const j = st.pop(), jx = j % w, jy = (j / w) | 0;
+      comp.push(j);
+      if (jy >= surfaceY - 1) grounded = true;
+      for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+        const nx = jx + dx, ny = jy + dy, k = ny * w + nx;
+        if (nx < 0 || nx >= w || ny < 0 || ny >= surfaceY) continue;
+        if (m[k] && !seen[k]) { seen[k] = 1; st.push(k); }
+      }
+    }
+    if (grounded) { for (const j of comp) { joined[j] = 1; rim = Math.max(rim, Math.abs(j % w + 0.5 - p.cx)); } }
+    else if (comp.length > 6) free++;
+  }
+  return { joined, rim, free };
+}
+
+function score(M, p) {
+  const { w, h, cx, surfaceY } = p, dropPx = p.dropD_mm * p.pxPerMm;
+  // Only the liquid that can move is weighed: the slab of pool below is dead filler,
+  // and counting it would let a big background rectangle hide any volume error.
+  const yFloor = Math.round(surfaceY + p.poolDepth_mm * p.pxPerMm);
+  const active = m => { let a = 0; for (let y = 0; y < yFloor; y++) for (let x = 0; x < w; x++) a += m[y * w + x]; return a; };
+  const A0 = active(M[0]);
+  const drift = A0 ? Math.max(...M.map(m => Math.abs(active(m) - A0) / A0)) : Infinity;
+
+  const level = Math.round(surfaceY - 0.6 * dropPx), gap = 0.3 * dropPx;
+  const crowns = [], rims = [], frees = [], heights = [];
+  let sym = 0;
+
+  M.forEach(m => {
+    const { joined, rim, free } = split(m, p);
+    // a crown is liquid standing on both sides at wall height with nothing over the impact
+    let L = 0, R = 0, C = 0;
+    for (let x = 0; x < w; x++) if (joined[level * w + x])
+      (x < cx - gap ? L++ : x > cx + gap ? R++ : C++);
+    crowns.push(L > 2 && R > 2 && C === 0 ? 1 : 0);
+    let top = surfaceY;
+    for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) if (joined[y * w + x]) { top = y; y = surfaceY; break; }
+    heights.push(surfaceY - top);
+    rims.push(rim); frees.push(free);
+
+    let xor = 0, or_ = 0;
+    for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) {
+      const a = m[y * w + x], b = m[y * w + (2 * cx - 1 - x)];
+      if (a || b) { or_++; if (a !== b) xor++; }
+    }
+    sym += or_ ? 1 - xor / or_ : 1;
+  });
+
+  const n = M.length;
+  // The crown is judged only while the splash is up. A crown that collapses back
+  // into the pool is correct physics, so the quiet tail must not count against it.
+  const up = heights.map(h => h > 2);
+  const win = up.lastIndexOf(true) + 1;
+  // Everything is scored on change, never on a standing picture:
+  // a crown that was already there at impact is a drawing, not a splash.
+  const crown = crowns[0] ? 0 : win > 3 ? crowns.slice(0, win).reduce((a, b) => a + b, 0) / win : 0;
+  const droplets = Math.min(1, Math.max(0, Math.max(...frees) - frees[0]) / 6);
+  const peak = rims.indexOf(Math.max(...rims));
+  const grew = rims[peak] > Math.max(rims[0], 2) * 1.5;
+  const spread = grew && peak > 3
+    ? Math.max(0, pearson(rims.slice(0, peak + 1).map((_, k) => Math.sqrt(k)), rims.slice(0, peak + 1)))
+    : 0;
+
+  sym /= n;
+  const valid = drift <= 0.15;   // raster area is a proxy: thin sheets lose pixels
+  const peakHeight = valid ? Math.max(...heights) : 0;
+  // response is filled in by the driver from PROBE(); a single run cannot see it
+  const total = valid ? 0.35 * crown + 0.20 * sym + 0.15 * droplets + 0.10 * spread : 0;
+  return { valid, drift, crown, sym, droplets, spread, peakHeight, maxDrops: Math.max(...frees), total };
+}
+
+const pearson = (a, b) => {
+  const n = a.length, ma = a.reduce((x, y) => x + y) / n, mb = b.reduce((x, y) => x + y) / n;
+  let sab = 0, sa = 0, sb = 0;
+  for (let i = 0; i < n; i++) { const u = a[i] - ma, v = b[i] - mb; sab += u * v; sa += u * u; sb += v * v; }
+  return sa && sb ? sab / Math.sqrt(sa * sb) : 0;
+};
+
+// The physics probe. Same entry, same seed, only the impact speed changes.
+// A real simulation throws a higher crown when hit harder; a canned animation
+// replays the identical frames and scores 0 here. This is the anti-cheat.
+function PROBE(seed) {
+  const base = params(seed), lo = base.impactV_mps * 0.55, hi = base.impactV_mps * 1.7;
+  const peak = v => {
+    const r = RUN(seed, { impactV_mps: v });
+    return r.error ? 0 : r.peakHeight;
+  };
+  const a = peak(lo), b = peak(hi);
+  return { lo: a, hi: b, response: a > 1 && b > a ? Math.min(1, (b / a - 1) / 0.5) : 0 };
+}
+
+// Every frame, for video. Separate from RUN so scoring stays cheap.
+function FILM(seed) {
+  const p = params(seed), c = document.getElementById('c');
+  c.width = p.w; c.height = p.h;
+  const ctx = c.getContext('2d');
+  BENCH.reset(JSON.parse(JSON.stringify(p)));
+  const frames = [];
+  for (let i = 0; i <= STEPS; i++) {
+    if (i) BENCH.step(DT);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, p.w, p.h);
+    ctx.save(); BENCH.draw(ctx); ctx.restore();
+    frames.push(c.toDataURL('image/png'));
+  }
+  return frames;
+}
+
+window.RUN = RUN; window.PROBE = PROBE; window.FILM = FILM;
+</script>

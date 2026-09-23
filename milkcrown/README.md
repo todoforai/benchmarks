@@ -3,8 +3,10 @@
 > **"Drop milk into milk. Make a crown."**
 
 A one-prompt physics benchmark. The model writes a single file, `milk.js`, that
-simulates a milk drop hitting a shallow pool. The harness runs it, measures the
-pixels, and prints a number. No LLM judge, no taste.
+simulates a milk drop hitting a shallow pool. The splash is axisymmetric, so the
+model works in the (r, z) half-plane and hands back the free surface; the harness
+revolves it, measures the solid of revolution, and prints a number. No LLM judge,
+no taste, and the model never draws a pixel.
 
 Everyone has seen [Edgerton's photograph](https://en.wikipedia.org/wiki/Harold_Eugene_Edgerton).
 Nobody can compute it.
@@ -16,7 +18,8 @@ Nobody can compute it.
 | one sentence | nine words, no context needed |
 | pass/fail by eye | the viewer already knows what a crown looks like |
 | not memorizable | free surface + surface tension + Plateau-Rayleigh breakup, together. No copyable repo. |
-| scored, not judged | crown, symmetry, response, droplets, spreading |
+| scored, not judged | crown, fingers, droplets, spreading, all gated on the response to the parameters |
+| cannot be drawn | the submission returns geometry, not pixels; there is nothing to paint |
 | the failures are funny | mushroom, spray, or a puddle that never moves |
 
 ## Run it
@@ -35,7 +38,10 @@ SEED=3 SECONDS=20 node video.js
 
 `video.js` needs ffmpeg. It replays all 201 simulation frames (the impact is
 10 ms of real time) stretched over `SECONDS`, holds the last frame for 2 s, and
-sorts the lanes best-first. Default output is 18 s, ~250 KB.
+sorts the lanes best-first. The camera looks down on the revolved surface at an
+oblique angle, which is the Edgerton view.
+
+The 2D pixel-scored version this replaced is kept in `v1/`.
 
 ## Files
 
@@ -67,8 +73,8 @@ dispatch: it runs the prompt through the agent per model and copies each
 
 The three pieces are independent and none of them know about milk:
 
-- `harness.html` — owns the canvas and the clock, calls `reset/step/draw`,
-  measures pixels, exposes `RUN` / `PROBE` / `FILM`
+- `harness.html` — owns the clock, calls `reset/step/state`, measures the
+  geometry, renders it, exposes `RUN` / `PROBE` / `FILM`
 - `score.js` — drives entries over seeds, writes `results/scores.json`
 - `video.js` — reads `FILM` frames, composes the grid, calls ffmpeg
 
@@ -82,54 +88,69 @@ new benchmark will resist the same cheats.
 The model defines one global:
 
 ```js
-window.BENCH = { reset(p), step(dt), draw(ctx) }
+window.BENCH = { reset(p), step(dt), state() }
 ```
 
-`draw` may only paint liquid. Transparent means "not liquid" — the harness reads
-the alpha channel and nothing else, so a background, a sky or a light source is
-scored as milk. `step` gets a fixed `dt = 5e-5 s` and must be deterministic.
+`state()` returns `{ profile: [[r, z], ...], fingers, drops }` in SI units: the
+free surface as a path from the axis out to `p.domainR_m`, the number of fingers
+around the rim, and rings of `n` droplets in flight. The harness closes the path
+with the wall and the floor and revolves it. `step` gets a fixed `dt = 5e-5 s`
+and must be deterministic. Two helpers, `REVOLVE(profile, p)` and
+`LEVEL(profile, p, drops)`, make volume conservation bookkeeping rather than a
+trap.
 
 ## Score
 
 ```
-0.35  crown       sheets standing on both sides at wall height, none over the impact
-0.20  symmetry    mirror agreement above the undisturbed surface
-0.20  response    replay at 0.55x and 1.7x impact speed - does the crown get taller?
-0.15  droplets    blobs that detach from the pool-connected liquid after impact
-0.10  spreading   rim radius correlates with sqrt(t)
+0.40  crown       an annular wall stands while the middle stays hollow, then falls back
+0.30  fingers     the declared finger count against N ~ We^0.5
+0.15  droplets    rings of droplets shed after impact, not present at t=0
+0.15  spreading   rim radius correlates with sqrt(t)
+ x    response    a MULTIPLIER, 0..1, see below
 ```
 
 Three rules do the real work:
 
-- **Volume.** A run whose active liquid area drifts more than 15% is **invalid**
-  and scores 0. Only liquid above the pool floor counts, so a big background
-  rectangle cannot hide a volume error. This kills every unstable solver —
-  `fail-explode` draws a convincing arch and still scores zero at 392% drift.
-- **Change, not picture.** A crown that is already standing on frame 0 scores 0
-  for crown. Droplets only count if they appear *after* impact. A still image
-  earns nothing.
-- **Response.** The same entry is run again at 0.55x and 1.7x the impact speed.
-  Real physics throws a higher crown when hit harder; a hardcoded animation
-  replays the identical frames and takes a zero. This is the anti-cheat.
+- **Volume.** Exact, not rasterized: the profile is revolved as a solid and the
+  droplets are added as spheres. Drift beyond **10% of the drop** invalidates the
+  run — and the pool is about a hundred drops, so that is a tight gate.
+  `fail-explode` sits at 1755%.
+- **Change, not picture.** A crown already standing on frame 0 scores 0 for
+  crown. Droplets only count if they appear *after* impact.
+- **Response, as a multiplier.** The same code is replayed with one parameter
+  changed at a time, and five trends are checked:
 
-Everything above the surface is judged on the liquid **connected to the pool**,
-so one stray dot cannot define the rim.
+  | axis | what it changes | what must happen |
+  |---|---|---|
+  | higher | impact speed 0.55x vs 1.7x | higher crown, more fingers |
+  | sooner | impact speed 0.55x vs 1.7x | the crown peaks **earlier** — the splash clock is D/V |
+  | tension | surface tension 2.5x | **fewer** fingers, the rim beads coarser |
+  | viscous | viscosity 12x | **lower** crown, the boundary layer eats the sheet |
+  | deeper | pool depth 4x | **lower** crown, a deep pool swallows the impact |
+
+  The average of the five multiplies everything else. This is the whole
+  benchmark: a shape that does not react to the physics is worth zero however
+  well it is drawn.
 
 ## Calibration
 
 | entry | score | what it is |
 |---|---|---|
-| reference | 0.922 | analytic crater + rim, responds to Weber number |
-| cheat-scripted | 0.432 | walls animated outward as sqrt(t), ignores every parameter |
-| fail-spray | 0.272 | the drop shatters into particles |
-| cheat-static | 0.200 | a frozen picture of a crown |
-| fail-flat | 0.145 | ripples only, nothing breaks the surface |
-| fail-blob | 0.000 | mushroom over the impact point, 37% volume drift |
-| fail-explode | 0.000 | unstable solver, 392% volume drift |
+| reference | 0.895 | analytic crater + rim, earns all five response axes |
+| cheat-fitted | 0.556 | a canned shape with three of the five trends hardcoded |
+| cheat-scaled | 0.187 | a canned shape scaled by the impact speed |
+| cheat-scripted | 0.000 | a canned animation on a fixed clock |
+| cheat-static | 0.000 | a frozen crown |
+| fail-blob | 0.000 | the drop just sinks in, no crown |
+| fail-spray | 0.000 | droplets everywhere, no wall |
+| fail-flat | 0.000 | nothing happens |
+| fail-explode | 0.000 | unbounded growth, 1755% volume drift |
 
-The gap that matters is **0.922 vs 0.432**: the best possible fake, a smooth
-canned animation that looks plausible in the viewer, cannot get past half. Both
-cheats score exactly 0.00 on response.
+`cheat-fitted` is the honest ceiling on cheating: it is a drawing that has had
+the answers written into it by hand — the D/V clock and the sigma dependence of
+the finger count — and it still loses a third of the score because it ignores
+viscosity and pool depth. Every axis you add costs the faker another hardcoded
+law, and at some point writing them all down *is* the physics.
 
 `reference.js` is not a fluid solver — it is an analytic model, there to prove
 the target is reachable. A real submission is expected to actually simulate, and
@@ -139,9 +160,14 @@ should beat it.
 
 - Entries run in the same JS realm as the scorer, so a hostile submission could
   overwrite `RUN`. Fine for model outputs, not for adversarial ones.
-- Rasterized area is a proxy for volume: thin sheets and overlapping droplets
-  lose pixels. The 15% band is calibrated against the reference, not proven for
-  every solver.
-- `response` checks the *sign* of the dependence on impact speed, not its
-  exponent. It separates simulation from animation; it does not verify that the
-  scaling law is right.
+- **`fingers` is declared, not measured.** The model states a number and the
+  harness checks it against `N ~ We^0.5`; it cannot see whether the submission
+  actually resolved the Plateau-Rayleigh instability. The renderer draws the
+  declared count, so the picture and the score always agree, but an entry can
+  report the right number for the wrong reason.
+- The probe checks the *sign* of five dependences, not their exponents. It
+  separates simulation from animation and makes faking expensive; it does not
+  prove the scaling laws are right. `cheat-fitted` at 0.556 is the measure of
+  exactly how far that gets you.
+- Axisymmetry is imposed, not discovered. A real crown breaks symmetry once the
+  fingers grow; here the fingers are a number, not a shape.

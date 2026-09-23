@@ -37,7 +37,11 @@ for M in "${MODELS[@]}"; do
       todoforai-cli --isolated --non-interactive --allow-all --path "$PWD" \
       ${PROJECT:+--project "$PROJECT"} ${AGENT:+--agent "$AGENT"} --model "$M" "$TASK" \
       > agent.log 2>&1 ) || echo "   exit=$? (see $d/agent.log)"
-  [ -f "$d/milk.js" ] || cp /tmp/todoforai/milk.js "$d/" 2>/dev/null || true
+  # models have written into /tmp and into their own $HOME, so look around
+  if [ ! -f "$d/milk.js" ]; then
+    f=$(find "$d" /tmp -name milk.js -newermt '-2 hours' 2>/dev/null | head -1)
+    [ -n "$f" ] && cp "$f" "$d/milk.js"
+  fi
   if [ -f "$d/milk.js" ]; then cp "$d/milk.js" "entries/$slug.js"; echo "   -> entries/$slug.js"
   else echo "   NO milk.js"; fi
 done

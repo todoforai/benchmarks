@@ -1,12 +1,12 @@
 <!doctype html><meta charset=utf-8>
 <title>milkcrown harness</title>
-<canvas id=c></canvas>
+<canvas id=c width=560 height=420></canvas>
 <script>
-// The harness owns the canvas and the clock. A model only fills window.BENCH.
-// RUN() is called from the driver after the model source is injected.
+// Axisymmetric harness. A model returns the free surface in the (r,z) half-plane;
+// the harness revolves it, measures it and renders it. Nothing is scored from pixels,
+// so a submission cannot draw its way to a score: it has to hand over a shape.
 const DT = 5e-5, STEPS = 200, KEYFRAMES = 24;
 
-// splitmix32: small consecutive seeds must give unrelated parameters
 const rng = s => () => (s = s + 0x9e3779b9 | 0,
   (t => (t = Math.imul(t ^ t >>> 15, t | 1), t ^= t + Math.imul(t ^ t >>> 7, t | 61),
          ((t ^ t >>> 14) >>> 0) / 4294967296))(s));
@@ -14,126 +14,110 @@ const rng = s => () => (s = s + 0x9e3779b9 | 0,
 function params(seed) {
   const r = rng(seed), jit = (v, p) => v * (1 + (r() * 2 - 1) * p);
   return {
-    w: 480, h: 300, pxPerMm: 16, surfaceY: 210, cx: 240,
-    poolDepth_mm: jit(2.0, 0.25),
-    dropD_mm: jit(3.0, 0.15),
+    poolDepth_m: jit(2.0, 0.25) * 1e-3,
+    dropD_m:     jit(3.0, 0.15) * 1e-3,
     impactV_mps: jit(2.2, 0.20),
-    sigma_Npm: jit(0.052, 0.15),
-    mu_mPas: jit(2.0, 0.30),
-    rho_kgm3: 1030, g_mps2: 9.81, seed,
+    sigma_Npm:   jit(0.052, 0.15),
+    mu_Pas:      jit(2.0, 0.30) * 1e-3,
+    rho_kgm3: 1030, g_mps2: 9.81, domainR_m: 0.015, seed,
   };
 }
 
-function RUN(seed, override) {
-  const p = Object.assign(params(seed), override), c = document.getElementById('c');
-  c.width = p.w; c.height = p.h;
-  const ctx = c.getContext('2d', { willReadFrequently: true });
-  if (!window.BENCH) return { error: 'no window.BENCH' };
+const We = p => p.rho_kgm3 * p.impactV_mps ** 2 * p.dropD_m / p.sigma_Npm;
 
-  BENCH.reset(JSON.parse(JSON.stringify(p)));
-  const M = [], frames = [];
-  const every = Math.ceil(STEPS / (KEYFRAMES - 1));
-  for (let i = 0; i <= STEPS; i++) {
-    if (i) BENCH.step(DT);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);           // an entry must not leak state
-    ctx.clearRect(0, 0, p.w, p.h);
-    ctx.save(); BENCH.draw(ctx); ctx.restore();
-    M.push(mask(ctx.getImageData(0, 0, p.w, p.h).data, p));
-    if (i % every === 0 || i === STEPS) frames.push(c.toDataURL('image/png'));
+// ---- geometry -------------------------------------------------------------
+
+// Volume of the solid of revolution of a closed (r,z) polygon: V = 2pi * INT r dA,
+// which is the polygon's first moment about the axis. Exact, no raster, no fudge.
+function revolve(poly) {
+  let m = 0;
+  for (let i = 0, n = poly.length; i < n; i++) {
+    const [r0, z0] = poly[i], [r1, z1] = poly[(i + 1) % n];
+    m += (r0 + r1) * (r0 * z1 - r1 * z0);
   }
-  return { seed, params: p, frames, ...score(M, p) };
+  return Math.abs(m) * Math.PI / 3;
 }
 
-// ---- measurement: everything below reads pixels only ----------------------
+// Close the free surface with the outer wall, the floor and the axis.
+const closed = (prof, p) =>
+  prof.concat([[p.domainR_m, -p.poolDepth_m], [0, -p.poolDepth_m]]);
 
-const mask = (d, p) => {
-  const m = new Uint8Array(p.w * p.h);
-  for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] > 128 ? 1 : 0;
-  return m;
+const clipAbove = (poly, z0) => {   // Sutherland-Hodgman against z >= z0
+  const out = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const ina = a[1] >= z0, inb = b[1] >= z0;
+    if (ina) out.push(a);
+    if (ina !== inb) {
+      const t = (z0 - a[1]) / (b[1] - a[1]);
+      out.push([a[0] + t * (b[0] - a[0]), z0]);
+    }
+  }
+  return out;
 };
 
-// Split the liquid above the surface into what hangs off the pool and what flies free.
-// Everything is judged on the pool-connected part, so a stray dot can't fake a rim.
-function split(m, p) {
-  const { w, surfaceY } = p, seen = new Uint8Array(m.length), st = [];
-  const joined = new Uint8Array(m.length);
-  let rim = 0, free = 0;
-  for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) {
-    const i = y * w + x;
-    if (!m[i] || seen[i]) continue;
-    st.length = 0; st.push(i); seen[i] = 1;
-    const comp = [];
-    let grounded = false;
-    while (st.length) {
-      const j = st.pop(), jx = j % w, jy = (j / w) | 0;
-      comp.push(j);
-      if (jy >= surfaceY - 1) grounded = true;
-      for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-        const nx = jx + dx, ny = jy + dy, k = ny * w + nx;
-        if (nx < 0 || nx >= w || ny < 0 || ny >= surfaceY) continue;
-        if (m[k] && !seen[k]) { seen[k] = 1; st.push(k); }
-      }
-    }
-    if (grounded) { for (const j of comp) { joined[j] = 1; rim = Math.max(rim, Math.abs(j % w + 0.5 - p.cx)); } }
-    else if (comp.length > 6) free++;
-  }
-  return { joined, rim, free };
+function measure(s, p) {
+  const prof = s.profile;
+  let zTop = -Infinity, rRim = 0;
+  for (const [r, z] of prof) if (z > zTop) { zTop = z; rRim = r; }
+
+  // hollow: the liquid near the axis must sit far below the wall it stands in
+  let zAxis = -Infinity;
+  for (const [r, z] of prof) if (r < 0.45 * rRim && z > zAxis) zAxis = z;
+
+  const poly = closed(prof, p);
+  const vol = revolve(poly) + s.drops.reduce((a, d) => a + d.n * 4 / 3 * Math.PI * d.a ** 3, 0);
+
+  return { zTop, rRim, zAxis, vol,
+           fingers: s.fingers | 0, nDrops: s.drops.reduce((a, d) => a + d.n, 0) };
 }
 
+// ---- scoring --------------------------------------------------------------
+
 function score(M, p) {
-  const { w, h, cx, surfaceY } = p, dropPx = p.dropD_mm * p.pxPerMm;
-  // Only the liquid that can move is weighed: the slab of pool below is dead filler,
-  // and counting it would let a big background rectangle hide any volume error.
-  const yFloor = Math.round(surfaceY + p.poolDepth_mm * p.pxPerMm);
-  const active = m => { let a = 0; for (let y = 0; y < yFloor; y++) for (let x = 0; x < w; x++) a += m[y * w + x]; return a; };
-  const A0 = active(M[0]);
-  const drift = A0 ? Math.max(...M.map(m => Math.abs(active(m) - A0) / A0)) : Infinity;
+  // The pool is 100x the drop, so drift is measured against the drop: the splash is
+  // the only thing moving, and losing a tenth of it is already a broken solver.
+  const Vdrop = Math.PI / 6 * p.dropD_m ** 3;
+  const V0 = Math.PI * p.domainR_m ** 2 * p.poolDepth_m + Vdrop;
+  const drift = Math.max(...M.map(m => Math.abs(m.vol - V0) / Vdrop));
 
-  const level = Math.round(surfaceY - 0.6 * dropPx), gap = 0.3 * dropPx;
-  const crowns = [], rims = [], frees = [], heights = [];
-  let sym = 0;
-
-  M.forEach(m => {
-    const { joined, rim, free } = split(m, p);
-    // a crown is liquid standing on both sides at wall height with nothing over the impact
-    let L = 0, R = 0, C = 0;
-    for (let x = 0; x < w; x++) if (joined[level * w + x])
-      (x < cx - gap ? L++ : x > cx + gap ? R++ : C++);
-    crowns.push(L > 2 && R > 2 && C === 0 ? 1 : 0);
-    let top = surfaceY;
-    for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) if (joined[y * w + x]) { top = y; y = surfaceY; break; }
-    heights.push(surfaceY - top);
-    rims.push(rim); frees.push(free);
-
-    let xor = 0, or_ = 0;
-    for (let y = 0; y < surfaceY; y++) for (let x = 0; x < w; x++) {
-      const a = m[y * w + x], b = m[y * w + (2 * cx - 1 - x)];
-      if (a || b) { or_++; if (a !== b) xor++; }
-    }
-    sym += or_ ? 1 - xor / or_ : 1;
-  });
-
-  const n = M.length;
-  // The crown is judged only while the splash is up. A crown that collapses back
-  // into the pool is correct physics, so the quiet tail must not count against it.
-  const up = heights.map(h => h > 2);
+  // A crown is up when a ring of liquid stands well off the axis and the middle
+  // of it is open. The rim test is what keeps the drop's own bump from counting.
+  const rise = 0.15 * p.dropD_m;
+  const up = M.map(m => m.zTop > rise && m.rRim > 0.6 * p.dropD_m && m.zAxis < 0.45 * m.zTop);
   const win = up.lastIndexOf(true) + 1;
-  // Everything is scored on change, never on a standing picture:
-  // a crown that was already there at impact is a drawing, not a splash.
-  const crown = crowns[0] ? 0 : win > 3 ? crowns.slice(0, win).reduce((a, b) => a + b, 0) / win : 0;
-  const droplets = Math.min(1, Math.max(0, Math.max(...frees) - frees[0]) / 6);
+  // scored on change: a crown that already stands at t=0 is a picture, not a splash
+  const crown = up[0] || win < 4 ? 0 : up.slice(0, win).filter(Boolean).length / win;
+
+  // Crown-splash fingering: N ~ We^1/2. The prefactor is set by the canonical
+  // milk crown, We = 250 with about 24 points. A factor of 2 off still scores 0.4,
+  // so this rewards getting the trend and the order right, not a magic number.
+  const exp = 1.5 * Math.sqrt(We(p));
+  const fit = m => m.fingers < 1 ? 0
+    : Math.exp(-((Math.log(m.fingers / exp) / Math.log(2.2)) ** 2));
+  const upIdx = M.map((m, i) => up[i] ? i : -1).filter(i => i >= 0);
+  const fingers = upIdx.length ? upIdx.reduce((a, i) => a + fit(M[i]), 0) / upIdx.length : 0;
+
+  const nd = M.map(m => m.nDrops);
+  const droplets = Math.min(1, Math.max(0, Math.max(...nd) - nd[0]) / 12);
+
+  const rims = M.map(m => m.rRim);
   const peak = rims.indexOf(Math.max(...rims));
-  const grew = rims[peak] > Math.max(rims[0], 2) * 1.5;
-  const spread = grew && peak > 3
+  const spread = rims[peak] > Math.max(rims[0], 1e-9) * 1.5 && peak > 3
     ? Math.max(0, pearson(rims.slice(0, peak + 1).map((_, k) => Math.sqrt(k)), rims.slice(0, peak + 1)))
     : 0;
 
-  sym /= n;
-  const valid = drift <= 0.15;   // raster area is a proxy: thin sheets lose pixels
-  const peakHeight = valid ? Math.max(...heights) : 0;
-  // response is filled in by the driver from PROBE(); a single run cannot see it
-  const total = valid ? 0.35 * crown + 0.20 * sym + 0.15 * droplets + 0.10 * spread : 0;
-  return { valid, drift, crown, sym, droplets, spread, peakHeight, maxDrops: Math.max(...frees), total };
+  const valid = drift <= 0.10;
+  const zs = M.map(m => m.zTop);
+  const peakZ = valid ? Math.max(...zs) : 0;
+  const peakN = valid ? Math.max(...upIdx.map(i => M[i].fingers), 0) : 0;
+  const peakT = valid ? zs.indexOf(peakZ) : 0;   // when the crown is highest
+  // The driver multiplies this by the probe's response: a submission that does not
+  // react to the impact speed is a picture, and a picture is worth zero however
+  // well it is drawn. That is the whole benchmark in one line.
+  return { valid, drift, crown, fingers, droplets, spread, peakZ, peakN, peakT,
+           maxDrops: Math.max(...nd),
+           total: valid ? 0.40 * crown + 0.30 * fingers + 0.15 * droplets + 0.15 * spread : 0 };
 }
 
 const pearson = (a, b) => {
@@ -143,35 +127,160 @@ const pearson = (a, b) => {
   return sa && sb ? sab / Math.sqrt(sa * sb) : 0;
 };
 
-// The physics probe. Same entry, same seed, only the impact speed changes.
-// A real simulation throws a higher crown when hit harder; a canned animation
-// replays the identical frames and scores 0 here. This is the anti-cheat.
-function PROBE(seed) {
-  const base = params(seed), lo = base.impactV_mps * 0.55, hi = base.impactV_mps * 1.7;
-  const peak = v => {
-    const r = RUN(seed, { impactV_mps: v });
-    return r.error ? 0 : r.peakHeight;
-  };
-  const a = peak(lo), b = peak(hi);
-  return { lo: a, hi: b, response: a > 1 && b > a ? Math.min(1, (b / a - 1) / 0.5) : 0 };
+// ---- running --------------------------------------------------------------
+
+function check(s, p) {
+  if (!s || !Array.isArray(s.profile)) throw Error('state().profile missing');
+  const q = s.profile;
+  if (q.length < 60 || q.length > 400) throw Error('profile needs 60..400 points, got ' + q.length);
+  for (const v of q) if (!(v[0] >= -1e-9) || !isFinite(v[1])) throw Error('bad profile point');
+  if (q[0][0] > 1e-4) throw Error('profile must start on the axis');
+  if (Math.abs(q[q.length - 1][0] - p.domainR_m) > 1e-4) throw Error('profile must end at domainR_m');
+  return { profile: q, fingers: s.fingers | 0, drops: Array.isArray(s.drops) ? s.drops : [] };
 }
 
-// Every frame, for video. Separate from RUN so scoring stays cheap.
+function RUN(seed, override) {
+  const p = Object.assign(params(seed), override);
+  if (!window.BENCH) return { error: 'no window.BENCH' };
+  BENCH.reset(JSON.parse(JSON.stringify(p)));
+  const M = [], frames = [], every = Math.ceil(STEPS / (KEYFRAMES - 1));
+  for (let i = 0; i <= STEPS; i++) {
+    if (i) BENCH.step(DT);
+    const s = check(BENCH.state(), p);
+    M.push(measure(s, p));
+    if (i % every === 0 || i === STEPS) frames.push(render(s, p));
+  }
+  return { seed, params: p, frames, ...score(M, p) };
+}
+
+// The anti-cheat. The same code is replayed with one parameter changed at a time,
+// and the three trends below are checked. Scaling a canned shape by impactV passes
+// the first and fails the other two, because they are the trends you only get by
+// actually solving the problem:
+//   higher   the crown goes higher when hit harder
+//   sooner   and it peaks EARLIER, because the splash clock is D/V, not wall time
+//   tension  more surface tension means a coarser rim, so FEWER fingers
+//   viscous  a thick liquid dissipates the sheet, so a LOWER crown
+//   deeper   a deep pool swallows the impact, so a LOWER crown than a thin film
+function PROBE(seed) {
+  const base = params(seed);
+  const at = o => { const r = RUN(seed, o); return r.error ? { peakZ: 0, peakN: 0, peakT: 0 } : r; };
+  const lo = at({ impactV_mps: base.impactV_mps * 0.55 });
+  const hi = at({ impactV_mps: base.impactV_mps * 1.7 });
+  const st = at({ sigma_Npm: base.sigma_Npm * 2.5 });
+  const vi = at({ mu_Pas: base.mu_Pas * 12 });
+  const dp = at({ poolDepth_m: base.poolDepth_m * 4 });
+  const mid = at({});
+  const gain = (a, b, need) => a > 0 && b > a ? Math.min(1, (b / a - 1) / need) : 0;
+
+  const higher = 0.5 * gain(lo.peakZ, hi.peakZ, 0.5) + 0.5 * gain(lo.peakN, hi.peakN, 0.3);
+  const sooner = gain(hi.peakT, lo.peakT, 0.5);
+  const tension = mid.peakN > 0 && st.peakN > 0 ? gain(st.peakN, mid.peakN, 0.25) : 0;
+  const viscous = mid.peakZ > 0 && vi.peakZ > 0 ? gain(vi.peakZ, mid.peakZ, 0.15) : 0;
+  const deeper = mid.peakZ > 0 && dp.peakZ > 0 ? gain(dp.peakZ, mid.peakZ, 0.15) : 0;
+
+  return { loZ: lo.peakZ, hiZ: hi.peakZ, loN: lo.peakN, hiN: hi.peakN,
+           loT: lo.peakT, hiT: hi.peakT, midN: mid.peakN, sigN: st.peakN,
+           midZ: mid.peakZ, muZ: vi.peakZ, depZ: dp.peakZ,
+           higher, sooner, tension, viscous, deeper,
+           response: (higher + sooner + tension + viscous + deeper) / 5 };
+}
+
 function FILM(seed) {
-  const p = params(seed), c = document.getElementById('c');
-  c.width = p.w; c.height = p.h;
-  const ctx = c.getContext('2d');
+  const p = params(seed);
   BENCH.reset(JSON.parse(JSON.stringify(p)));
   const frames = [];
   for (let i = 0; i <= STEPS; i++) {
     if (i) BENCH.step(DT);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, p.w, p.h);
-    ctx.save(); BENCH.draw(ctx); ctx.restore();
-    frames.push(c.toDataURL('image/png'));
+    frames.push(render(check(BENCH.state(), p), p));
   }
   return frames;
 }
 
-window.RUN = RUN; window.PROBE = PROBE; window.FILM = FILM;
+// ---- rendering: the harness revolves the profile, the model never draws -----
+
+// The view is framed on the splash, not on the tank: the outer pool runs off
+// the edge of the canvas the way it does in the Edgerton photograph.
+const AZ = 120, EL = 0.42, VIEW_R = 0.0092;
+
+function render(s, p) {
+  const c = document.getElementById('c'), ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const S = W * 0.46 / VIEW_R, cx = W / 2, cy = H * 0.72;
+  const proj = (X, Y, Z) => [cx + X * S, cy + (Y * Math.sin(EL) - Z * Math.cos(EL)) * S];
+  const depth = (Y, Z) => Y * Math.cos(EL) + Z * Math.sin(EL);
+
+  let zTop = 0, rRim = 0;
+  for (const [r, z] of s.profile) if (z > zTop) { zTop = z; rRim = r; }
+  // The declared finger count is what gets drawn: the picture and the score
+  // always tell the same story.
+  const N = s.fingers | 0, amp = zTop > 0 ? 0.22 * zTop : 0;
+
+  const step = Math.max(1, Math.ceil(s.profile.length / 110));
+  const ring = [];
+  for (let i = 0; i < s.profile.length; i += step) ring.push(s.profile[i]);
+  if (ring[ring.length - 1] !== s.profile[s.profile.length - 1]) ring.push(s.profile[s.profile.length - 1]);
+
+  const pts = ring.map(([r, z]) => {
+    const w = zTop > 0 ? Math.max(0, z / zTop) ** 2 : 0;
+    const row = [];
+    for (let j = 0; j < AZ; j++) {
+      const th = j / AZ * 2 * Math.PI, f = N > 0 ? Math.cos(N * th) : 0;
+      const rr = r + w * f * 0.05 * rRim, zz = z + w * f * amp;
+      row.push([rr * Math.cos(th), rr * Math.sin(th), zz]);
+    }
+    return row;
+  });
+
+  const quads = [];
+  for (let i = 0; i + 1 < pts.length; i++) for (let j = 0; j < AZ; j++) {
+    const k = (j + 1) % AZ, a = pts[i][j], b = pts[i][k], d = pts[i + 1][k], e = pts[i + 1][j];
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+    const vx = e[0] - a[0], vy = e[1] - a[1], vz = e[2] - a[2];
+    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    const L = Math.hypot(nx, ny, nz) || 1; nx /= L; ny /= L; nz /= L;
+    const lam = Math.abs(0.30 * nx - 0.45 * ny + 0.84 * nz);
+    quads.push([(depth(a[1], a[2]) + depth(d[1], d[2])) / 2, [a, b, d, e], 0.62 + 0.38 * lam]);
+  }
+  quads.sort((x, y) => y[0] - x[0]);
+  for (const [, q, sh] of quads) {
+    const g = Math.round(225 * sh), bl = Math.round(238 * sh);
+    const col = `rgb(${Math.round(232 * sh)},${g},${bl})`;
+    ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1;   // close the seams
+    ctx.beginPath();
+    let [x, y] = proj(q[0][0], q[0][1], q[0][2]); ctx.moveTo(x, y);
+    for (let i = 1; i < 4; i++) { [x, y] = proj(q[i][0], q[i][1], q[i][2]); ctx.lineTo(x, y); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+
+  const balls = [];
+  for (const d of s.drops) for (let j = 0; j < d.n; j++) {
+    const th = (j + 0.5) / d.n * 2 * Math.PI;
+    balls.push([depth(d.r * Math.sin(th), d.z), d.r * Math.cos(th), d.r * Math.sin(th), d.z, d.a]);
+  }
+  balls.sort((a, b) => b[0] - a[0]);
+  ctx.fillStyle = '#f2f5fa';
+  for (const [, X, Y, Z, a] of balls) {
+    const [x, y] = proj(X, Y, Z);
+    ctx.beginPath(); ctx.arc(x, y, Math.max(1, a * S), 0, 7); ctx.fill();
+  }
+  return c.toDataURL('image/png');
+}
+
+// Offered to submissions so that conserving volume is bookkeeping, not a trap:
+// LEVEL shifts a profile bodily until the revolved volume is exactly right.
+function LEVEL(profile, p, drops) {
+  const air = (drops || []).reduce((a, d) => a + d.n * 4 / 3 * Math.PI * d.a ** 3, 0);
+  const V = Math.PI * p.domainR_m ** 2 * p.poolDepth_m + Math.PI / 6 * p.dropD_m ** 3 - air;
+  const at = L => revolve(closed(profile.map(([r, z]) => [r, z + L]), p));
+  let lo = -p.poolDepth_m, hi = p.poolDepth_m;
+  for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (at(m) < V) lo = m; else hi = m; }
+  return profile.map(([r, z]) => [r, z + (lo + hi) / 2]);
+}
+
+window.RUN = RUN; window.PROBE = PROBE; window.FILM = FILM; window.__params = params;
+window.REVOLVE = (prof, p) => revolve(closed(prof, p)); window.LEVEL = LEVEL;
 </script>

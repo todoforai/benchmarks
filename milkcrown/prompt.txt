@@ -1,48 +1,74 @@
 Write a single file `milk.js`. A drop of milk falls into a shallow pool of milk.
-Simulate the impact in 2D cross-section. It must form a crown.
+Simulate the impact and make a crown.
+
+The splash is axisymmetric, so you work in the half-plane (r, z): r >= 0 is the
+distance from the axis, z is height above the undisturbed surface, both in
+METRES. The pool floor is at z = -p.poolDepth_m. You do not draw anything. You
+hand back the shape of the liquid and the harness revolves it.
 
 Define exactly this global:
 
   window.BENCH = {
     reset(p) {},        // start a new run with the parameters in p
     step(dt) {},        // advance the simulation by dt seconds
-    draw(ctx) {}        // draw the liquid into the 2D context
+    state() {}          // return the current liquid shape, see below
   }
 
 `p` is given to you at reset, it changes between runs:
 
-  p.w, p.h            canvas size in pixels
-  p.pxPerMm           pixels per millimetre
-  p.surfaceY          y pixel of the undisturbed milk surface (y grows downward)
-  p.cx                x pixel of the impact point
-  p.poolDepth_mm      depth of the pool below the surface
-  p.dropD_mm          diameter of the falling drop
+  p.poolDepth_m       depth of the pool
+  p.dropD_m           diameter of the falling drop
   p.impactV_mps       speed of the drop at the moment it touches the surface
   p.sigma_Npm         surface tension
-  p.mu_mPas           dynamic viscosity
+  p.mu_Pas            dynamic viscosity
   p.rho_kgm3          density
   p.g_mps2            gravity
+  p.domainR_m         outer radius of the pool, the profile must reach it
   p.seed              integer, if you need randomness use only this
 
 At reset the drop is already touching the surface: its lowest point is at
-p.surfaceY, its centre is at x = p.cx, and it is moving down at p.impactV_mps.
+z = 0, its centre is on the axis, and it is moving down at p.impactV_mps.
+
+`state()` returns:
+
+  {
+    profile: [[r, z], ...],   free surface, from the axis to p.domainR_m
+    fingers: 0,               number of fingers around the rim, an integer
+    drops: [{r, z, a, n}]     rings of n free droplets of radius a
+  }
+
+`profile` is a path, not a function of r: it starts at r = 0, ends at
+r = p.domainR_m, and may double back, so a rim that overhangs its own wall is
+allowed. Give it 60 to 400 points. The harness closes it with the outer wall
+and the floor and revolves that cross-section around the axis.
 
 Rules:
 - `step` gets a fixed dt (5e-5 s). Substep inside it if your scheme needs to.
-- `draw` draws only liquid, opaque. Do not clear the canvas, do not draw a
-  background, a sky, a table or a light. Transparent pixels are "not liquid".
-  The harness measures your pixels, so anything you draw is treated as milk.
-- No rAF, no timers, no network, no images. `step` must be deterministic.
-- Total liquid volume must be conserved. The harness rejects a run whose liquid
-  area drifts more than 15%.
+- No rAF, no timers, no network, no canvas, no images. `step` is deterministic.
+- Volume is checked exactly, by revolving your profile and adding your droplet
+  rings. At reset it must equal the pool plus the drop, and it must never drift
+  by more than 10% of the DROP's volume. The pool is about a hundred drops, so
+  this is a tight gate: liquid cannot appear or vanish to make a nicer shape.
+  Two helpers are there so this is bookkeeping and not a trap:
+    REVOLVE(profile, p)   the volume your profile encloses
+    LEVEL(profile, p, drops)  the same profile shifted in z so that the profile
+                          plus the droplets you pass in hold exactly the right
+                          volume. Conservation is then free; the physics is not.
 
-You are scored on physics, not on prettiness:
-  crown       do two sheets rise from the rim and later fall back
-  symmetry    left-right mirror agreement
-  response    the same code is run again at a different p.impactV_mps.
-              A faster impact must throw a visibly higher crown.
-  droplets    do the rims break into separate droplets
+You are scored on physics:
+  crown       does an annular wall rise while the middle stays hollow, and
+              does it later fall back
+  fingers     does the rim carry a sensible number of fingers while it is up
+  droplets    do the fingers shed free droplets
   spreading   does the crown radius grow like t^0.5
+  response    the same code is replayed with one parameter changed at a time:
+                higher   hit harder -> higher crown, more fingers
+                sooner   hit harder -> the crown PEAKS EARLIER
+                tension  more surface tension -> FEWER fingers
+                viscous  a thicker liquid -> a LOWER crown
+                deeper   a deeper pool -> a LOWER crown than a thin film
+              This one is a MULTIPLIER on everything above. Scaling a fixed shape
+              by the impact speed passes the first and fails the other two.
 
-A shape that looks right but ignores p scores near zero: the harness replays
-your code at 0.55x and 1.7x the impact speed and compares the two.
+A shape that looks right but ignores p scores near zero. Nothing you return is
+drawn by you, so a remembered picture of a crown is worth nothing here.

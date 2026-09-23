@@ -1,9 +1,11 @@
-// Failure mode "mushroom": a blob rises over the impact point, no rim, no crown.
-(() => { let P, t, R;
-  const reset = p => { P = p; t = 0; R = p.dropD_mm / 2 * p.pxPerMm; };
+// Negative control: the drop just sinks in and the pool bulges. No crown ever.
+(() => { let P, t;
+  const reset = p => { P = p; t = 0; };
   const step = dt => { t += dt; };
-  const draw = ctx => { const f = Math.min(t / 0.010, 1), { cx, surfaceY, w, h } = P;
-    ctx.fillStyle = '#eef2f7'; ctx.fillRect(0, surfaceY, w, h - surfaceY);
-    const r = R * (1 + f * 1.6), y = surfaceY - r * 0.9 * Math.sin(Math.PI * f);
-    ctx.beginPath(); ctx.ellipse(cx, y, r, r * 0.8, 0, 0, 7); ctx.fill(); };
-  window.BENCH = { reset, step, draw }; })();
+  const state = () => { const rc = 0.003, V = Math.PI / 6 * P.dropD_m ** 3;
+    const zb = V / (Math.PI * rc * rc / 3) * Math.exp(-t / 0.004);
+    const q = [];
+    for (let i = 0; i <= 80; i++) { const r = P.domainR_m * i / 80;
+      q.push([r, r < rc ? zb * (1 - (r / rc) ** 2) ** 1.5 : 0]); }
+    return { profile: LEVEL(q, P), fingers: 0, drops: [] }; };
+  window.BENCH = { reset, step, state }; })();

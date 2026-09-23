@@ -17,7 +17,7 @@ const pick = process.argv.slice(2);
 const names = fs.readdirSync(path.join(dir, 'entries')).filter(f => f.endsWith('.js'))
   .map(f => f.replace(/\.js$/, '')).filter(n => !pick.length || pick.includes(n));
 
-const LW = 480, LH = 300, PAD = 12, HEAD = 32, TOP = 46;
+const LW = 560, LH = 420, PAD = 12, HEAD = 32, TOP = 46;
 
 (async () => {
   const browser = await chromium.launch(
