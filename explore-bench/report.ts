@@ -36,7 +36,7 @@ const per = (g: string) => {
     other: median(rs.filter((r) => r.llm_s != null).map((r) => r.wall_s - r.llm_s)),
     perCall: median(rs.filter((r) => r.llm_s && r.llm_calls).map((r) => r.llm_s / r.llm_calls)),
     tokS: median(rs.filter((r) => r.llm_s).map((r) => r.output_tokens / r.llm_s)),
-    wallP90: [...rs.map((r) => r.wall_s)].sort((a, b) => a - b)[Math.floor(rs.length * 0.9)] ?? NaN,
+    wallP90: [...rs.map((r) => r.wall_s)].sort((a, b) => a - b)[Math.ceil(rs.length * 0.9) - 1] ?? NaN, // nearest-rank
     tools: median(rs.map((r) => r.tool_calls ?? NaN).filter(Number.isFinite)),
     cost: rs.reduce((a, r) => a + (r.cost ?? 0), 0), chars: median(rs.map((r) => r.output_chars)),
     overall: mean(sc.map((s) => s.overall)), corr: mean(sc.map((s) => s.correctness)), cov: mean(sc.map((s) => s.coverage)),
