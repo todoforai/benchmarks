@@ -29,5 +29,5 @@ exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \
   --setenv PATH /tfa:/tbin:/usr/local/bin:/usr/bin:/bin \
   --setenv TODOFORAI_API_TOKEN "${TODOFORAI_API_TOKEN:-}" --setenv TODOFORAI_API_URL "${TODOFORAI_API_URL:-}" \
-  --setenv TFA_PROMPT "${TFA_PROMPT:-}" \
+  --setenv TFA_PROMPT "${TFA_PROMPT:-}" --setenv TFA_MODEL "${TFA_MODEL:-}" --setenv TFA_AGENT "${TFA_AGENT:-}" \
   -- "$@"

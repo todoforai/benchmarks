@@ -23,7 +23,7 @@ mapfile -t KEYS < <(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | awk 'NF && !seen[$
 
 RUN="runs/$TASK/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$TD/prompt.txt" "$RUN/"
 one() {  # $1 model  $2 key
-  local M=$1 KEY=$2 slug=${1#*:} d rc; slug=${slug//\//_}; d="$RUN/$slug"; mkdir -p "$d/work"
+  local M=$1 KEY=$2 slug=${1#*:} d rc; slug=${slug//\//_}; slug=${slug//[()]/_}; slug=${slug%_}; d="$RUN/$slug"; mkdir -p "$d/work"
   [ -d "$TD/assets" ] && cp -r "$TD/assets/." "$d/work/"
   local t0=$(date +%s)
   echo "== $M -> $d"
@@ -31,8 +31,9 @@ one() {  # $1 model  $2 key
   # Key via env only (never argv); sandbox.sh --clearenv drops everything else
   # (incl. the calling shell's TODOFORAI_PROJECT_ID/TODO_ID → 403 otherwise).
   set +e
-  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$TD/prompt.txt")" \
-    ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent '"$AGENT"' --model '"$M"'' \
+  # Model/agent via env too: ids like "…/claude-opus-5.5(high)" break shell quoting.
+  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$TD/prompt.txt")" TFA_MODEL="$M" TFA_AGENT="$AGENT" \
+    ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
     2>&1 | while IFS= read -r l; do printf '%(%H:%M:%S)T %s\n' -1 "$l"; done >"$d/agent.log"; rc=${PIPESTATUS[0]}
   set -e; kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
   jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --argjson s "$(( $(date +%s) - t0 ))" \
