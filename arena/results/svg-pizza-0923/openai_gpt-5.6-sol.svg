@@ -1,0 +1,289 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <title>Pizza on the roof</title>
+  <desc>A four second looping animated suburban driveway scene: Walter White winds up and throws a pizza box; the pizza separates in the air and lands on the roof.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#42a9dc"/>
+      <stop offset="1" stop-color="#8ed1eb"/>
+    </linearGradient>
+    <linearGradient id="drive" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e7d8c3"/>
+      <stop offset="1" stop-color="#bba990"/>
+    </linearGradient>
+    <linearGradient id="redPaint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f12435"/>
+      <stop offset=".55" stop-color="#b90f25"/>
+      <stop offset="1" stop-color="#670a19"/>
+    </linearGradient>
+    <linearGradient id="greyPaint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b7c2c8"/>
+      <stop offset=".5" stop-color="#68757e"/>
+      <stop offset="1" stop-color="#303a42"/>
+    </linearGradient>
+    <pattern id="shingles" width="34" height="15" patternUnits="userSpaceOnUse" patternTransform="skewX(-10)">
+      <rect width="34" height="15" fill="#b49566"/>
+      <path d="M0 14.5H34M17 0v14" fill="none" stroke="#826b48" stroke-width="1" opacity=".55"/>
+      <path d="M2 3h13M19 4h12" stroke="#d2bb8b" stroke-width="1" opacity=".55"/>
+    </pattern>
+    <pattern id="garagePanels" width="190" height="42" patternUnits="userSpaceOnUse">
+      <rect width="190" height="42" fill="#21142d"/>
+      <path d="M0 .8H190M0 40.8H190" stroke="#4f293c" stroke-width="1.6"/>
+      <path d="M4 4H186V38H4Z" fill="none" stroke="#291a34" stroke-width="1"/>
+    </pattern>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <clipPath id="redWindowClip">
+      <path d="M55 305 L291 318 L391 414 L15 399 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- sky and distant neighborhood -->
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <path d="M0 103 105 60 190 89 190 138H0Z" fill="#76664d"/>
+  <path d="M0 105 105 68 189 94" fill="none" stroke="#d0b786" stroke-width="8"/>
+  <rect x="0" y="112" width="170" height="168" fill="#d1b99a"/>
+  <rect x="18" y="141" width="87" height="91" fill="#172329"/>
+  <path d="M21 229v-72h17v72m20 0v-72h17v72m20 0v-72h10" stroke="#997b5b" stroke-width="5" opacity=".6"/>
+
+  <!-- house roof, fascia, wall, garage -->
+  <path d="M34 107 287 12Q302 6 320 0H902L960 31V116H34Z" fill="url(#shingles)"/>
+  <path d="M29 105H960V126H25Z" fill="#ded4bd" stroke="#6e4436" stroke-width="4"/>
+  <path d="M35 126H928V354H35Z" fill="#cdbfa8"/>
+  <rect x="282" y="126" width="609" height="231" fill="url(#garagePanels)" stroke="#6e2330" stroke-width="6"/>
+  <path d="M282 126H891M282 179H891M282 232H891M282 285H891M282 354H891" stroke="#6e2637" stroke-width="2" opacity=".8"/>
+  <rect x="196" y="126" width="78" height="228" fill="#d7cdbb"/>
+  <path d="M274 126v228" stroke="#a67e70" stroke-width="4"/>
+  <text x="220" y="191" fill="#403c39" font-family="Arial, sans-serif" font-size="14" letter-spacing="2">308</text>
+  <g transform="translate(579 121)">
+    <path d="M-11 8Q0-8 11 8" fill="none" stroke="#241b1a" stroke-width="3"/>
+    <circle cx="-10" cy="9" r="5" fill="#34272a"/>
+    <circle cx="10" cy="9" r="5" fill="#34272a"/>
+    <circle cy="4" r="3" fill="#d8c79c"/>
+  </g>
+
+  <!-- hedge and driveway -->
+  <path d="M0 223Q18 201 39 218Q58 194 81 216Q104 194 126 218Q150 196 185 222V358H0Z" fill="#176825"/>
+  <path d="M0 252Q29 219 56 243Q86 209 111 244Q142 213 184 240" fill="none" stroke="#2e9635" stroke-width="20" stroke-linecap="round"/>
+  <path d="M0 350H960V540H0Z" fill="url(#drive)"/>
+  <path d="M0 363 960 365M209 350 123 540M746 350 856 540" fill="none" stroke="#9f917d" stroke-width="2" opacity=".65"/>
+  <path d="M0 354H960" stroke="#755f53" stroke-width="7" opacity=".45"/>
+  <ellipse cx="591" cy="453" rx="113" ry="20" fill="#544b46" opacity=".22" filter="url(#softShadow)"/>
+
+  <!-- Walter White: overall movement, articulated pose -->
+  <g transform="translate(566 255)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+        keyTimes="0;.18;.34;.46;.54;.61;.7;.84;1"
+        values="0 0;7 1;20 4;28 8;31 15;34 4;35 2;38 3;38 3"/>
+      <g transform="scale(1.22)">
+        <!-- back leg -->
+        <path d="M-7 89L-13 119L-21 147" fill="none" stroke="#66614e" stroke-width="15" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+            keyTimes="0;.18;.34;.46;.54;.61;.72;1"
+            values="M-7 89L-13 119L-21 147;M-7 89L-20 118L-31 143;M-7 89L-5 119L-18 147;M-7 89L-19 113L-28 137;M-7 89L-25 111L-31 135;M-7 89L-12 119L-21 147;M-7 89L-8 120L-20 148;M-7 89L-8 120L-20 148"/>
+        </path>
+        <path d="M-21 147l-13 4" fill="none" stroke="#3a302b" stroke-width="8" stroke-linecap="round">
+          <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+            keyTimes="0;.18;.34;.46;.54;.61;.72;1"
+            values="M-21 147l-13 4;M-31 143l-13 1;M-18 147l-13 4;M-28 137l-13 4;M-31 135l-13 2;M-21 147l-13 4;M-20 148l-13 3;M-20 148l-13 3"/>
+        </path>
+
+        <!-- front leg -->
+        <path d="M8 89L16 119L23 147" fill="none" stroke="#77715a" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+            keyTimes="0;.18;.34;.46;.54;.61;.72;1"
+            values="M8 89L16 119L23 147;M8 89L20 117L30 141;M8 89L20 119L32 143;M8 89L27 111L30 137;M8 89L28 111L38 133;M8 89L19 119L27 147;M8 89L14 120L29 145;M8 89L14 120L29 145"/>
+        </path>
+        <path d="M23 147l14 2" fill="none" stroke="#3a302b" stroke-width="8" stroke-linecap="round">
+          <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+            keyTimes="0;.18;.34;.46;.54;.61;.72;1"
+            values="M23 147l14 2;M30 141l14 1;M32 143l14 1;M30 137l14 0;M38 133l14 1;M27 147l14 1;M29 145l14 2;M29 145l14 2"/>
+        </path>
+
+        <!-- belt -->
+        <path d="M-14 86Q0 91 16 86" fill="none" stroke="#352e29" stroke-width="6"/>
+        <rect x="-2" y="85" width="7" height="6" rx="1" fill="#b99b62"/>
+
+        <!-- torso and head lean from the hips -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+            keyTimes="0;.34;.46;.54;.61;.7;.84;1"
+            values="0 0 88;1 0 88;10 0 88;16 0 88;-13 0 88;-7 0 88;0 0 88;0 0 88"/>
+
+          <!-- shirt torso -->
+          <path d="M-16 40Q-5 33 13 37L21 86Q3 94-17 86Z" fill="#b9d8e5" stroke="#536f7c" stroke-width="1.5"/>
+          <path d="M-5 38 0 84M9 39l4 45M-13 58q15 5 31-1" fill="none" stroke="#7299aa" stroke-width="1.2" opacity=".8"/>
+          <path d="M-2 39 4 50 9 38" fill="#e3eef1"/>
+          <path d="M2 48 5 80" stroke="#6a7f88" stroke-width="2"/>
+          <path d="M-13 80q14 7 31-1" fill="none" stroke="#f3f6f3" stroke-width="2" opacity=".7"/>
+
+          <!-- rear arm -->
+          <path d="M-12 46L-19 66" fill="none" stroke="#a9d0df" stroke-width="12" stroke-linecap="round">
+            <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.34;.46;.54;.61;.68;.82;1"
+              values="M-12 46L-18 65;M-12 46L-14 66;M-12 46L-24 66;M-12 46L-22 56;M-12 46L-8 27;M-12 46L-2 34;M-12 46L-19 70;M-12 46L-19 70"/>
+          </path>
+          <path d="M-19 65L17 66" fill="none" stroke="#c89575" stroke-width="7" stroke-linecap="round">
+            <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.34;.46;.54;.61;.68;.82;1"
+              values="M-19 65L17 66;M-14 66L20 67;M-24 66L10 77;M-22 56L15 48;M-8 27L18 4;M-2 34L18 20;M-19 70L-10 91;M-19 70L-10 91"/>
+          </path>
+          <circle cx="17" cy="66" r="5" fill="#cb9675">
+            <animate attributeName="cx" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.34;.46;.54;.61;.68;.82;1" values="17;20;10;15;18;18;-10;-10"/>
+            <animate attributeName="cy" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.34;.46;.54;.61;.68;.82;1" values="66;67;77;48;4;20;91;91"/>
+          </circle>
+
+          <!-- front arm -->
+          <path d="M13 46L20 64" fill="none" stroke="#c5e1ea" stroke-width="12" stroke-linecap="round">
+            <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.34;.46;.54;.61;.68;.82;1"
+              values="M13 46L21 63;M13 46L23 63;M13 46L25 64;M13 46L25 48;M13 46L24 22;M13 46L26 31;M13 46L22 75;M13 46L22 75"/>
+          </path>
+          <path d="M21 63L48 65" fill="none" stroke="#d2a080" stroke-width="7" stroke-linecap="round">
+            <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.34;.46;.54;.61;.68;.82;1"
+              values="M21 63L48 65;M23 63L51 65;M25 64L51 76;M25 48L50 43;M24 22L42 0;M26 31L45 18;M22 75L30 94;M22 75L30 94"/>
+          </path>
+          <circle cx="48" cy="65" r="5" fill="#d2a080">
+            <animate attributeName="cx" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.34;.46;.54;.61;.68;.82;1" values="48;51;51;50;42;45;30;30"/>
+            <animate attributeName="cy" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.34;.46;.54;.61;.68;.82;1" values="65;65;76;43;0;18;94;94"/>
+          </circle>
+
+          <!-- neck and bald head -->
+          <path d="M-2 39v-9h10v10" fill="#c99172"/>
+          <g>
+            <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.38;.5;.61;.72;.86;1" values="0 2 31;3 2 31;-6 2 31;-21 2 31;-28 2 31;-14 2 31;-14 2 31"/>
+            <path d="M-8 18Q-7 3 5 0Q18 2 18 16L23 20L17 23Q14 32 4 34Q-7 31-8 18Z" fill="#d3a07e" stroke="#725445" stroke-width="1.2"/>
+            <path d="M-5 9Q2 1 11 5" fill="none" stroke="#ebc1a0" stroke-width="2" opacity=".7"/>
+            <path d="M4 17h9l5 2M3 17h-8" fill="none" stroke="#28272a" stroke-width="2"/>
+            <circle cx="8" cy="18" r="4.5" fill="none" stroke="#33363c" stroke-width="1.7"/>
+            <circle cx="-1" cy="18" r="4.5" fill="none" stroke="#33363c" stroke-width="1.7"/>
+            <path d="M17 26q-6 3-10 0" fill="none" stroke="#70483c" stroke-width="1"/>
+            <path d="M-8 17q-5-3-5 4t6 4" fill="#ca9575" stroke="#725445" stroke-width="1"/>
+          </g>
+
+          <!-- box in his hands before release -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+              keyTimes="0;.34;.46;.54;.61;.619;.62;1" values="31 65;35 65;24 76;35 47;31 1;31 1;31 1;31 1"/>
+            <g>
+              <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+                keyTimes="0;.34;.46;.54;.61;.619;.62;1" values="0;1;8;-8;-29;-29;-29;-29"/>
+              <animate attributeName="opacity" dur="4s" begin="0s" repeatCount="indefinite" calcMode="discrete"
+                keyTimes="0;.619;.62;1" values="1;1;0;0"/>
+              <path d="M-45-4 43-2 38 6-46 5Z" fill="#f5f0df" stroke="#9a8069" stroke-width="1.5"/>
+              <path d="M-42-5 40-4 31-8-35-9Z" fill="#fffdf4" stroke="#b49a80" stroke-width="1"/>
+              <path d="M-36-7h62" stroke="#cf4937" stroke-width="1.5" opacity=".7"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- the released box -->
+  <g opacity="0">
+    <animate attributeName="opacity" dur="4s" begin="0s" repeatCount="indefinite" calcMode="discrete"
+      keyTimes="0;.615;.616;.965;1" values="0;0;1;1;0"/>
+    <animateMotion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+      path="M646 257 C695 161 765 87 832 90 C914 94 966 205 1055 337"
+      keyPoints="0;0;0;.1;.34;.62;.84;1" keyTimes="0;.615;.616;.68;.76;.84;.92;1"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+        keyTimes="0;.615;.68;.76;.84;.92;1" values="-29;-29;-72;-137;-214;-302;-390"/>
+      <path d="M-42-29 40-23 44 29-39 25Z" fill="#eee9d9" stroke="#8b7868" stroke-width="2"/>
+      <path d="M-37-24 35-19 38 21-35 19Z" fill="#faf8ec"/>
+      <path d="M-38-25 33-20 20-57-51-58Z" fill="#fffef6" stroke="#9a8777" stroke-width="2">
+        <animate attributeName="d" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+          keyTimes="0;.65;.72;.8;.9;1"
+          values="M-38-25 33-20 20-57-51-58Z;M-38-25 33-20 20-57-51-58Z;M-38-25 33-20 30-69-45-67Z;M-38-25 33-20 18-53-49-54Z;M-38-25 33-20 34-65-44-69Z;M-38-25 33-20 20-57-51-58Z"/>
+      </path>
+      <path d="M-20-43q24 8 36 1" fill="none" stroke="#cb543e" stroke-width="4" opacity=".65"/>
+      <path d="M-23 2q18-10 38 1M-6-12l15 21" fill="none" stroke="#c4b9a8" stroke-width="2"/>
+      <circle cx="10" cy="5" r="3" fill="#528b43"/>
+      <circle cx="-18" cy="8" r="3" fill="#b94b35"/>
+    </g>
+  </g>
+
+  <!-- pizza leaves the box and lands on the roof -->
+  <g opacity="0">
+    <animate attributeName="opacity" dur="4s" begin="0s" repeatCount="indefinite" calcMode="discrete"
+      keyTimes="0;.675;.676;.992;1" values="0;0;1;1;0"/>
+    <animateMotion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+      path="M735 145 C748 82 773 34 806 38 C836 42 829 63 813 72"
+      keyPoints="0;0;0;.28;.67;.9;1;1" keyTimes="0;.675;.676;.73;.81;.88;.92;1"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+        keyTimes="0;.675;.73;.81;.88;.92;1" values="0;0;70;173;268;355;355"/>
+      <ellipse rx="28" ry="9" fill="#b56736" stroke="#713923" stroke-width="2"/>
+      <ellipse rx="24" ry="7" fill="#eab96d"/>
+      <path d="M-20 1q19-9 39 0" fill="none" stroke="#dc674a" stroke-width="4" opacity=".75"/>
+      <circle cx="-9" cy="-1" r="3" fill="#9f2d27"/>
+      <circle cx="7" cy="2" r="3" fill="#9f2d27"/>
+      <circle cx="15" cy="-2" r="2.5" fill="#75863c"/>
+      <circle cx="-1" cy="-3" r="2.5" fill="#75863c"/>
+    </g>
+  </g>
+
+  <!-- loose liner falling beneath the airborne box -->
+  <g opacity="0">
+    <animate attributeName="opacity" dur="4s" begin="0s" repeatCount="indefinite" calcMode="discrete"
+      keyTimes="0;.73;.731;.93;.931;1" values="0;0;.8;.8;0;0"/>
+    <animateMotion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear"
+      path="M775 153 C766 207 790 260 778 337"
+      keyPoints="0;0;.35;1;1" keyTimes="0;.73;.8;.93;1"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" begin="0s" repeatCount="indefinite" values="0;0;80;210;270" keyTimes="0;.73;.8;.93;1"/>
+      <rect x="-8" y="-12" width="16" height="24" rx="2" fill="#d7c28d" stroke="#9c8153"/>
+    </g>
+  </g>
+
+  <!-- foreground red station wagon -->
+  <g>
+    <ellipse cx="303" cy="502" rx="201" ry="31" fill="#2a2224" opacity=".32" filter="url(#softShadow)"/>
+    <path d="M-45 325 282 330 489 483 448 540H-40Z" fill="url(#redPaint)" stroke="#6e0818" stroke-width="4"/>
+    <path d="M-15 286 272 301 412 425 1 412Z" fill="#d71930" stroke="#7d0b1d" stroke-width="4"/>
+    <path d="M55 305 291 318 391 414 15 399Z" fill="#243641" stroke="#b9c7cb" stroke-width="5"/>
+    <g clip-path="url(#redWindowClip)" opacity=".5">
+      <path d="M27 386 205 304M111 410 287 320M212 428 344 343" stroke="#70b5d1" stroke-width="8"/>
+    </g>
+    <path d="M141 310 128 404M245 315 297 411" stroke="#c8d2d1" stroke-width="5"/>
+    <path d="M0 337 318 351 451 453" fill="none" stroke="#f77882" stroke-width="3"/>
+    <path d="M-7 310 275 324M2 342 312 356" stroke="#d8e1df" stroke-width="5"/>
+    <path d="M37 300 31 411M246 311 364 424" stroke="#9eaeb0" stroke-width="5"/>
+    <path d="M303 354 488 482 451 524 317 419Z" fill="#9d642f" stroke="#e0bb78" stroke-width="5"/>
+    <path d="M321 374 462 475 440 500 336 416Z" fill="#b47b3c"/>
+    <path d="M323 402 444 488" stroke="#724a2d" stroke-width="3"/>
+    <path d="M308 346 489 478" stroke="#e7ece9" stroke-width="5"/>
+    <path d="M388 423 480 484" stroke="#b8c6c6" stroke-width="3"/>
+    <ellipse cx="420" cy="505" rx="35" ry="45" fill="#17191b" stroke="#b5bec0" stroke-width="6"/>
+    <ellipse cx="420" cy="505" rx="18" ry="27" fill="#5d666a"/>
+    <path d="M437 382q20-14 31 2l-13 12z" fill="#d81a2e" stroke="#690818" stroke-width="3"/>
+    <path d="M478 486 469 520" stroke="#f5d0b4" stroke-width="4"/>
+    <path d="M312 301 341 249" stroke="#2d3437" stroke-width="2"/>
+  </g>
+
+  <!-- grey car and its open door at the right edge -->
+  <g>
+    <ellipse cx="898" cy="504" rx="139" ry="27" fill="#27282a" opacity=".34" filter="url(#softShadow)"/>
+    <path d="M875 322Q926 299 980 326L1004 540H849Z" fill="url(#greyPaint)" stroke="#35414a" stroke-width="5"/>
+    <path d="M900 327q39-15 75 2l14 73-107-14z" fill="#1e2c35" stroke="#a8b9c0" stroke-width="4"/>
+    <path d="M907 337 973 337 984 385 893 375Z" fill="#253b48"/>
+    <path d="M883 391 987 405" stroke="#d8e0df" stroke-width="5"/>
+    <ellipse cx="892" cy="505" rx="34" ry="45" fill="#161a1c" stroke="#aab6b8" stroke-width="6"/>
+    <ellipse cx="892" cy="505" rx="17" ry="26" fill="#59656a"/>
+    <!-- open front door -->
+    <path d="M870 342 960 370 943 535 780 495 804 371Z" fill="url(#greyPaint)" stroke="#29343c" stroke-width="6"/>
+    <path d="M813 371 870 347 945 375 821 418Z" fill="#243642" stroke="#9daeb4" stroke-width="4"/>
+    <path d="M825 425 936 393 925 502 796 480Z" fill="#727f86" stroke="#3b474e" stroke-width="3"/>
+    <path d="M831 438 907 421" stroke="#c8d0cf" stroke-width="5"/>
+    <rect x="900" y="426" width="22" height="7" rx="3" fill="#343d41" transform="rotate(-10 900 426)"/>
+    <path d="M781 493 943 535" stroke="#d9dedb" stroke-width="4"/>
+  </g>
+
+  <!-- subtle sun glare -->
+  <path d="M0 0H960V540H0Z" fill="#fff4ce" opacity=".035" pointer-events="none"/>
+</svg>

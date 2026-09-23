@@ -1,0 +1,266 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+<!-- Breaking Bad, S3E2 "Caballo sin Nombre": pizza on the roof. 4 s loop, SMIL only.
+     Walt keyframes (s): 0 .25 .5 .7 walk | .9 stand | 1.25 lower | 1.6 load | 1.9 heave | 2.15 release | 2.45 follow-through | 3.1–4 watch -->
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a8fd8"/><stop offset="1" stop-color="#86c6ee"/>
+  </linearGradient>
+  <pattern id="shingle" width="40" height="16" patternUnits="userSpaceOnUse">
+    <rect width="40" height="16" fill="#ad9873"/>
+    <rect x="3" y="1" width="12" height="5" fill="#bba886" opacity=".6"/>
+    <rect x="22" y="9" width="10" height="5" fill="#9c8762" opacity=".6"/>
+    <path d="M0 7.5H40M0 15.5H40" stroke="#8a7657" stroke-width="1.2"/>
+    <path d="M10 0V7.5M30 0V7.5M0 8V16M20 8V16" stroke="#98845f"/>
+  </pattern>
+  <linearGradient id="roofShade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#402a10" stop-opacity=".12"/>
+  </linearGradient>
+  <linearGradient id="door" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3a1c34"/><stop offset="1" stop-color="#1f1026"/>
+  </linearGradient>
+  <linearGradient id="concrete" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cdbfbb"/><stop offset="1" stop-color="#ddd1cd"/>
+  </linearGradient>
+</defs>
+
+<!-- sky & background -->
+<rect width="960" height="540" fill="url(#sky)"/>
+<ellipse cx="30" cy="16" rx="34" ry="7" fill="#fff" opacity=".45"/>
+<ellipse cx="300" cy="50" rx="7" ry="20" fill="#2e6a2b"/>
+<g fill="#3f7d34"><circle cx="128" cy="112" r="16"/><circle cx="156" cy="104" r="15"/><circle cx="186" cy="112" r="13"/></g>
+
+<!-- neighbour house + hedge -->
+<path d="M0 124L95 116L152 150V180H0Z" fill="#b59a76"/>
+<path d="M0 138H120M0 152H140M0 166H152" stroke="#9c8262" stroke-width="1.5"/>
+<path d="M0 177H152" stroke="#7a604b" stroke-width="7"/>
+<rect x="0" y="180" width="152" height="120" fill="#20212c"/>
+<rect x="18" y="198" width="52" height="56" fill="#3d4a5b" stroke="#c9ced5" stroke-width="3"/>
+<rect x="104" y="180" width="10" height="120" fill="#c3c8cf"/>
+<path d="M0 238Q15 224 32 234Q48 220 66 232Q84 220 100 232Q120 222 136 234Q146 228 152 236V330H0Z" fill="#3b7429"/>
+<g fill="#5d9b3d"><circle cx="22" cy="246" r="9"/><circle cx="70" cy="244" r="10"/><circle cx="118" cy="248" r="8"/><circle cx="45" cy="270" r="7"/><circle cx="96" cy="272" r="8"/></g>
+<g fill="#23501c"><circle cx="40" cy="258" r="7"/><circle cx="92" cy="256" r="6"/><circle cx="135" cy="266" r="7"/><circle cx="12" cy="280" r="8"/></g>
+
+<!-- main roof -->
+<path d="M92 120L470 0H960V122H92Z" fill="url(#shingle)"/>
+<path d="M92 120L470 0H960V122H92Z" fill="url(#roofShade)"/>
+<path d="M92 120L470 0" stroke="#c8b590" stroke-width="4"/>
+<path d="M86 118H960V137H94Z" fill="#4a2f30"/>
+<path d="M86 118H960" stroke="#6b4a44" stroke-width="3"/>
+
+<!-- wall, pillar, trim, garage door -->
+<rect x="150" y="137" width="810" height="36" fill="#d8ceb4"/>
+<rect x="150" y="137" width="810" height="7" fill="#7d705c" opacity=".45"/>
+<rect x="150" y="137" width="100" height="270" fill="#ddd4c2"/>
+<rect x="150" y="137" width="8" height="270" fill="#b5ac99"/>
+<text x="186" y="222" font-family="Georgia,serif" font-size="15" fill="#2d2422">308</text>
+<path d="M250 172H960V186H266V407H250Z" fill="#6d2337"/>
+<rect x="258" y="258" width="5" height="12" fill="#e8e4dc"/>
+<rect x="266" y="186" width="694" height="219" fill="url(#door)"/>
+<rect x="266" y="186" width="694" height="9" fill="#000" opacity=".3"/>
+<path d="M266 241H960M266 296H960M266 351H960" stroke="#150a15" stroke-width="2"/>
+<path d="M266 244H960M266 299H960M266 354H960" stroke="#4a2b42" stroke-width="1"/>
+<path d="M381 186V405M496 186V405M611 186V405M726 186V405M841 186V405" stroke="#180c18" opacity=".5"/>
+<!-- flood lamp -->
+<g transform="translate(588 154)">
+  <rect x="-6" y="-4" width="12" height="10" rx="3" fill="#1b1b1f"/>
+  <path d="M-3 2L-14 8M3 2L14 8" stroke="#1b1b1f" stroke-width="3"/>
+  <circle cx="-15" cy="10" r="6" fill="#1b1b1f"/><circle cx="15" cy="10" r="6" fill="#1b1b1f"/>
+  <circle cx="-15" cy="11" r="3.5" fill="#f1efe6"/><circle cx="15" cy="11" r="3.5" fill="#f1efe6"/>
+</g>
+
+<!-- driveway -->
+<rect x="0" y="405" width="960" height="135" fill="url(#concrete)"/>
+<rect x="250" y="400" width="710" height="11" fill="#4b6476"/>
+<path d="M480 468H960M640 411L700 540" stroke="#b3a5a2" stroke-width="2"/>
+<path d="M650 540L715 468L800 448H960V540Z" fill="#17274a"/>
+
+<!-- pizza (behind the box as it slides out) -->
+<ellipse cx="722" cy="69" rx="31" ry="7" fill="#5e4c34" opacity="0">
+  <animate attributeName="opacity" values="0;.45" keyTimes="0;.7375" calcMode="discrete" dur="4s" repeatCount="indefinite"/>
+</ellipse>
+<g visibility="hidden">
+  <animate attributeName="visibility" values="hidden;visible" keyTimes="0;.6" calcMode="discrete" dur="4s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.6;.625;.65;.675;.7;.725;.7375;.7625;1"
+    values="687 87;687 87;700 50;708 30;713 27;716 38;718 58;720 65;722 64;722 64"/>
+  <animateTransform attributeName="transform" type="rotate" additive="sum" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.6;.625;.65;.675;.7;.725;.7375;1" values="30;30;-40;-110;-180;-250;-320;-360;-360"/>
+  <animateTransform attributeName="transform" type="scale" additive="sum" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.6;.625;.65;.675;.7;.725;.7375;.7625;1"
+    values="1 .35;1 .35;1 .8;1 1;1 .6;1 .2;1 .45;1 .26;1 .3;1 .3"/>
+  <circle r="32" fill="#c3843f"/>
+  <circle r="27" fill="#f1c35e"/>
+  <g fill="#d65a30" opacity=".75"><circle cx="-8" cy="-6" r="9"/><circle cx="10" cy="9" r="8"/><circle cx="9" cy="-12" r="6"/></g>
+  <g fill="#a8301f"><circle cx="-14" cy="6" r="5"/><circle cx="4" cy="-4" r="5"/><circle cx="14" cy="-2" r="4.5"/><circle cx="-4" cy="16" r="4.5"/><circle cx="-6" cy="-19" r="4.5"/></g>
+</g>
+<!-- falling slice -->
+<g visibility="hidden">
+  <animate attributeName="visibility" values="hidden;visible;hidden" keyTimes="0;.6125;.85" calcMode="discrete" dur="4s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.6125;.65;.6875;.725;.7625;.8;.8375;1"
+    values="705 85;705 85;728 100;750 145;772 221;795 327;817 463;840 629;840 629"/>
+  <animateTransform attributeName="transform" type="rotate" additive="sum" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.6125;.8375;1" values="20;20;560;560"/>
+  <path d="M0 -16L11 12Q0 16 -11 12Z" fill="#f0bd5a" stroke="#b97a36" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="0" cy="4" r="3.5" fill="#a8301f"/>
+</g>
+
+<!-- WALT (hip-centred local coords) -->
+<g stroke-linecap="round" stroke-linejoin="round">
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+    values="465 385;490 385;515 385;530 385;541 385;541 391;541 391;541 385;541 385;541 385;541 385;541 385"/>
+  <ellipse cx="-24" cy="126" rx="52" ry="8" fill="#1d2b50" opacity=".4"/>
+  <!-- far leg -->
+  <path fill="none" stroke="#9c8f74" stroke-width="22">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M9 0L2 60L-25 113;M9 0L32 55L0 106;M9 0L31 56L40 115;M9 0L27 57L25 117;M9 0L24 58L14 117;M9 0L28 55L22 111;M9 0L30 54L22 111;M9 0L27 57L22 117;M9 0L27 57L22 117;M9 0L27 57L22 117;M9 0L27 57L22 117;M9 0L27 57L22 117"/>
+  </path>
+  <path fill="none" stroke="#5e3f29" stroke-width="10">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M-31 114L-12 122;M-6 108L12 115;M34 120L54 122;M19 121L39 122;M8 121L28 122;M16 115L36 116;M16 115L36 116;M16 121L36 122;M16 121L36 122;M16 121L36 122;M16 121L36 122;M16 121L36 122"/>
+  </path>
+  <!-- near leg -->
+  <path fill="none" stroke="#b5a78a" stroke-width="23">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M-9 0L6 58L22 116;M-9 0L8 57L0 117;M-9 0L-6 60L-25 117;M-9 0L13 56L-20 106;M-9 0L1 59L-14 117;M-9 0L-24 56L-30 111;M-9 0L-22 56L-30 111;M-9 0L-12 60L-30 117;M-9 0L-12 60L-30 117;M-9 0L-12 60L-30 117;M-9 0L-12 60L-30 117;M-9 0L-12 60L-30 117"/>
+  </path>
+  <path fill="none" stroke="#6e4b31" stroke-width="10">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M16 120L36 121;M-6 121L14 122;M-31 118L-12 122;M-26 108L-8 115;M-20 121L0 122;M-36 115L-16 116;M-36 115L-16 116;M-36 121L-16 122;M-36 121L-16 122;M-36 121L-16 122;M-36 121L-16 122;M-36 121L-16 122"/>
+  </path>
+  <path d="M-21 -4H21L22 12H-22Z" fill="#b1a386"/>
+  <!-- far arm (behind torso) -->
+  <path fill="none" stroke="#98aed2" stroke-width="14">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M14 -92L24 -60L54 -50;M14 -92L24 -60L54 -50;M14 -92L24 -60L54 -50;M14 -92L24 -60L54 -50;M14 -92L24 -60L54 -50;M19 -88L40 -56L46 -20;M25 -86L40 -50L48 -12;M5 -91L44 -112L80 -120;M-1 -89L24 -124L46 -158;M17 -91L48 -104L76 -114;M13 -92L22 -56L46 -62;M13 -92L21 -55L44 -58"/>
+  </path>
+  <!-- torso -->
+  <path fill="#bdd0ea" stroke="#8ea4c8" stroke-width="1.5">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M-20 -5L20 -5L21 -61L17 -96L-21 -93L-25 -61Z;M-20 -5L20 -5L21 -61L17 -96L-21 -93L-25 -61Z;M-20 -5L20 -5L21 -61L17 -96L-21 -93L-25 -61Z;M-20 -5L20 -5L21 -61L17 -96L-21 -93L-25 -61Z;M-20 -5L20 -5L21 -61L17 -96L-21 -93L-25 -61Z;M-20 -5L20 -5L26 -57L22 -92L-16 -89L-20 -57Z;M-20 -5L20 -5L32 -55L28 -90L-10 -87L-14 -55Z;M-20 -5L20 -5L12 -60L8 -95L-30 -92L-34 -60Z;M-20 -5L20 -5L6 -58L2 -93L-36 -90L-40 -58Z;M-20 -5L20 -5L24 -60L20 -95L-18 -92L-22 -60Z;M-20 -5L20 -5L20 -61L16 -96L-22 -93L-26 -61Z;M-20 -5L20 -5L20 -61L16 -96L-22 -93L-26 -61Z"/>
+  </path>
+  <path fill="none" stroke="#93a8cb" stroke-width="1.5">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M3 -88L2 -6;M3 -88L2 -6;M3 -88L2 -6;M3 -88L2 -6;M3 -88L2 -6;M8 -84L2 -6;M14 -82L2 -6;M-6 -87L2 -6;M-12 -85L2 -6;M6 -87L2 -6;M2 -88L2 -6;M2 -88L2 -6"/>
+  </path>
+  <rect x="-21" y="-8" width="42" height="6" fill="#3b2b22"/>
+  <rect x="3" y="-8" width="6" height="6" fill="#b8a070"/>
+  <!-- neck + head -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="-1 -96;-1 -96;-1 -96;-1 -96;-1 -96;4 -92;10 -90;-10 -95;-16 -93;2 -95;-2 -96;-2 -96"/>
+    <path d="M-7 6L-6 -12H7L8 6Z" fill="#c8927a"/>
+    <g transform="translate(0 -8)">
+      <g>
+        <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+          values="0;0;0;0;5;12;6;-15;-28;-32;-26;-24"/>
+        <ellipse cx="3" cy="-17" rx="16" ry="19.5" fill="#e0ad93"/>
+        <ellipse cx="10" cy="-4" rx="10" ry="6" fill="#e0ad93"/>
+        <path d="M-6 -34Q-17 -18 -6 -1Q-10 -18 -6 -34Z" fill="#c08870"/>
+        <ellipse cx="7" cy="-29" rx="7" ry="4" fill="#f7d6c1" opacity=".85"/>
+        <ellipse cx="-7" cy="-15" rx="3.5" ry="5.5" fill="#cf977d" stroke="#ae765f" stroke-width=".8"/>
+        <path d="M10 -22H17" stroke="#6b5646" stroke-width="1.5"/>
+        <path d="M9 -18L-4 -17" stroke="#1c1c1c" stroke-width="1.3"/>
+        <rect x="9" y="-20" width="9" height="6" rx="1.5" fill="#cfe0ea" fill-opacity=".35" stroke="#1c1c1c" stroke-width="1.6"/>
+        <path d="M18 -16L21 -11L18 -10" fill="none" stroke="#a8705a" stroke-width="1.2"/>
+        <path d="M12 -8Q17 -9 20 -7L19 -4Q16 -1 13 0Q10 -3 12 -8Z" fill="#7b6552"/>
+      </g>
+    </g>
+    <path d="M-12 3L-4 10L0 4L4 10L13 2L8 -3L0 3L-8 -3Z" fill="#e1e9f5" stroke="#8fa3c3" stroke-width=".8"/>
+  </g>
+  <!-- held pizza box (hidden at release, the flying box takes over) -->
+  <g visibility="visible" stroke="#a39b8e" stroke-width=".8">
+    <animate attributeName="visibility" values="visible;hidden" keyTimes="0;.5375" calcMode="discrete" dur="4s" repeatCount="indefinite"/>
+    <path fill="#cfc7b8">
+      <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+        values="M-29 -51L61 -51L61 -44L-29 -44Z;M-29 -51L61 -51L61 -44L-29 -44Z;M-29 -51L61 -51L61 -44L-29 -44Z;M-29 -51L61 -51L61 -44L-29 -44Z;M-29 -51L61 -51L61 -44L-29 -44Z;M-38.5 -42.6L48.5 -19.4L46.5 -12.4L-40.5 -35.6Z;M-13.5 -60.9L55.5 -3.1L51.5 2.9L-17.5 -54.9Z;M17.7 -88L99.3 -126L102.3 -120L20.7 -82Z;M48.2 -146.3L99.8 -220.1L104.8 -216.1L53.2 -142.3Z;M48.2 -146.3L99.8 -220.1L104.8 -216.1L53.2 -142.3Z;M48.2 -146.3L99.8 -220.1L104.8 -216.1L53.2 -142.3Z;M48.2 -146.3L99.8 -220.1L104.8 -216.1L53.2 -142.3Z"/>
+    </path>
+    <path fill="#f6f3ec">
+      <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+        values="M-29 -51L61 -51L73 -65L-17 -65Z;M-29 -51L61 -51L73 -65L-17 -65Z;M-29 -51L61 -51L73 -65L-17 -65Z;M-29 -51L61 -51L73 -65L-17 -65Z;M-29 -51L61 -51L73 -65L-17 -65Z;M-38.5 -42.6L48.5 -19.4L58.5 -53.4L-28.5 -76.6Z;M-13.5 -60.9L55.5 -3.1L93.5 -49.1L24.5 -106.9Z;M17.7 -88L99.3 -126L82.3 -162L0.7 -124Z;M48.2 -146.3L99.8 -220.1L83.4 -231.5L31.8 -157.7Z;M48.2 -146.3L99.8 -220.1L83.4 -231.5L31.8 -157.7Z;M48.2 -146.3L99.8 -220.1L83.4 -231.5L31.8 -157.7Z;M48.2 -146.3L99.8 -220.1L83.4 -231.5L31.8 -157.7Z"/>
+    </path>
+  </g>
+  <!-- far hand, near arm, near hand -->
+  <path fill="none" stroke="#d6a288" stroke-width="12">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M54 -50l.1 0;M54 -50l.1 0;M54 -50l.1 0;M54 -50l.1 0;M54 -50l.1 0;M46 -20l.1 0;M48 -12l.1 0;M80 -120l.1 0;M46 -158l.1 0;M76 -114l.1 0;M46 -62l.1 0;M44 -58l.1 0"/>
+  </path>
+  <path fill="none" stroke="#c4d6ee" stroke-width="15">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M-18 -90L-27 -58L-22 -48;M-18 -90L-27 -58L-22 -48;M-18 -90L-27 -58L-22 -48;M-18 -90L-27 -58L-22 -48;M-18 -90L-27 -58L-22 -48;M-13 -86L-34 -62L-37 -38;M-7 -84L-22 -60L-12 -56;M-27 -89L-8 -68L15 -92;M-33 -87L-2 -118L30 -146;M-15 -89L18 -100L52 -108;M-19 -90L-22 -54L6 -60;M-19 -90L-21 -53L4 -56"/>
+  </path>
+  <path fill="none" stroke="#e0ad93" stroke-width="12">
+    <animate attributeName="d" dur="4s" repeatCount="indefinite" keyTimes="0;.0625;.125;.175;.225;.3125;.4;.475;.5375;.6125;.775;1"
+      values="M-22 -48l.1 0;M-22 -48l.1 0;M-22 -48l.1 0;M-22 -48l.1 0;M-22 -48l.1 0;M-37 -38l.1 0;M-12 -56l.1 0;M15 -92l.1 0;M30 -146l.1 0;M52 -108l.1 0;M6 -60l.1 0;M4 -56l.1 0"/>
+  </path>
+</g>
+
+<!-- flying pizza box: projectile from the release point (607,196), spinning, lid flapping open -->
+<g visibility="hidden">
+  <animate attributeName="visibility" values="hidden;visible" keyTimes="0;.5375" calcMode="discrete" dur="4s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.5375;.575;.6125;.65;.6875;.725;.7625;.8;.8375;.875;1"
+    values="607 196;607 196;655 120.5;702.7 75.2;750.6 60.2;798.4 75.3;846.3 120.7;894.1 196.3;942 302.1;989.8 438.2;1037.7 604;1037.7 604"/>
+  <animateTransform attributeName="transform" type="rotate" additive="sum" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.5375;.575;.6125;.65;.6875;.725;.7625;.8;.8375;.875;1"
+    values="-55;-55;-20;20;55;95;130;170;205;245;280;280"/>
+  <animateTransform attributeName="transform" type="scale" additive="sum" dur="4s" repeatCount="indefinite"
+    keyTimes="0;.5375;.575;.6125;.65;.6875;.725;.7625;.8;.8375;.875;1"
+    values="1 .22;1 .22;1 .7;1 1;1 .85;1 .55;1 .8;1 1;1 .7;1 .5;1 .5;1 .5"/>
+  <rect x="-45" y="-45" width="90" height="90" fill="#e6dccb" stroke="#a79c88"/>
+  <circle cx="4" cy="6" r="24" fill="#d2b986" opacity=".6"/>
+  <rect x="-45" y="45" width="90" height="6" fill="#c9bfae"/>
+  <g transform="translate(0 -45)">
+    <animateTransform attributeName="transform" type="scale" additive="sum" dur="4s" repeatCount="indefinite"
+      keyTimes="0;.575;.6;.625;.6625;.725;.8;.875;1" values="1 1;1 1;1 .3;1 -.3;1 -.45;1 -.25;1 -.5;1 -.4;1 -.4"/>
+    <rect x="-45" y="0" width="90" height="90" fill="#fbfaf6" stroke="#a79c88"/>
+    <circle cx="0" cy="45" r="21" fill="none" stroke="#c8352b" stroke-width="3"/>
+    <path d="M-12 30Q-4 22 0 32Q4 22 12 30Q4 36 0 34Q-4 36 -12 30Z" fill="#2f8a3a"/>
+    <text x="0" y="53" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#c8352b" text-anchor="middle">PIZZA</text>
+  </g>
+</g>
+
+<!-- grey car, door open (right edge) -->
+<path d="M870 268Q910 250 960 250V540H880Z" fill="#aeb4bd"/>
+<path d="M896 282Q926 268 960 268V380L906 400Z" fill="#20242c"/>
+<path d="M808 318Q840 285 885 278L898 282L906 540H826Q812 470 806 420Z" fill="#c9ced5" stroke="#7d838c" stroke-width="2"/>
+<path d="M818 330Q845 300 880 292L888 296L890 410L822 425Z" fill="#1b1f28"/>
+<path d="M830 340L872 302L878 305L838 350Z" fill="#6a7482" opacity=".5"/>
+<path d="M826 440L892 428L896 540H836Z" fill="#a3a9b2"/>
+<path d="M860 470L890 462L892 540H868Z" fill="#b3232e"/>
+<path d="M782 332Q790 320 808 322L812 350Q796 356 784 350Z" fill="#111"/>
+
+<!-- red station wagon with wood panelling (foreground left) -->
+<g transform="translate(0 20)" stroke-linejoin="round">
+  <path d="M375 358L352 245" stroke="#4a4a4a" stroke-width="1.5"/>
+  <path d="M0 272L290 282Q330 284 338 300L0 510Z" fill="#c3304c"/>
+  <path d="M0 292L270 296L300 304L0 470Z" fill="#d44a64" opacity=".45"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M305 297L0 486M215 286L0 419.5M160 320L245 334M40 395L125 409" stroke="#7a1f33" stroke-width="6" transform="translate(2 4)"/>
+    <path d="M305 297L0 486M215 286L0 419.5M160 320L245 334M40 395L125 409" stroke="#e9ecef" stroke-width="4.5"/>
+  </g>
+  <path d="M290 282Q330 284 338 300L356 318Q330 300 300 292Z" fill="#252a36"/>
+  <path d="M338 300L362 318L372 372L101 540L0 603V510Z" fill="#1d2230"/>
+  <path d="M330 330L352 362L250 425L238 398Z" fill="#56654e" opacity=".5"/>
+  <path d="M200 382L230 420L140 476L126 452Z" fill="#6a7466" opacity=".35"/>
+  <path d="M226 369L238 362L274 434L262 441Z" fill="#b82a45"/>
+  <path d="M106 444L118 437L154 509L142 516Z" fill="#b82a45"/>
+  <path d="M336 301L348 300L376 370L364 376Z" fill="#b02842"/>
+  <path d="M338 302L0 512" stroke="#dfe2e6" stroke-width="2.5"/>
+  <path d="M101 540L372 372L488 338L496 350L498 480Q494 500 480 505L0 700Z" fill="#b8243f"/>
+  <path d="M103 558L374 390L490 356L492 420L380 452L110 620Z" fill="#c8ad86" stroke="#7b6040" stroke-width="1.5"/>
+  <path d="M120 590L378 430L488 398M115 605L379 441L490 409M108 574L376 416L489 384" fill="none" stroke="#a88c64" opacity=".7"/>
+  <path d="M101 540L372 372L488 338" fill="none" stroke="#dfe2e6" stroke-width="2"/>
+  <path d="M300 418l14 -8M180 492l14 -8" stroke="#e1e3e6" stroke-width="4" stroke-linecap="round"/>
+  <path d="M356 318L468 312Q486 314 492 330L488 338L372 372Z" fill="#d23d58"/>
+  <path d="M370 330L470 322" stroke="#e8768b" stroke-width="3" opacity=".7"/>
+  <path d="M488 336L496 334L500 350V470L494 480L492 352Z" fill="#d8d8dc"/>
+  <circle cx="452" cy="475" r="38" fill="#2a0d15"/>
+  <circle cx="452" cy="477" r="33" fill="#151515"/>
+  <circle cx="452" cy="477" r="19" fill="#9ea3aa"/>
+  <circle cx="452" cy="477" r="7" fill="#d8dadd"/>
+  <path d="M392 352L414 346L418 366L396 372Z" fill="#151515"/>
+  <path d="M388 366L378 372" stroke="#151515" stroke-width="3"/>
+</g>
+</svg>

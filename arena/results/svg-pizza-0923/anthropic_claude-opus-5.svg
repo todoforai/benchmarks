@@ -1,0 +1,300 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <title>Breaking Bad — pizza on the roof</title>
+  <desc>Static camera on the White house driveway: Walt winds up and flings the pizza box over the garage; the pizza slips out of the box in mid-air and lands flat on the shingles. 4 s SMIL loop.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d7ac9"/><stop offset="1" stop-color="#8ec6e9"/>
+    </linearGradient>
+    <pattern id="shingle" width="40" height="11" patternUnits="userSpaceOnUse">
+      <rect width="40" height="11" fill="#c2aa80"/>
+      <rect y="9" width="40" height="2" fill="#a38b60"/>
+      <rect x="19" width="2" height="9" fill="#b59c71"/>
+    </pattern>
+    <pattern id="shingleWing" width="40" height="11" patternUnits="userSpaceOnUse">
+      <rect width="40" height="11" fill="#ac9469"/>
+      <rect y="9" width="40" height="2" fill="#8e7850"/>
+    </pattern>
+    <linearGradient id="door" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4b2139"/><stop offset="1" stop-color="#21101f"/>
+    </linearGradient>
+    <linearGradient id="drive" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ada49a"/><stop offset="0.35" stop-color="#cfc7bd"/><stop offset="1" stop-color="#ded7cd"/>
+    </linearGradient>
+    <linearGradient id="carRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e03642"/><stop offset="0.55" stop-color="#c2151f"/><stop offset="1" stop-color="#8e0c14"/>
+    </linearGradient>
+    <linearGradient id="woodPanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dcc189"/><stop offset="1" stop-color="#b8965a"/>
+    </linearGradient>
+    <linearGradient id="greyCar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7d838c"/><stop offset="1" stop-color="#3d424a"/>
+    </linearGradient>
+    <radialGradient id="pizzaTop" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#eab95c"/><stop offset="1" stop-color="#cf8a2f"/>
+    </radialGradient>
+
+    <!-- flat pizza box, origin at its centre -->
+    <g id="boxArt">
+      <path d="M-52 -3 h104 v10 l-5 7 h-94 l-5 -7 z" fill="#c8c0a8"/>
+      <rect x="-52" y="-11" width="104" height="8" fill="#eeebdc"/>
+      <rect x="-52" y="-13" width="104" height="3" fill="#ffffff"/>
+      <rect x="-52" y="-4" width="104" height="2" fill="#b4ab94"/>
+      <g fill="#b9312c" opacity="0.75">
+        <circle cx="-16" cy="2" r="2.4"/><circle cx="-2" cy="4" r="2.1"/><circle cx="12" cy="2" r="2.2"/>
+      </g>
+      <g fill="#2f7a3a" opacity="0.7">
+        <path d="M-32 1 q6 -4 11 1 q-6 5 -11 -1z"/><path d="M24 3 q6 -4 10 0 q-5 5 -10 0z"/>
+      </g>
+    </g>
+
+    <g id="pizzaArt">
+      <ellipse rx="30" ry="28" fill="#e6c078"/>
+      <ellipse rx="25" ry="23" fill="url(#pizzaTop)"/>
+      <g fill="#bf3226">
+        <circle cx="-11" cy="-7" r="4.2"/><circle cx="8" cy="-11" r="3.8"/><circle cx="12" cy="7" r="4.2"/>
+        <circle cx="-7" cy="10" r="3.6"/><circle cx="1" cy="0" r="3.4"/>
+      </g>
+    </g>
+  </defs>
+
+  <!-- ================= sky and roof ================= -->
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <g fill="#2f6d2d">
+    <ellipse cx="196" cy="42" rx="30" ry="20"/><ellipse cx="168" cy="56" rx="21" ry="14"/>
+    <ellipse cx="224" cy="54" rx="19" ry="12"/><ellipse cx="190" cy="27" rx="15" ry="10" fill="#3d8037"/>
+  </g>
+  <!-- main hip roof: eave at y=85, ridge running up to the right -->
+  <polygon points="244,85 480,0 960,0 960,85" fill="url(#shingle)"/>
+  <polygon points="244,85 480,0 494,0 258,86" fill="#9c8456"/>
+  <!-- left wing roof -->
+  <polygon points="0,120 244,84 244,101 0,137" fill="url(#shingleWing)"/>
+  <!-- fascia -->
+  <rect x="244" y="85" width="716" height="23" fill="#4a3228"/>
+  <polygon points="0,137 244,101 244,112 0,148" fill="#4a3228"/>
+  <!-- stucco band under the eave -->
+  <rect x="244" y="108" width="716" height="25" fill="#ded7c3"/>
+  <rect x="244" y="108" width="716" height="5" fill="#c3bba4"/>
+  <!-- red header trim over the garage -->
+  <rect x="244" y="133" width="716" height="16" fill="#80232f"/>
+  <rect x="244" y="133" width="716" height="4" fill="#9e3441"/>
+
+  <!-- ================= garage and wall ================= -->
+  <rect x="330" y="149" width="630" height="127" fill="url(#door)"/>
+  <g stroke="#5b2d48" stroke-width="1.6" opacity="0.45">
+    <line x1="330" y1="181" x2="960" y2="181"/><line x1="330" y1="213" x2="960" y2="213"/>
+    <line x1="330" y1="245" x2="960" y2="245"/>
+    <line x1="560" y1="149" x2="560" y2="276"/><line x1="790" y1="149" x2="790" y2="276"/>
+  </g>
+  <rect x="330" y="270" width="630" height="6" fill="#1a0c17"/>
+  <rect x="313" y="133" width="18" height="143" fill="#8d2733"/>
+  <rect x="313" y="133" width="5" height="143" fill="#ab3f49"/>
+  <rect x="244" y="108" width="70" height="168" fill="#d6cdb5"/>
+  <rect x="244" y="108" width="70" height="5" fill="#beb59d"/>
+  <text x="258" y="172" font-family="Georgia,'Times New Roman',serif" font-size="15" fill="#4c4237" letter-spacing="1">305</text>
+  <!-- recessed entry, left wing wall -->
+  <rect x="120" y="112" width="124" height="164" fill="#2a2621"/>
+  <rect x="140" y="130" width="52" height="94" fill="#3b4a3b"/>
+  <rect x="0" y="148" width="120" height="128" fill="#cfc6ae"/>
+  <!-- carriage lamp on the stucco band -->
+  <g fill="#1b1512">
+    <rect x="590" y="110" width="4" height="7"/>
+    <path d="M578 117h28l-4 11h-20z"/><circle cx="584" cy="122" r="5"/><circle cx="600" cy="122" r="5"/>
+  </g>
+
+  <!-- ================= driveway ================= -->
+  <rect x="0" y="276" width="960" height="264" fill="url(#drive)"/>
+  <rect x="0" y="276" width="960" height="11" fill="#8f8790"/>
+  <rect x="330" y="287" width="630" height="10" fill="#a79ea2" opacity="0.5"/>
+  <path d="M470 297 L432 540" stroke="#b6ada2" stroke-width="2.5" fill="none"/>
+  <path d="M760 297 L860 540" stroke="#b6ada2" stroke-width="2.5" fill="none"/>
+
+  <!-- ================= hedge ================= -->
+  <g fill="#1e4a22">
+    <ellipse cx="10" cy="206" rx="66" ry="58"/><ellipse cx="66" cy="222" rx="50" ry="46"/>
+    <ellipse cx="112" cy="240" rx="34" ry="36"/><ellipse cx="40" cy="178" rx="42" ry="30" fill="#2c6531"/>
+    <ellipse cx="92" cy="212" rx="28" ry="20" fill="#2c6531"/>
+    <ellipse cx="4" cy="262" rx="54" ry="36" fill="#173a1a"/>
+  </g>
+
+  <!-- ================= grey car, right edge, door swung open ================= -->
+  <g>
+    <path d="M836 252 L960 244 V540 H820 z" fill="#474c55"/>
+    <path d="M846 266 L960 258 V320 L842 330 z" fill="#15181e"/>
+    <path d="M806 282 L884 266 L960 286 V524 L872 540 L812 444 z" fill="url(#greyCar)"/>
+    <path d="M806 282 L884 266 L960 286 V296 L882 276 L810 292 z" fill="#949aa3"/>
+    <path d="M816 298 L880 286 L950 302 V352 L820 364 z" fill="#12151b"/>
+    <path d="M818 372 L960 358 V380 L820 394 z" fill="#3b4049"/>
+    <path d="M786 306 L816 298 L822 330 L790 334 z" fill="#20242b"/>
+  </g>
+
+  <!-- ================= Walter White ================= -->
+  <ellipse cx="572" cy="508" rx="46" ry="8" fill="#2a2320" opacity="0.3"/>
+  <g transform="translate(575,507) scale(1.16)">
+    <!-- legs: planted, only a weight shift through the throw -->
+    <g>
+      <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+        values="0,0; 0,0; -5,3; 2,1; 6,0; 2,0; 0,0; 0,0"
+        keyTimes="0;0.275;0.4125;0.4625;0.4875;0.62;0.78;1" calcMode="spline"
+        keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.3 0 .7 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+      <path d="M-23 -152 h23 l-8 74 l-5 62 h-17 l5 -66z" fill="#a8946f"/>
+      <path d="M-2 -152 h27 l-1 72 l9 64 h-21 l-12 -64z" fill="#c2ad83"/>
+      <path d="M-35 -16 h22 l4 14 h-36 a6 6 0 0 1 4 -10z" fill="#8a7448"/>
+      <path d="M6 -14 h22 l14 7 a4 4 0 0 1 -3 8 h-34z" fill="#8a7448"/>
+    </g>
+
+    <!-- torso twist: idle, coil back, uncoil through the release, settle watching -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+        values="0 0 -150; 0 0 -150; -18 0 -150; 8 0 -150; 18 0 -150; 6 0 -150; -2 0 -150; -2 0 -150"
+        keyTimes="0;0.275;0.4125;0.4625;0.4875;0.62;0.78;1"
+        calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .4 1;.3 0 .7 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+
+      <!-- far arm (behind the torso) -->
+      <g transform="translate(-2,-244)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+            values="-76;-76;-8;-108;-162;-166;-56;-56" keyTimes="0;0.275;0.4125;0.4625;0.4875;0.56;0.74;1"
+            calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.2 0 .6 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+          <path d="M-9 -7 h18 l3 46 h-22z" fill="#92b1cb"/>
+          <g transform="translate(0,44)">
+            <g>
+              <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+                values="-16;-16;-34;-4;4;8;-32;-32" keyTimes="0;0.275;0.4125;0.4625;0.4875;0.56;0.74;1"
+                calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.2 0 .6 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+              <path d="M-8 -6 h16 l2 42 h-18z" fill="#92b1cb"/>
+              <circle cx="1" cy="42" r="8" fill="#bd8c6d"/>
+            </g>
+          </g>
+        </g>
+      </g>
+
+      <!-- hips, belt, shirt -->
+      <path d="M-24 -158 h48 l3 34 h-53z" fill="#c2ad83"/>
+      <rect x="-25" y="-161" width="50" height="9" fill="#5a4530"/>
+      <path d="M-22 -154 C-31 -204 -26 -242 -13 -254 L21 -256 C33 -240 31 -198 25 -154 z" fill="#bcd6ea"/>
+      <path d="M-22 -154 C-31 -204 -26 -242 -13 -254 L-5 -255 C-13 -230 -13 -188 -9 -154 z" fill="#a6c4dc"/>
+      <path d="M3 -256 l10 2 l-5 44 l-7 -42z" fill="#6f87a7"/>
+      <path d="M-7 -256 l11 -3 l10 3 l-9 10z" fill="#f2f4f6"/>
+
+      <!-- head: down on the box, then up to the roof -->
+      <g transform="translate(7,-252)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+            values="10;10;2;-16;-26;-22;-18;-18" keyTimes="0;0.275;0.4125;0.4875;0.56;0.7;0.85;1"
+            calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.3 0 .7 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+          <rect x="-7" y="-14" width="15" height="16" fill="#bd8c6d"/>
+          <ellipse cx="2" cy="-26" rx="17" ry="20" fill="#d2a180"/>
+          <path d="M-15 -30 a17 20 0 0 1 32 -6 a20 20 0 0 0 -32 6z" fill="#dcab89"/>
+          <path d="M14 -19 q7 4 3 10 l-5 -1z" fill="#c9987a"/>
+          <path d="M-1 -8 q8 6 15 -2 q-2 10 -14 9z" fill="#7c6552"/>
+          <ellipse cx="-11" cy="-22" rx="4" ry="6" fill="#c9987a"/>
+          <g stroke="#2b2b30" stroke-width="2.2" fill="none">
+            <circle cx="12" cy="-29" r="5.4" fill="#cfe2ee" fill-opacity="0.35"/>
+            <path d="M-2 -30 h9"/><path d="M-6 -31 l-7 2"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- near arm; the held box hangs off the wrist, so it can never drift -->
+      <g transform="translate(12,-246)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+            values="-72;-72;-4;-104;-158;-162;-52;-52" keyTimes="0;0.275;0.4125;0.4625;0.4875;0.56;0.74;1"
+            calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.2 0 .6 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+          <path d="M-10 -8 h20 l3 48 h-24z" fill="#cfe2f1"/>
+          <g transform="translate(0,46)">
+            <g>
+              <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+                values="-18;-18;-34;-6;4;8;-34;-34" keyTimes="0;0.275;0.4125;0.4625;0.4875;0.56;0.74;1"
+                calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.2 0 .6 1;.4 0 .6 1;.4 0 .6 1;0 0 1 1"/>
+              <path d="M-9 -7 h18 l3 44 h-20z" fill="#cfe2f1"/>
+              <g transform="translate(2,44)">
+                <circle r="8.5" fill="#d2a180"/>
+                <g>
+                  <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+                    values="82;82;20;96;170;170" keyTimes="0;0.275;0.4125;0.4625;0.4875;1"
+                    calcMode="spline" keySplines=".4 0 .6 1;.3 0 .7 1;.2 0 .5 1;.2 0 .6 1;0 0 1 1"/>
+                  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete"
+                    values="1;0" keyTimes="0;0.4875"/>
+                  <g transform="translate(40,0)"><use href="#boxArt"/></g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= red wood-panel wagon, foreground left ================= -->
+  <g>
+    <!-- body -->
+    <path d="M-10 272 L352 276 L432 300 L492 344 L516 420 L516 540 L-10 540 z" fill="url(#carRed)"/>
+    <!-- greenhouse: glass band with chrome surround -->
+    <path d="M-10 280 L346 284 L420 312 L-10 326 z" fill="#c6cbd0"/>
+    <path d="M-10 286 L344 290 L410 314 L-10 320 z" fill="#1a212c"/>
+    <path d="M-10 292 L340 296 L400 314 L-10 314 z" fill="#2f3a48"/>
+    <g stroke="#2a3038" stroke-width="5" fill="none">
+      <path d="M96 288 L96 320"/><path d="M226 292 L230 318"/>
+    </g>
+    <!-- roof rack -->
+    <g stroke="#b9c0c6" stroke-width="3.5" fill="none" stroke-linecap="round">
+      <path d="M-10 272 L346 277"/><path d="M-10 264 L330 269"/>
+      <path d="M40 266 L40 274"/><path d="M150 267 L150 275"/><path d="M260 269 L260 276"/>
+    </g>
+    <!-- chrome beltline -->
+    <path d="M-10 326 L420 312 L430 320 L-10 334 z" fill="#d3d8dc"/>
+    <!-- wood panel with light border -->
+    <path d="M-10 356 L424 336 L470 372 L488 412 L488 452 L-10 452 z" fill="#e8dfc2"/>
+    <path d="M-10 366 L420 346 L458 378 L474 412 L474 442 L-10 442 z" fill="url(#woodPanel)"/>
+    <g stroke="#a9884f" stroke-width="1.6" opacity="0.55">
+      <path d="M-10 392 L462 384"/><path d="M-10 416 L472 412"/>
+    </g>
+    <!-- front fender, wheel arch, wheel -->
+    <path d="M432 300 L492 344 L516 420 L516 540 L470 540 L448 400 z" fill="#b41522"/>
+    <ellipse cx="452" cy="484" rx="52" ry="50" fill="#14161b"/>
+    <ellipse cx="452" cy="484" rx="24" ry="23" fill="#8e949a"/>
+    <path d="M390 460 a64 60 0 0 1 124 4 l-14 4 a52 48 0 0 0 -98 -3z" fill="#8f0d16"/>
+    <!-- door handle, mirror, door seam -->
+    <path d="M414 310 l26 -4 l4 16 l-26 4z" fill="#2c323a"/>
+    <rect x="286" y="342" width="26" height="6" rx="3" fill="#cfd4d8"/>
+    <path d="M330 296 L336 452" stroke="#7e0b12" stroke-width="2.5" fill="none" opacity="0.7"/>
+  </g>
+
+  <!-- ================= released box: spins up over the roof ================= -->
+  <g id="box">
+    <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+      values="712,180; 712,180; 752,124; 794,68; 838,14; 884,-42; 932,-100; 932,-100"
+      keyTimes="0;0.4875;0.525;0.5625;0.60;0.6375;0.675;1" calcMode="linear"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+        values="34;34;112;196;284;372;456;456"
+        keyTimes="0;0.4875;0.525;0.5625;0.60;0.6375;0.675;1" calcMode="linear"/>
+      <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1;0" keyTimes="0;0.4875;0.69"/>
+      <use href="#boxArt"/>
+    </g>
+  </g>
+
+  <!-- ================= the pizza slips out and lands flat on the shingles ================= -->
+  <g id="pizza">
+    <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite"
+      values="838,14; 838,14; 772,-8; 706,14; 668,42; 668,44; 668,44"
+      keyTimes="0;0.60;0.645;0.69;0.725;0.75;1"
+      calcMode="spline" keySplines="0 0 1 1;.15 0 .6 1;.4 0 .6 1;.4 0 .8 1;.4 0 .6 1;0 0 1 1"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite"
+        values="0;0;-34;-62;-78;-80;-80" keyTimes="0;0.60;0.645;0.69;0.725;0.75;1" calcMode="linear"/>
+      <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1" keyTimes="0;0.60"/>
+      <g>
+        <!-- flattens out of edge-on into the shingle-flat oval it keeps for the rest of the loop -->
+        <animateTransform attributeName="transform" type="scale" dur="4s" repeatCount="indefinite"
+          values="1,0.3; 1,0.3; 1,0.42; 1,0.34; 1,0.3; 1,0.32; 1,0.32"
+          keyTimes="0;0.60;0.645;0.69;0.725;0.75;1" calcMode="linear"/>
+        <use href="#pizzaArt"/>
+      </g>
+    </g>
+  </g>
+</svg>

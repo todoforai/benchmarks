@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+ <defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#57aee1"/><stop offset="1" stop-color="#b1d6e8"/></linearGradient>
+  <linearGradient id="roof" x2=".12" y2="1"><stop stop-color="#ad8f63"/><stop offset=".64" stop-color="#bfa776"/><stop offset="1" stop-color="#8a7356"/></linearGradient>
+  <pattern id="shingles" width="41" height="17" patternUnits="userSpaceOnUse" patternTransform="skewX(-15)"><path d="M0 0H41M0 8H41M20 8v9M0 0v8M40 0v8" stroke="#796b52" stroke-opacity=".37" stroke-width=".9"/><path d="M2 3h17m4 9h16" stroke="#e1cba1" stroke-opacity=".35" stroke-width=".8"/></pattern>
+  <pattern id="drive" width="62" height="56" patternUnits="userSpaceOnUse"><circle cx="8" cy="12" r="1.1" fill="#8d887f" opacity=".3"/><circle cx="40" cy="43" r=".8" fill="#8d887f" opacity=".3"/><path d="M25 29l4-1M55 13l3 1" stroke="#98928b" opacity=".24"/></pattern>
+  <linearGradient id="garage" x2=".8" y2="1"><stop stop-color="#24242c"/><stop offset=".52" stop-color="#292532"/><stop offset="1" stop-color="#1c2531"/></linearGradient>
+  <linearGradient id="red" x2=".25" y2="1"><stop stop-color="#f44b6a"/><stop offset=".35" stop-color="#c9003d"/><stop offset=".75" stop-color="#8d001c"/><stop offset="1" stop-color="#510d1b"/></linearGradient>
+  <linearGradient id="glass" x2=".8" y2="1"><stop stop-color="#091c31"/><stop offset=".5" stop-color="#153b4c"/><stop offset="1" stop-color="#07131c"/></linearGradient>
+  <linearGradient id="blueCar" x2="1" y2=".5"><stop stop-color="#162c39"/><stop offset=".24" stop-color="#849da9"/><stop offset=".52" stop-color="#314c58"/><stop offset=".84" stop-color="#d0d8d8"/><stop offset="1" stop-color="#345666"/></linearGradient>
+  <linearGradient id="shirt" x2="1" y2=".3"><stop stop-color="#c0dceb"/><stop offset=".45" stop-color="#edf3f2"/><stop offset="1" stop-color="#82a8bd"/></linearGradient>
+  <pattern id="wood" width="58" height="24" patternUnits="userSpaceOnUse"><rect width="58" height="24" fill="#a58a5e"/><path d="M0 4q21 4 58-2M0 15q31-4 58 3M6 22q25-4 39 0" stroke="#6b543b" fill="none" stroke-width="1.1" opacity=".7"/></pattern>
+  <g id="head"><path d="M-13 6q-6-10-3-22 3-14 13-19 10-2 17 6 7 7 6 18l4 8-6 4-2 12q-6 9-18 4z" fill="#d3ae92" stroke="#68544f" stroke-width="1.4"/><path d="M-14-17q2-14 12-17 15-1 19 17-13-5-31 0" fill="#d9b69b"/><path d="M-11-5q8-3 16-1m2 1 10-1M5-6l2 1" fill="none" stroke="#282d30" stroke-width="2"/><path d="M-11-4l2 8 12 1L5-5m3 0 2 8 8-1 1-8" fill="none" stroke="#252f37" stroke-width="1.5"/><path d="M15 6q-4 1-9 0m5 7q-8 3-14 0" stroke="#68504b" stroke-width="1.5" fill="none"/><path d="M0 17q8 5 16-2" stroke="#77564c" stroke-width="2" fill="none"/></g>
+  <g id="box" stroke-linejoin="round"><path d="M-69-10L50-14 75 5 58 17-62 19-78 4Z" fill="#f2e9d7" stroke="#725a48" stroke-width="2"/><path d="M-78 4l16 15 120-2 17-12-6 16-132 3-15-11Z" fill="#c6b6a2" stroke="#786b62" stroke-width="1.5"/><path d="M-69-10l19-4 113-2-13 2Z" fill="#fbf6e9"/><path d="M-62 19L58 17" stroke="#ad8e73"/><path d="M-3-5q22-5 36 4" fill="none" stroke="#a45245" opacity=".52" stroke-width="2"/><path d="M-58 10l11 4m102-15 9 3" stroke="#b64135" stroke-width="2"/></g>
+  <g id="pie"><ellipse rx="47" ry="18" fill="#a35a2b" stroke="#6f3d22" stroke-width="2"/><ellipse rx="43" ry="15" fill="#e7aa47"/><ellipse rx="39" ry="12.5" fill="#e5bb58"/><path d="M-36-2q17-8 30-4T29-3M-26 8Q4 0 34 6" fill="none" stroke="#b8482a" stroke-width="3" opacity=".75"/><g fill="#af4031"><ellipse cx="-20" cy="-4" rx="6" ry="3"/><ellipse cx="9" cy="-8" rx="6" ry="3"/><ellipse cx="24" cy="5" rx="7" ry="3"/><ellipse cx="-5" cy="8" rx="7" ry="3"/><ellipse cx="-31" cy="5" rx="4" ry="2"/></g><g fill="#738443"><circle cx="-3" cy="-5" r="2"/><circle cx="14" cy="4" r="2"/><circle cx="-21" cy="7" r="2"/></g></g>
+ </defs>
+ <!-- The house and its fixed, sunlit driveway. -->
+ <path fill="url(#sky)" d="M0 0h960v250H0z"/>
+ <path d="M0 99q55-17 108-10l-10 173H0Z" fill="#cac5a9"/><path d="M0 135h157v146H0z" fill="#302e2e"/><path d="M25 136h89v136H25z" fill="#152b35"/><path d="M108 126h61v151h-61" fill="#8c7767"/><path d="M0 112l72-20 98 20-7 22H0" fill="#766952"/>
+ <path d="M0 227q25-18 46-11 12-28 37-19 20-25 48-10 20-15 35 6 21-9 36 23 21-2 27 19v64H0Z" fill="#184d29"/><path d="M0 244q52-30 102-24t130 8v56H0" fill="#276633"/><path d="M0 268q57-20 126-20 54 0 110 17" fill="none" stroke="#43803b" stroke-width="9" opacity=".5"/>
+ <path d="M177 113h783v277H177z" fill="#b9a98d"/><path d="M210 128h97v168h-97z" fill="#c9c3af"/><path d="M215 133h74v161h-74z" fill="#d1cec0"/><path d="M284 127h25v260h-25" fill="#65474b"/><path d="M305 141h655v250H305Z" fill="#402933"/><path d="M326 151h634v234H326Z" fill="url(#garage)"/><path d="M326 166h634M326 227h634M326 297h634M326 368h634" stroke="#3b3540" stroke-width="3"/><path d="M332 172h628m-628 62h628m-628 70h628" stroke="#8a6d6d" stroke-width="1.2" opacity=".21"/><path d="M320 149h640" stroke="#795d61" stroke-width="12"/><path d="M305 384h655" stroke="#171d27" stroke-width="8"/>
+ <path d="M0 391h960v149H0z" fill="#c7bdb0"/><path d="M0 391h960v149H0z" fill="url(#drive)"/><path d="M303 388h657" stroke="#9f988e" stroke-width="3"/><path d="M721 391l-63 149M376 391l-30 149" fill="none" stroke="#a7a098" stroke-width="2" opacity=".55"/><path d="M0 499l960-33v74H0" fill="#b2aa9e" opacity=".17"/>
+ <!-- No. 308 and the lamp over the garage. -->
+ <text x="242" y="203" font-family="serif" font-size="15" fill="#353538" letter-spacing="1">308</text><path d="M618 143l7-11 11 1 6 12-5 7h-14z" fill="#1d2021"/><circle cx="631" cy="146" r="7" fill="#666e66" stroke="#151a1b" stroke-width="3"/><path d="M610 148l7-7m32 7-8-8" stroke="#26252a" stroke-width="3"/>
+ <!-- Roof overhang, with rows of shingles. -->
+ <path d="M52 91L633-89 1040-70 1040 101 144 106 87 111Z" fill="url(#roof)"/><path d="M52 91L633-89 1040-70 1040 101 144 106 87 111Z" fill="url(#shingles)" opacity=".8"/><path d="M50 92L145 104h815v22H160l-61-13-22-8-13-2Z" fill="#382b29"/><path d="M96 103l68 8h796" stroke="#d2c098" stroke-width="6"/><path d="M164 112h796" stroke="#8a7862" stroke-width="3"/>
+ <!-- Walt's shadow, and the station wagon's long shadow. -->
+ <path d="M492 434l190 76 63 5-190-42Z" fill="#625d60" opacity=".4"/><ellipse cx="577" cy="483" rx="79" ry="15" fill="#75706b" opacity=".29"/>
+ <path d="M0 520q320-110 575-69l-21 89H0" fill="#53474b" opacity=".45"/>
+ <!-- Red wood-sided station wagon, very close in the left foreground. -->
+ <path d="M0 301l378-19q76-1 129 38l53 89-18 131H0Z" fill="url(#red)" stroke="#69091d" stroke-width="3"/>
+ <path d="M0 300l365-16q62-1 109 24l-23 28-451 46Z" fill="#d61246" stroke="#ff8291" stroke-width="2"/>
+ <path d="M0 315l368-16 73 26L0 373Z" fill="#db1b4b"/><path d="M0 326l386-23m-386 55 418-39" stroke="#f6a9a7" stroke-width="2" opacity=".75"/>
+ <path d="M5 366l445-45 77 81-41 138H0Z" fill="#930023" stroke="#460f20" stroke-width="3"/>
+ <path d="M0 380l443-45 65 68-27 110L0 540" fill="url(#glass)" stroke="#d6a7a2" stroke-width="5"/>
+ <path d="M230 355l-19 185M380 343l-27 197M449 339l72 75" stroke="#bfcbd0" stroke-width="5"/><path d="M0 401l432-51m-432 72 460-56" stroke="#7ac2d5" stroke-width="3" opacity=".45"/><path d="M7 449l472-65" stroke="#f0e5d9" stroke-width="2" opacity=".38"/>
+ <path d="M451 324q46 12 67 62l24 82-26 72H408l33-154Z" fill="#bc0638" stroke="#4e1625" stroke-width="3"/>
+ <path d="M454 342q33 7 54 48l-11 85-35 5-13-52Z" fill="url(#glass)" stroke="#b7c6c6" stroke-width="5"/><path d="M458 349l35 103-24 17" fill="none" stroke="#468196" opacity=".7" stroke-width="3"/>
+ <path d="M514 394l29-3 12 16-26 8Z" fill="#c9073c" stroke="#460b1c" stroke-width="3"/><path d="M521 396l18-3 9 9-23 8" fill="#d84457"/>
+ <path d="M407 540l30-64 75-12 26-58 11 18-24 116" fill="url(#red)" stroke="#6c1925" stroke-width="3"/>
+ <path d="M418 538l35-62 60-12 23-51-8 81-24 46" fill="url(#wood)" stroke="#d3ba87" stroke-width="4"/><path d="M429 537l32-50 46-10m-51 21 45-9" fill="none" stroke="#6b3f27" stroke-width="2"/>
+ <path d="M502 477q18-12 33 8l-9 55h-37Z" fill="#182126" stroke="#a8a198" stroke-width="4"/><path d="M509 492q13-13 17 2l-5 46h-22Z" fill="#3b4341"/><path d="M507 510l-5 30m21-31-4 31" stroke="#99988b" stroke-width="2"/>
+ <path d="M0 316l399-21 67 21-466 63M77 330l4 30m200-47 15 32" fill="none" stroke="#b7c7c7" stroke-width="4"/><path d="M0 308l383-20 68 27" stroke="#f48c98" fill="none" stroke-width="3"/><path d="M389 242l52 157" stroke="#272a27" stroke-width="2"/>
+ <!-- The car on the right: open driver door and bright trim. -->
+ <path d="M765 540l12-130 58-83 124-39v252Z" fill="#142d3b" stroke="#0a1c29" stroke-width="4"/><path d="M823 329l82-29 55-6v246H791l13-129Z" fill="url(#blueCar)" stroke="#0e2330" stroke-width="5"/><path d="M820 346l86-32 54-3v152l-104-18-53-29Z" fill="#112532" stroke="#8faab1" stroke-width="4"/><path d="M904 316l-44 125m-27-90-22 64" stroke="#b8c7c9" stroke-width="4" opacity=".85"/><path d="M869 325l89-15v145l-102-15Z" fill="#0c202b"/><path d="M848 436l112 15v89H826Z" fill="#4a6976" stroke="#afbfba" stroke-width="4"/><path d="M870 464l90 14v7l-90-14" fill="#c7c7bb"/><path d="M821 377l-43-4-18 21 18 13 34-10" fill="#142833" stroke="#728b91" stroke-width="3"/><path d="M799 540l15-95 21-12 27 14-22 93Z" fill="#a3a69d"/><path d="M814 540l16-78 12 4-17 74" fill="#253440"/>
+ <!-- The open door of the silver car angles toward the lens. -->
+ <g>
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.3;.66;.8;1" values="0;0;.35;1;1"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite" keyTimes="0;.3;.75;1" values="165 94;165 94;0 0;0 0"/>
+  <path d="M728 194l38-23 194 133v236h-47l-43-201Z" fill="#9eafb1" stroke="#1a3541" stroke-width="5"/>
+  <path d="M754 197l24-14 182 129v127l-83-101Z" fill="#b1bdba" stroke="#d7dfd8" stroke-width="4"/>
+  <path d="M768 202l23-9 169 127v93l-90-86Z" fill="#273c43" stroke="#d9d9d2" stroke-width="4"/>
+  <path d="M788 195l73 51 99 89M878 330l77 87" stroke="#78949b" stroke-width="5" fill="none"/>
+  <path d="M728 194l33-22 198 133" fill="none" stroke="#e1e2d7" stroke-width="8"/>
+  <path d="M852 353l36 9 13 14-41-8" fill="#dae0d8" stroke="#455b63" stroke-width="3"/>
+ </g>
+ <!-- Walt: progressive, silhouetted poses. -->
+ <g id="walt-holding" transform="translate(44 14)">
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.22;1" values="1;0;0"/>
+  <path d="M551 344l33 2 15 72-6 57-15 1-6-55-18-32-9 42-5 37-16 1 3-69Z" fill="#9b9787" stroke="#565c57" stroke-width="2"/><path d="M539 470l18 6 8 7-39 3-11-7 8-8Zm44 7 17-4 20 10-2 8-39-4Z" fill="#524c40" stroke="#292a29" stroke-width="2"/>
+  <path d="M537 252q9-12 28-11 27-1 33 13l17 85-22 17-52-5-17-36Z" fill="url(#shirt)" stroke="#6989a1" stroke-width="2"/><path d="M549 254l16 28 21-28m-39 42 14 50m28-85-1 78" fill="none" stroke="#829dae" stroke-width="2"/><path d="M566 278l6 4-4 51-7 7-3-9 6-49" fill="#867f70"/><path d="M523 267q-9 25-4 56l23 20 36-6-3-11-37-5-3-40" fill="url(#shirt)" stroke="#6d8ba0" stroke-width="2"/><path d="M588 264q19 8 28 40l7 23-28 13-33-2-1-11 42-7-19-36" fill="url(#shirt)" stroke="#6f8ca0" stroke-width="2"/>
+  <use href="#head" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" transform="translate(560 232) scale(.85)"/>
+  <path d="M565 326l12-3 15 7-2 9-14 1-10-7m39-12 14-6 13 4-1 8-21 4" fill="#d7b79c" stroke="#806c5e" stroke-width="1.5"/>
+  <use href="#box" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#box" transform="translate(635 309) rotate(-4) scale(.86 .6)"/>
+ </g>
+ <g id="walt-windup" transform="translate(44 14)">
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.22;.355;1" values="0;1;0;0"/>
+  <path d="M545 363l45 5 16 49 24 41-12 13-37-40-16-36-11 47-11 35-17-3 4-72Z" fill="#aaa596" stroke="#5c5e55" stroke-width="2"/><path d="M532 471l15 3 15 10-6 6-40-6-2-6Zm81-5 18-8 18 5 5 7-33 8Z" fill="#514c41" stroke="#282a2b" stroke-width="2"/>
+  <path d="M560 248q20-11 37 6l25 42-24 41-24 26-41-14-15-34 25-50Z" fill="url(#shirt)" stroke="#7395a8" stroke-width="2"/><path d="M564 258l14 31 20-28m-46 48 19 42" fill="none" stroke="#8cabbc" stroke-width="2"/><path d="M580 290l6 3-12 47-7 6-2-13Z" fill="#8c8173"/>
+  <use href="#head" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" transform="translate(584 235) rotate(-5) scale(.9)"/>
+  <path d="M544 278q-21 26-31 57l35 34 47-32-9-12-40 23-13-17 26-37m42-26q14 5 34 42l-33 39-30-2-1-14 29 1 18-28-26-21" fill="url(#shirt)" stroke="#698aa0" stroke-width="2"/>
+  <path d="M581 331l16-8 18 3 1 8-22 9-10-4m-43 11 13 3 9 9-7 8-17-5" fill="#d7b99c" stroke="#7d6d61" stroke-width="1.5"/>
+  <use href="#box" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#box" transform="translate(633 325) rotate(-15) scale(.9 .7)"/>
+ </g>
+ <g id="walt-throw" transform="translate(44 14)">
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.355;.495;1" values="0;1;0;0"/>
+  <path d="M550 363l40 2 4 54 17 51-16 5-29-53-4-18-5 42-11 36-17-1 5-65Z" fill="#a9a597" stroke="#5a615d" stroke-width="2"/><path d="M529 478l20 2 15 8-5 6-45-4-2-6Zm64-6 18-6 17 12-3 6-33-2Z" fill="#474843" stroke="#292c2c" stroke-width="2"/>
+  <path d="M560 255q22-14 39 3l16 38-9 63-30 12-36-13-8-60Z" fill="url(#shirt)" stroke="#6d91a7" stroke-width="2"/><path d="M560 265l18 32 18-32m-36 46 11 50" fill="none" stroke="#8aaaba" stroke-width="2"/><path d="M578 299l5 2-5 56-8 4-1-11Z" fill="#95877b"/>
+  <use href="#head" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" transform="translate(581 239) rotate(-16) scale(.9)"/>
+  <path d="M543 276q-18 6-25 33l-12 22 31 26 18-16-26-21 28-29m40-24 13 13 7-43 30-38 12 10-24 50-8 51-21 27-24-32" fill="url(#shirt)" stroke="#688da2" stroke-width="2.5"/>
+  <path d="M640 218l10-14 14-8 7 5-10 19-10 5m-120 123 16-8 10 3-3 12-17 6" fill="#d7b59a" stroke="#7e685a" stroke-width="1.5"/>
+  <use href="#box" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#box" transform="translate(668 182) rotate(-45) scale(.78 .75)">
+   <animateTransform attributeName="transform" type="translate" additive="sum" dur="4s" repeatCount="indefinite" keyTimes="0;.355;.43;.495;1" values="0 110;0 110;0 0;0 -42;0 -42"/>
+  </use>
+ </g>
+ <g id="walt-watch" transform="translate(44 14)">
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.495;1" values="0;1;1"/>
+  <path d="M543 353l38 3 5 60-11 50-16-1-3-46-10-34-7 44-6 37-17 3 4-70Z" fill="#a8a395" stroke="#545c59" stroke-width="2"/><path d="M515 464l20-1 13 9-4 8-36-2-5-8Zm44 0 20 1 14 10-2 6-36-4Z" fill="#4e4c42" stroke="#292a27" stroke-width="2"/>
+  <path d="M536 258q11-15 30-13 24 0 32 19l-2 69-16 29-43-8-7-50Z" fill="url(#shirt)" stroke="#648ba2" stroke-width="2"/><path d="M548 257l15 30 22-23m-34 39 2 52m32-77-11 71" stroke="#80a1b5" stroke-width="2" fill="none"/><path d="M566 286l6 4-6 53-7 8-2-15Z" fill="#817c76"/>
+  <use href="#head" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" transform="translate(557 238) rotate(-10) scale(.9)"/>
+  <path d="M539 271q-18 12-18 42l8 39 23 10 5-11-18-16-1-35m52-30q15 5 18 31l-2 43-25 13-7-10 19-18-8-37" fill="url(#shirt)" stroke="#63889e" stroke-width="2"/><path d="M550 348l10 4 7 11-7 7-15-9m32-9 9-7 8 9-7 10-12-1" fill="#d5b295" stroke="#836f60" stroke-width="1.5"/>
+ </g>
+ <!-- The box tumbles free; the pie follows a separate arc and settles on the shingles. -->
+ <g>
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.465;.79;1" values="0;1;0;0"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite" keyTimes="0;.465;.54;.64;.72;.79;1" values="666 188;666 188;706 75;760 -25;841 -80;920 -145;920 -145"/>
+  <g><animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite" keyTimes="0;.465;.56;.68;.79;1" values="-47;-47;24;105;175;175"/><use href="#box" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#box" transform="scale(.84 1.05)"/></g>
+ </g>
+ <g>
+  <animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.54;.84;1" values="0;1;0;0"/>
+  <animateTransform attributeName="transform" type="translate" dur="4s" repeatCount="indefinite" keyTimes="0;.54;.62;.7;.78;.84;1" values="716 71;716 71;731 -12;770 -2;789 20;796 34;796 34"/>
+  <g><animateTransform attributeName="transform" type="rotate" dur="4s" repeatCount="indefinite" keyTimes="0;.54;.64;.76;.84;1" values="-58;-58;28;350;365;365"/><use href="#pie" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#pie" transform="scale(1 .8)"/></g>
+ </g>
+ <g><animate attributeName="opacity" dur="4s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;.84;1" values="0;1;1"/><use href="#pie" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#pie" transform="translate(796 36) rotate(7) scale(1.05 .68)"/></g>
+</svg>
