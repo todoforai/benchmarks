@@ -59,8 +59,8 @@ You are scored against a real high-speed film of a milk drop, measured frame by
 frame and reduced to dimensionless form: tau = t V / D, lengths over D. The
 targets are milk's, not a model's.
   crown       crown height H(tau)/D follows the film, over the whole run
-  height      the peak is the right height (the film reaches H/D = 2.0)
-  timing      and comes at the right time (the film peaks at tau = 4.5, after a
+  height      the peak is the right height (the film wall reaches H/D = 1.7)
+  timing      and comes at the right time (the film wall peaks at tau = 2.75, after a
               crater phase: the surface stays FLAT until about tau = 1.8, then
               the wall goes up)
   spreading   crown base radius r(tau)/D follows the film

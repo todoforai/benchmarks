@@ -23,11 +23,20 @@ AGENT="${MILKCROWN_AGENT:-}"
 PROJECT="${MILKCROWN_PROJECT:-${TODOFORAI_PROJECT_ID:-}}"
 [ -n "${TODOFORAI_API_TOKEN:-}" ] || PROJECT="${MILKCROWN_PROJECT:-}"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || MODELS=(openai:openai/gpt-5.6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5)
-TASK=$(cat prompt.txt)
+# The harness and truth go with the agent so it can test its own file, but the
+# reference solution and the scoreboard stay behind.
+TASK="$(cat prompt.txt)
 
-RUN="runs/$(date +%Y-%m-%d__%H-%M-%S)"; mkdir -p "$RUN"
+The harness you are scored by is in this directory: harness.html and truth.js.
+Read them, and test your milk.js against them before you finish."
+
+# The agent gets a scratch dir OUTSIDE this repo. With --path inside the
+# benchmark, the first thing a model does is read entries/reference.js and
+# results/scores.json -- which is not solving the task, it is reading the answer.
+RUN="${MILKCROWN_RUNS:-/tmp/milkcrown-runs}/$(date +%Y-%m-%d__%H-%M-%S)"; mkdir -p "$RUN"
 for M in "${MODELS[@]}"; do
   slug=${M##*/}; d="$RUN/$slug"; mkdir -p "$d"
+  cp "$(dirname "$0")/harness.html" "$(dirname "$0")/truth.js" "$d/"
   echo "== $M -> $d"
   # Runs on the machine's own long-lived bridge, NOT --isolated: the ephemeral
   # mayfly bridge dies with every backend restart, which killed 20-minute runs.
@@ -48,7 +57,7 @@ for M in "${MODELS[@]}"; do
         | xargs -r ls -t 2>/dev/null | head -1)
     [ -n "$f" ] && cp "$f" "$d/milk.js" && echo "   found $f"
   fi
-  if [ -f "$d/milk.js" ]; then cp "$d/milk.js" "entries/$slug.js"; echo "   -> entries/$slug.js"
+  if [ -f "$d/milk.js" ]; then cp "$d/milk.js" "$(dirname "$0")/entries/$slug.js"; echo "   -> entries/$slug.js"
   else echo "   NO milk.js"; fi
 done
 echo "DONE $RUN"

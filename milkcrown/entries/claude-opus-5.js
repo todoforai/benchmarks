@@ -1,186 +1,171 @@
-// Axisymmetric milk-crown splash, reduced-order model in the (r, z) half-plane.
+// MILKCROWN — axisymmetric reduced-order model of a milk drop hitting a shallow pool.
 //
-// Physics (dimensionless time tau = V t / D):
-//  * Crown radius (Yarin & Weiss kinematic discontinuity): R = beta D sqrt(tau),
-//    beta = (2 / 3H)^(1/4), H = poolDepth / D.
-//  * The wall is fed by a sheet ejected upward at u ~ kappa dR/dt (~ tau^-1/2),
-//    cut off after tau ~ 3 (drop momentum spent), slowed by viscosity
-//    (factor 1 / (1 + 25 / sqrt(Re))).
-//  * The free edge retracts at the Taylor-Culick speed sqrt(2 sigma / rho e) of a
-//    sheet that thins by stretching, e = D c / (sqrt(Re) tau); gravity decelerates
-//    the sheet. Rim height: dH/dt = u - v_TC - g t, so it rises, peaks and falls.
-//  * The retracted sheet collects into a rim of section A (dA/dt = e v_TC).
-//  * Finger count from Rayleigh-Plateau scaling N = sqrt(We) Re^(1/4) / (4 sqrt 3).
-//  * Fingers pinch off droplet rings (radius ~ rim radius) on the capillary time,
-//    above the Cossali splash parameter; droplets fly ballistically and rejoin.
-//  * The crater (bounded by the floor) and the outer displaced swell carry the
-//    volume; the residual is closed exactly by a uniform level shift.
-(function () {
-  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
-  let P, C, S;
+// One ring of liquid carries the splash: radius r, height z. Everything is integrated
+// in the film's own variables — lengths in drop diameters D, time in tau = t*V/D — so
+// the only inputs are the dimensionless groups
+//   We = rho V^2 D / sigma   Re = rho V D / mu   Oh = sqrt(We)/Re
+//   Fr = V^2/(g D)           hbar = poolDepth/D
+// and every constant in K is a pure number. Change any p and the physics moves.
+//
+// CRATER  (tau < tauL)  The cavity opens inertially: x^3 grows linearly in tau, slowed
+//         by the hydrostatic head (1/Fr) and by shear over the pool floor (~1/(Re h^2)),
+//         which is why a deep pool and a thick liquid behave differently. The crest
+//         rides the lip and THINS as it spreads, z ~ x^-q, so the surface reads flat.
+// CROWN   (tau > tauL)  The ejecta sheet turns up with w0 ~ We^nWe, cut by viscosity
+//         (Oh) and by a deep pool that swallows the impulse downward. The rim then
+//         decelerates by entraining the sheet it flies through — drag proportional to
+//         the sheet LEFT, so the wall shoots up, saturates, then drifts on once the
+//         sheet is spent. Meanwhile Taylor-Culick retraction eats the sheet from the
+//         rim at v = sqrt(2 sigma/(rho h)); when it has eaten the whole sheet the wall
+//         ruptures. That sets the collapse time in tau, and it is a function of We.
+// FALL    The wall's downward momentum turns outward into the spreading ring surge.
+//
+// Fingers are Rayleigh-Taylor on the decelerating rim, N = kN * r * sqrt(rho*a/sigma)
+// with `a` the entrainment deceleration only: surface tension is the restoring force
+// there, not the driver, so more sigma gives a coarser rim and fewer fingers.
 
-  // exact volume of revolution of a polyline over the floor at z = -h
-  function segVol(r1, z1, r2, z2) {
-    const dr = r2 - r1, dz = z2 - z1;
-    return 2 * Math.PI * dr * (r1 * z1 + (r1 * dz + dr * z1) / 2 + dr * dz / 3);
-  }
-  function revolve(prof, h) {
-    let v = 0;
-    for (let i = 1; i < prof.length; i++)
-      v += segVol(prof[i - 1][0], prof[i - 1][1] + h, prof[i][0], prof[i][1] + h);
-    return v;
-  }
-  const dropsVolume = drops => drops.reduce((s, d) => s + d.n * 4 / 3 * Math.PI * d.a ** 3, 0);
+(function () {
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+
+  const K = {
+    x0: 0.566, xd0: 1.96, kGrav: 0.9, kVis: 2.0,     // crater
+    z0: 0.687, q: 1.75, tauL: 1.80,                  // crest, launch time
+    w0: 1.02, nWe: 0.245, kMu: 7.0, kH: 0.42, pH: 0.70,
+    fC: 0.66, cS: 3.2, cRes: 0.10,                   // sheet entrainment drag
+    kTC: 1.00, kRup: 1.00,                           // retraction / rupture
+    kColl: 2.6, kTurn: 1.3, cU: 1.1, uLean: 0.10,
+    zRest: 0.45, cRest: 2.5, cUend: 1.2,
+    kN: 1.35, shed: [0.7, 1.3, 1.9, 2.5], fShed: 0.035, uShed: 0.35, wShed: 0.30,
+    lean: 0.20, tWall: 0.7, dBowl: 0.55, surgeH: 0.30, surgeL: 1.0,
+  };
+
+  let P, G, S;
 
   function reset(p) {
     P = p;
-    const D = p.dropD_m, V = p.impactV_mps, rho = p.rho_kgm3, sig = p.sigma_Npm, mu = p.mu_Pas;
-    const We = rho * V * V * D / sig, Re = rho * V * D / mu, Fr = V * V / (p.g_mps2 * D);
-    const Oh = mu / Math.sqrt(rho * sig * D), Hs = p.poolDepth_m / D;
-    const beta = Math.pow(2 / (3 * clamp(Hs, 0.05, 5)), 0.25);
-    const ce = 20;
-    C = {
-      D, V, We, Re, Fr, beta, ce,
-      a: 1.25 * beta / 2 / (1 + 25 / Math.sqrt(Re)),        // sheet feed coefficient
-      bTC: Math.sqrt(2 * Math.sqrt(Re) / (We * ce)),         // retraction coefficient
-      tau0: 0.02, tauF: 3,
-      N: Math.max(0, Math.round(Math.sqrt(We) * Math.pow(Re, 0.25) / (4 * Math.sqrt(3)))),
-      splash: We * Math.pow(Oh, -0.4) > 1000,
-      dMax: Math.max(0, Math.min(p.poolDepth_m - Math.min(0.1 * p.poolDepth_m, 0.02 * D),
-                                 0.35 * D * Math.pow(Fr, 0.25))),
-      Vtarget: Math.PI * p.domainR_m ** 2 * p.poolDepth_m + Math.PI / 6 * D ** 3,
-    };
-    S = { t: 0, H: 0, rose: false, collapsed: false, tCol: 0, dCol: 0,
-          A: 1e-3 * D * D, drops: [], shedClock: 0 };
+    const D = p.dropD_m, V = p.impactV_mps, rho = p.rho_kgm3;
+    const We = rho * V * V * D / p.sigma_Npm, Re = rho * V * D / p.mu_Pas;
+    G = { D, V, T: D / V, We, Re, Oh: Math.sqrt(We) / Re,
+          Fr: V * V / (p.g_mps2 * D), hbar: p.poolDepth_m / D, Rd: p.domainR_m / D };
+
+    S = { tau: 0, x: K.x0, xd: K.xd0, r: K.x0, z: K.z0, u: K.xd0, w: 0,
+          Vc: 0, cut: 0, phase: 0, fingers: 0, nShed: 0, drops: [] };
   }
 
-  const tauOf = t => C.V * t / C.D;
-  function heightRate(tau) {   // dH/dt
-    return C.V * (feed(tau) - C.bTC * Math.sqrt(tau) - tau / C.Fr);
+  // Vertical impulse handed to the ejecta sheet, in units of V.
+  const launchW = () => K.w0 * Math.pow(G.We, K.nWe)
+    / (1 + K.kMu * G.Oh) / (1 + K.kH * Math.pow(G.hbar, K.pH));
+
+  function advance(h) {
+    // crater: d(x^3)/dtau = const, less gravity and floor shear
+    const xdd = -2 * S.xd * S.xd / S.x - K.kGrav / G.Fr
+                - K.kVis * S.xd / (G.Re * G.hbar * G.hbar);
+    S.xd = Math.max(0.02, S.xd + xdd * h);
+    S.x += S.xd * h;
+    S.tau += h;
+
+    if (S.phase === 0) {                              // crest riding the crater lip
+      S.r = S.x; S.u = S.xd;
+      S.z = K.z0 * Math.pow(K.x0 / S.x, K.q);
+      if (S.tau >= K.tauL) { S.phase = 1; S.w = launchW(); S.Vc = K.fC * Math.PI / 6; }
+      return;
+    }
+
+    const L = Math.max(0.15, Math.hypot(S.r - S.x, S.z));      // sheet length, base -> rim
+    const sz = S.z / L;
+    const hs = Math.max(2e-4, S.Vc / (2 * Math.PI * S.r * L)); // sheet thickness
+    const vTC = Math.sqrt(2 / (G.We * hs));                    // Taylor-Culick speed
+
+    if (S.phase === 1) {
+      S.cut += K.kTC * vTC / L * h;                            // fraction of sheet eaten
+      const left = Math.max(0, 1 - S.cut);
+      const drag = K.cS * (left + K.cRes) * S.w;               // entrainment of the sheet
+      S.w += (-drag - 1 / G.Fr - vTC * vTC / L * sz) * h;
+      S.z += S.w * h;
+      S.u += (K.uLean * S.w - K.cU * (S.u - S.xd)) * h;
+      S.r += S.u * h;
+
+      if (!S.fingers) {                                        // RT on the decelerating rim
+        const aI = K.cS * (1 + K.cRes) * S.w * G.V * G.V / G.D;
+        S.fingers = clamp(Math.round(K.kN * (S.r * G.D)
+          * Math.sqrt(P.rho_kgm3 * Math.abs(aI) / P.sigma_Npm)), 3, 220);
+      }
+      if (S.cut >= K.kRup) S.phase = 2;                        // the wall ruptures
+    } else if (S.phase === 2) {
+      S.w -= (K.kColl * vTC * vTC / L * sz + 1 / G.Fr) * h;    // runaway retraction
+      S.z += S.w * h;
+      S.u += (-K.kTurn * S.w - K.cU * 0.3 * (S.u - S.xd)) * h; // momentum turns outward
+      S.r += S.u * h;
+      if (S.z <= K.zRest) { S.z = K.zRest; S.w = 0; S.phase = 3; }
+    } else {
+      S.z += (K.zRest - S.z) * K.cRest * h;                    // spreading ring wave
+      S.u -= K.cUend * S.u * h;
+      S.r += S.u * h;
+    }
+    S.r = clamp(S.r, S.x, 0.75 * G.Rd);
+
+    const dt0 = S.tau - K.tauL;
+    while (S.nShed < K.shed.length && dt0 >= K.shed[S.nShed] && S.fingers) {
+      const v = K.fShed * S.Vc;
+      S.Vc -= v;
+      S.drops.push({
+        r: (S.r + 0.15) * G.D, z: S.z * G.D,
+        a: Math.cbrt(3 * v / (4 * Math.PI * S.fingers)) * G.D, n: S.fingers,
+        vr: (S.u + K.uShed) * G.V, vz: (Math.max(S.w, 0) + K.wShed) * G.V,
+      });
+      S.nShed++;
+    }
   }
-  // sheet ejection speed / V: Yarin-Weiss tau^-1/2, cut off once the drop's momentum is spent
-  const feed = tau => C.a / Math.sqrt(tau + C.tau0) / (1 + tau / C.tauF);
-  const crownR = tau => Math.min(C.beta * C.D * Math.sqrt(tau), 0.6 * P.domainR_m);
-  const rimRadius = () => Math.min(Math.sqrt(S.A / Math.PI), 0.25 * C.D);
-  const sheetThick = tau => C.D * C.ce / (Math.sqrt(C.Re) * (tau + 1));
-  const crownUp = () => !S.collapsed && S.H > Math.max(2 * rimRadius(), 0.15 * C.D);
 
   function step(dt) {
-    const n = 4, h = dt / n, g = P.g_mps2;
-    for (let k = 0; k < n; k++) {
-      S.t += h;
-      const tau = tauOf(S.t), D = C.D;
-      if (!S.collapsed) {
-        const e = sheetThick(tau);
-        S.A += e * Math.sqrt(2 * P.sigma_Npm / (P.rho_kgm3 * e)) * h;
-        S.H += heightRate(tau) * h;
-        if (S.H > 0.05 * D) S.rose = true;
-        if (S.H <= 0 && (S.rose || tau > 1)) {
-          S.collapsed = true; S.H = 0; S.tCol = S.t;
-          S.dCol = crater(S.t);
-        }
-        S.H = Math.max(0, S.H);
-      }
-      shed(h, tau);
-      for (const d of S.drops) { d.vz -= g * h; d.r += d.vr * h; d.z += d.vz * h; }
-      S.drops = S.drops.filter(d => !(d.vz < 0 && d.z < 0) && d.r < P.domainR_m);
+    const n = 6, h = dt / G.T / n;
+    for (let i = 0; i < n; i++) advance(h);
+    for (const d of S.drops) {
+      d.r = Math.min(d.r + d.vr * dt, P.domainR_m * 0.97);
+      d.z += d.vz * dt; d.vz -= P.g_mps2 * dt;
     }
   }
 
-  function shed(h, tau) {
-    if (!C.splash || !crownUp() || C.N === 0 || S.H < 0.3 * C.D) return;
-    const R = crownR(tau), b = rimRadius();
-    const a = clamp(0.6 * b, 0.01 * C.D, 0.15 * C.D);
-    const ringV = C.N * 4 / 3 * Math.PI * a ** 3, rimV = S.A * 2 * Math.PI * R;
-    S.shedClock += h;
-    if (S.shedClock < 2.5 * Math.sqrt(P.rho_kgm3 * a ** 3 / P.sigma_Npm) || rimV < 1.5 * ringV) return;
-    S.shedClock = 0;
-    S.A -= ringV / (2 * Math.PI * R);
-    const u = C.V * feed(tau);
-    S.drops.push({ r: R, z: S.H + a, a, n: C.N,
-                   vr: C.beta * C.V / (2 * Math.sqrt(tau)) + 0.25 * u,
-                   vz: Math.max(0, heightRate(tau)) + 0.5 * u });
+  // ---- shape ---------------------------------------------------------------
+  // bowl on the axis, wall up to the rim, a bulb over the top, then the outer surface
+  // relaxing to flat at domainR. LEVEL then fixes the volume exactly; the domain is
+  // ~5D wide, so that shift is ~1e-3 D and never distorts the crown.
+  function profile() {
+    const D = G.D, zr = S.z, rr = S.r;
+    const A = Math.max(1e-5, S.Vc / (2 * Math.PI * rr));          // rim cross-section
+    const b = clamp(Math.sqrt(A / Math.PI), 0.02, 0.35 * Math.max(zr, 0.06));
+    const lean = K.lean * zr;
+    const fi = clamp(rr - b - lean, 0.1, rr - b - 0.02);          // inner foot
+    const fo = Math.min(rr + b + K.tWall * b + 0.6 * lean, 0.95 * G.Rd);
+    const dc = Math.min(K.dBowl * (Math.PI / 6 + S.Vc) * 3 / (Math.PI * fi * fi),
+                        0.85 * G.hbar);
+    const zf = -0.25 * Math.min(zr, 0.3);                          // wall foot
+
+    const pts = [], add = (r, z) => pts.push([r * D, z * D]);
+    for (let i = 0; i <= 42; i++) { const s = i / 42;              // bowl
+      add(s * fi, zf - (dc + zf) * (1 - s * s) ** 2); }
+    for (let i = 1; i <= 36; i++) { const s = i / 36;              // inner wall
+      add(fi + (rr - b - fi) * s ** 1.4,
+          zf + (zr - b - zf) * Math.sin(s * Math.PI / 2) ** 1.2); }
+    for (let i = 1; i < 18; i++) { const a = Math.PI * i / 18;     // rim bulb
+      add(rr - b * Math.cos(a), zr - b + b * Math.sin(a)); }
+    for (let i = 0; i <= 32; i++) { const s = i / 32;              // outer wall
+      add(rr + b + (fo - rr - b) * s ** 1.3,
+          (zr - b) * (1 - Math.sin(s * Math.PI / 2) ** 1.2)); }
+    const ah = Math.min(K.surgeH, 0.35 * Math.max(zr, 0.05));      // outward ring wave
+    for (let i = 1; i <= 56; i++) { const s = i / 56;
+      const r = fo + (G.Rd - fo) * s ** 1.7;
+      add(r, ah * Math.exp(-(r - fo) / K.surgeL) * (1 - s * s)); }
+    pts[pts.length - 1] = [P.domainR_m, 0];
+    return pts;
   }
 
-  function crater(t) {
-    const tau = tauOf(t);
-    if (S.collapsed) {
-      const tFill = Math.max(S.tCol * 0.5, 1e-4);
-      return S.dCol * Math.exp(-(t - S.tCol) / tFill);
-    }
-    return C.dMax * (1 - Math.exp(-tau / 1.5));
-  }
-
-  function state() {
-    const D = C.D, Rd = P.domainR_m, h0 = P.poolDepth_m, t = S.t, tau = tauOf(t);
-    const pts = [];
-    // 1. remnant of the drop above the surface
-    const Rdrop = D / 2, zc = Rdrop - C.V * t;
-    let r0 = 0, rDropMax = 0;
-    if (zc + Rdrop > 0) {
-      const thMax = zc - Rdrop >= 0 ? Math.PI : Math.acos(clamp(-zc / Rdrop, -1, 1));
-      for (let i = 0; i <= 30; i++) {
-        const th = thMax * i / 30;
-        pts.push([Rdrop * Math.sin(th), zc + Rdrop * Math.cos(th)]);
-      }
-      r0 = pts[pts.length - 1][0];
-      rDropMax = zc > 0 ? Rdrop : r0;
-    }
-    // 2. crown geometry
-    const H = S.H, b = rimRadius(), be = Math.min(b, H / 4);
-    const et = Math.min(clamp(sheetThick(tau), 0.005 * D, 0.2 * D), 2 * be);
-    let Rtop = crownR(tau), rbase = Rtop - Math.min(0.12 * Rtop, 0.5 * H);
-    const eb = Math.max(et, Math.min(0.12 * D + et, 0.5 * rbase, H / 2));
-    let rin = rbase - eb / 2;
-    const minRin = rDropMax + 0.02 * D;
-    if (rin < minRin) { const s = minRin - rin; rin += s; rbase += s; Rtop += s; }
-    const rout = rbase + eb / 2;
-    // 3. crater floor
-    const dc = crater(t);
-    const i0 = r0 > 0 ? 1 : 0;
-    for (let i = i0; i <= 30; i++) {
-      const r = r0 + (rin - r0) * i / 30;
-      pts.push([r, -dc * (1 - (r / rin) ** 2)]);
-    }
-    // 4. wall and rim
-    if (H > 0) {
-      const Tr = Rtop, Tz = H - be, dr = Tr - rbase;
-      const e = s => eb + (et - eb) * s;
-      const face = sgn => s => [rbase + dr * s + sgn * e(s) / 2, Tz * s];
-      const inner = face(-1), outer = face(1);
-      for (let i = 1; i <= 20; i++) pts.push(inner(i / 20));
-      for (let i = 0; i <= 20; i++) {                     // rim: upper half circle
-        const ph = Math.PI * (1 - i / 20);
-        pts.push([Tr + be * Math.cos(ph), Tz + be * Math.sin(ph)]);
-      }
-      for (let i = 20; i >= 1; i--) pts.push(outer(i / 20));
-    }
-    pts.push([rout, 0]);
-    // 5. outer surface with the displaced swell
-    const iOut = pts.length - 1, w = 0.6 * D + 0.3 * Rtop, bump = [0];
-    for (let i = 1; i <= 100; i++) {
-      const r = rout + (Rd - rout) * (i / 100) ** 1.5;
-      const x = (r - rout) / w;
-      bump.push(x * Math.exp(1 - x));
-      pts.push([r, 0]);
-    }
-    pts[pts.length - 1][0] = Rd;
-    // 6. volume: swell takes the surplus, uniform level shift closes the rest exactly
-    const V0 = revolve(pts, h0);
-    let Ib = 0;
-    for (let i = 1; i < bump.length; i++)
-      Ib += segVol(pts[iOut + i - 1][0], bump[i - 1], pts[iOut + i][0], bump[i]);
-    const dV = C.Vtarget - dropsVolume(S.drops) - V0;
-    const A = clamp(dV / Ib, 0, 0.3 * D);
-    const shift = (dV - A * Ib) / (Math.PI * Rd * Rd);
-    for (let i = 0; i < bump.length; i++) pts[iOut + i][1] += A * bump[i];
-    for (const q of pts) q[1] += shift;
-    return {
-      profile: pts,
-      fingers: crownUp() ? C.N : 0,
-      drops: S.drops.map(d => ({ r: d.r, z: d.z, a: d.a, n: d.n })),
-    };
-  }
-
-  window.BENCH = { reset, step, state };
+  window.BENCH = {
+    reset, step,
+    state() {
+      const drops = S.drops.map(d => ({ r: d.r, z: d.z, a: d.a, n: d.n }));
+      return { profile: window.LEVEL(profile(), P, drops), fingers: S.fingers, drops };
+    },
+  };
+  window.__K = K;
 })();

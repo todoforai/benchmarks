@@ -225,7 +225,11 @@ function FILM(seed) {
 
 // The view is framed on the splash, not on the tank: the outer pool runs off
 // the edge of the canvas the way it does in the Edgerton photograph.
-const AZ = 120, EL = 0.42, VIEW_R = 0.0092;
+// EL is the camera elevation in radians: 0 is dead level with the surface, the
+// angle a high-speed splash photograph is shot from. Keep it low, otherwise the
+// crown is seen from above and its height reads as nothing.
+const AZ = 120, EL = +(new URLSearchParams(location.search).get('el') ?? 0.14),
+      VIEW_R = +(new URLSearchParams(location.search).get('viewr') ?? 0.0092);
 
 function render(s, p) {
   const c = document.getElementById('c'), ctx = c.getContext('2d');
