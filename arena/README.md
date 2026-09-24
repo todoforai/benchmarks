@@ -52,6 +52,6 @@ Recording — no X/Xvfb, no screen grabbing:
 - `agent.log` has the timestamped tool stream; the todo itself (`todofor.ai/t/<id>` in agent.log, or
 `GET /api/v1/todos/<id>/messages`) is the full replay for a Remotion cut later.
 
-Agent config is the Terminal-Bench one (`--isolated --agent app`, xhigh, bash+read+webfetch).
+Agent config: `arena` (`--isolated --agent arena`; one per dev account): `app` permissions (bash+read+webfetch), thinkingLevel medium, sysmsg "Your working directory is /work. Save all output files directly in /work."
 Blender tasks are **headless** (`blender -b --python`) — not the `blender-mcp`
 route the product uses; that needs one GUI Blender and can't be isolated per model. Judging is subjective ranking like pelican; write `RESULTS_<task>.md`.
