@@ -1,6 +1,11 @@
-# Terminal-Bench 2.1 — gpt-5.6-sol (xhigh) — 2026-08-25/26
+# Terminal-Bench 2.1 — gpt-5.6-sol (xhigh) + opus-5 review sub-agent — 2026-08-25/26
 
-FINAL: 73/89 = 82.0%
+FINAL: 73/89 = 82.0%  — system result, review sub-agent ON
+
+Not a single-model score. Review ran on claude-opus-5 and explore/webfetch on
+claude-haiku-4.5 inside each trial (see "Token usage and cost"). The
+single-model result, review denied, is 71/89 = 79.8%:
+RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md. Quote that one as the headline.
 
 Sweep: tb21-gpt-5.6-sol-xhigh-ultra (batches 1-9, 2026-08-25)
 Rerun of 16 infra-damaged tasks: tb21-rerun (2026-08-26); a task's final
