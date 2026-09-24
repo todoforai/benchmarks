@@ -1,6 +1,18 @@
 # TODOforAI Benchmarks
 
-Benchmarks for evaluating TODOforAI browsing agents and comparing with state-of-the-art web agents.
+Benchmarks for evaluating the TODOforAI agent: terminal tasks and web browsing.
+
+## Terminal-Bench 2.1
+
+| Run | Pass | Cost (promo / list) | Results |
+|---|---:|---:|---|
+| GPT-5.6 Sol (xhigh), review off | **71/89 = 79.8%** | $46.87 / ~$89.6 | [sheet](terminal-bench/RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md) |
+| same + Claude Opus 5 review sub-agent | 73/89 = 82.0% | $134.51 / $188.33 | [sheet](terminal-bench/RESULTS_tb21_gpt-5.6-sol-xhigh.md) |
+
+Own harness, one sweep, infrastructure-damaged tasks replaced by their rerun. Not a
+tbench.ai leaderboard submission and not scored by its rules.
+Methodology: https://todofor.ai/blog/terminal-bench-2-1-methodology ·
+adapter: [terminal-bench/](terminal-bench/)
 
 ## Structure
 
