@@ -42,9 +42,10 @@ const RUN_MS = 60000;
       let r = await guarded(`(() => { try { return RUN(${seed}) } catch (e) { return { error: String(e && e.message || e) } } })()`);
       if (r.error) {
         console.log(`${name} seed ${seed}  ERROR  ${r.error}`);
-        r = { seed, total: 0, error: r.error, crown: 0, fingers: 0, droplets: 0, spread: 0, valid: false };
+        r = { seed, total: 0, error: r.error, crown: 0, height: 0, timing: 0,
+              fingers: 0, droplets: 0, spread: 0, peakH: 0, peakTau: 0, valid: false };
       } else {
-        console.log(`${name} seed ${seed}  ${r.total.toFixed(3)}  crown ${r.crown.toFixed(2)} fingers ${r.fingers.toFixed(2)}(${r.peakN}) drops ${r.maxDrops} spread ${r.spread.toFixed(2)}${r.valid ? '' : '  INVALID drift=' + r.drift.toFixed(2)}`);
+        console.log(`${name} seed ${seed}  ${r.total.toFixed(3)}  crown ${r.crown.toFixed(2)} height ${r.height.toFixed(2)} timing ${r.timing.toFixed(2)} spread ${r.spread.toFixed(2)} fingers ${r.fingers.toFixed(2)}(${r.peakN})  peak H/D ${r.peakH.toFixed(2)}@tau ${r.peakTau.toFixed(1)}${r.valid ? '' : '  INVALID drift=' + r.drift.toFixed(2)}`);
       }
       runs.push(r);
     }
@@ -59,6 +60,8 @@ const RUN_MS = 60000;
       total: avg(runs.map(r => r.total)) * response,
       crown: avg(runs.map(r => r.crown)), fingers: avg(runs.map(r => r.fingers)),
       droplets: avg(runs.map(r => r.droplets)), spread: avg(runs.map(r => r.spread)),
+      height: avg(runs.map(r => r.height)), timing: avg(runs.map(r => r.timing)),
+      peakH: avg(runs.map(r => r.peakH)), peakTau: avg(runs.map(r => r.peakTau)),
       seeds: runs.map(r => ({ seed: r.seed, total: r.total, valid: !!r.valid, drift: r.drift, error: r.error || null })),
       error: runs.find(r => r.error)?.error || null, frames };
     out.push(e);

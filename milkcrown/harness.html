@@ -1,6 +1,7 @@
 <!doctype html><meta charset=utf-8>
 <title>milkcrown harness</title>
 <canvas id=c width=560 height=420></canvas>
+<script src="truth.js"></script>
 <script>
 // Axisymmetric harness. A model returns the free surface in the (r,z) half-plane;
 // the harness revolves it, measures it and renders it. Nothing is scored from pixels,
@@ -81,43 +82,66 @@ function score(M, p) {
   const V0 = Math.PI * p.domainR_m ** 2 * p.poolDepth_m + Vdrop;
   const drift = Math.max(...M.map(m => Math.abs(m.vol - V0) / Vdrop));
 
-  // A crown is up when a ring of liquid stands well off the axis and the middle
-  // of it is open. The rim test is what keeps the drop's own bump from counting.
-  const rise = 0.15 * p.dropD_m;
-  const up = M.map(m => m.zTop > rise && m.rRim > 0.6 * p.dropD_m && m.zAxis < 0.45 * m.zTop);
-  const win = up.lastIndexOf(true) + 1;
-  // scored on change: a crown that already stands at t=0 is a picture, not a splash
-  const crown = up[0] || win < 4 ? 0 : up.slice(0, win).filter(Boolean).length / win;
+  // Everything is scored against TRUTH, measured off a real high-speed milk film,
+  // in the film's own dimensionless variables: tau = t V / D, lengths over D.
+  // So a submission is not compared to anybody's model, it is compared to milk.
+  const D = p.dropD_m;
+  const tau = i => i * DT * p.impactV_mps / D;
+  const T = window.TRUTH;
+  const truthAt = (arr, x) => {
+    if (x <= T.tau[0]) return arr[0];
+    const n = T.tau.length;
+    if (x >= T.tau[n - 1]) return arr[n - 1];
+    const k = Math.floor(x / (T.tau[1] - T.tau[0]));
+    const f = (x - T.tau[k]) / (T.tau[k + 1] - T.tau[k]);
+    return arr[k] + f * (arr[k + 1] - arr[k]);
+  };
+  // Curve agreement: mean over the run of a tolerance kernel on the residual.
+  // tol is in units of D, so "within a fifth of a drop diameter" scores about 0.8.
+  const curve = (get, ref, tol) => {
+    let a = 0;
+    for (let i = 0; i < M.length; i++) {
+      const d = (get(M[i]) / D - truthAt(ref, tau(i))) / tol;
+      a += Math.exp(-d * d);
+    }
+    return a / M.length;
+  };
 
-  // Crown-splash fingering: N ~ We^1/2. The prefactor is set by the canonical
-  // milk crown, We = 250 with about 24 points. A factor of 2 off still scores 0.4,
-  // so this rewards getting the trend and the order right, not a magic number.
-  const exp = 1.5 * Math.sqrt(We(p));
+  const crown = curve(m => m.zTop, T.H, 0.35);
+  const spread = curve(m => m.rRim, T.r, 0.35);
+
+  // The crown must actually rise, at the right moment. A flat sheet that tracks
+  // the early film well still gets nothing here.
+  const zs = M.map(m => m.zTop);
+  const peakI = zs.indexOf(Math.max(...zs));
+  const peakH = zs[peakI] / D, peakTau = tau(peakI);
+  const rel = peakH / T.peakH;
+  const height = Math.exp(-((Math.log(Math.max(rel, 1e-6)) / Math.log(1.6)) ** 2));
+  const timing = peakI < 3 ? 0
+    : Math.exp(-(((peakTau - T.peakTau) / 1.8) ** 2));
+
+  // Rayleigh-Plateau fingering, counted while the wall is up. The film shows ~36
+  // around the full azimuth; a factor of two off still scores 0.4.
+  const up = M.map((m, i) => m.zTop > 0.5 * D && m.rRim > 0.6 * D);
+  const upIdx = up.map((v, i) => v ? i : -1).filter(i => i >= 0);
   const fit = m => m.fingers < 1 ? 0
-    : Math.exp(-((Math.log(m.fingers / exp) / Math.log(2.2)) ** 2));
-  const upIdx = M.map((m, i) => up[i] ? i : -1).filter(i => i >= 0);
+    : Math.exp(-((Math.log(m.fingers / T.fingers) / Math.log(2.2)) ** 2));
   const fingers = upIdx.length ? upIdx.reduce((a, i) => a + fit(M[i]), 0) / upIdx.length : 0;
 
   const nd = M.map(m => m.nDrops);
-  const droplets = Math.min(1, Math.max(0, Math.max(...nd) - nd[0]) / 12);
-
-  const rims = M.map(m => m.rRim);
-  const peak = rims.indexOf(Math.max(...rims));
-  const spread = rims[peak] > Math.max(rims[0], 1e-9) * 1.5 && peak > 3
-    ? Math.max(0, pearson(rims.slice(0, peak + 1).map((_, k) => Math.sqrt(k)), rims.slice(0, peak + 1)))
-    : 0;
+  const droplets = Math.min(1, Math.max(0, Math.max(...nd) - nd[0]) / 20);
 
   const valid = drift <= 0.10;
-  const zs = M.map(m => m.zTop);
   const peakZ = valid ? Math.max(...zs) : 0;
   const peakN = valid ? Math.max(...upIdx.map(i => M[i].fingers), 0) : 0;
-  const peakT = valid ? zs.indexOf(peakZ) : 0;   // when the crown is highest
+  const peakT = valid ? peakI : 0;
   // The driver multiplies this by the probe's response: a submission that does not
   // react to the impact speed is a picture, and a picture is worth zero however
   // well it is drawn. That is the whole benchmark in one line.
-  return { valid, drift, crown, fingers, droplets, spread, peakZ, peakN, peakT,
-           maxDrops: Math.max(...nd),
-           total: valid ? 0.40 * crown + 0.30 * fingers + 0.15 * droplets + 0.15 * spread : 0 };
+  return { valid, drift, crown, spread, height, timing, fingers, droplets,
+           peakZ, peakN, peakT, peakH, peakTau, maxDrops: Math.max(...nd),
+           total: valid ? 0.25 * crown + 0.20 * height + 0.15 * timing
+                        + 0.15 * spread + 0.15 * fingers + 0.10 * droplets : 0 };
 }
 
 const pearson = (a, b) => {

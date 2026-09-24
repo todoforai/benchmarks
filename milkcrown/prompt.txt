@@ -55,12 +55,17 @@ Rules:
                           plus the droplets you pass in hold exactly the right
                           volume. Conservation is then free; the physics is not.
 
-You are scored on physics:
-  crown       does an annular wall rise while the middle stays hollow, and
-              does it later fall back
-  fingers     does the rim carry a sensible number of fingers while it is up
+You are scored against a real high-speed film of a milk drop, measured frame by
+frame and reduced to dimensionless form: tau = t V / D, lengths over D. The
+targets are milk's, not a model's.
+  crown       crown height H(tau)/D follows the film, over the whole run
+  height      the peak is the right height (the film reaches H/D = 2.0)
+  timing      and comes at the right time (the film peaks at tau = 4.5, after a
+              crater phase: the surface stays FLAT until about tau = 1.8, then
+              the wall goes up)
+  spreading   crown base radius r(tau)/D follows the film
+  fingers     the rim carries about 36 fingers around the full azimuth
   droplets    do the fingers shed free droplets
-  spreading   does the crown radius grow like t^0.5
   response    the same code is replayed with one parameter changed at a time:
                 higher   hit harder -> higher crown, more fingers
                 sooner   hit harder -> the crown PEAKS EARLIER

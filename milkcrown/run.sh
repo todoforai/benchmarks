@@ -29,18 +29,24 @@ RUN="runs/$(date +%Y-%m-%d__%H-%M-%S)"; mkdir -p "$RUN"
 for M in "${MODELS[@]}"; do
   slug=${M##*/}; d="$RUN/$slug"; mkdir -p "$d"
   echo "== $M -> $d"
-  # Empty HOME + unset TODOFORAI_* : an agent shell would otherwise inherit the
-  # caller's project/todo ids and 403 under a different API key.
-  ( cd "$d" && env -u TODOFORAI_PROJECT_ID -u TODOFORAI_TODO_ID -u TODOFORAI_AGENT_SETTINGS_ID \
+  # Runs on the machine's own long-lived bridge, NOT --isolated: the ephemeral
+  # mayfly bridge dies with every backend restart, which killed 20-minute runs.
+  # The caller's HOME is kept: the bridge session lives in it, and an empty HOME
+  # leaves the CLI unable to reach this machine's bridge (BRIDGE_OFFLINE).
+  # Only the per-message ids are dropped, so the agent opens its own todo.
+  ( cd "$d" && env -u TODOFORAI_TODO_ID -u TODOFORAI_AGENT_SETTINGS_ID \
       -u TODOFORAI_MESSAGE_ID -u TODOFORAI_BLOCK_ID -u TODOFORAI_API_URL \
-      HOME="$(mktemp -d)" TODOFORAI_API_TOKEN="$KEY" timeout "${MILKCROWN_TIMEOUT:-3600}" \
-      todoforai-cli --isolated --non-interactive --allow-all --path "$PWD" \
+      TODOFORAI_API_TOKEN="$KEY" timeout "${MILKCROWN_TIMEOUT:-3600}" \
+      todoforai-cli --non-interactive --allow-all --path "$PWD" \
       ${PROJECT:+--project "$PROJECT"} ${AGENT:+--agent "$AGENT"} --model "$M" "$TASK" \
       > agent.log 2>&1 ) || echo "   exit=$? (see $d/agent.log)"
-  # models have written into /tmp and into their own $HOME, so look around
+  # The agent writes into its own scratch dir, NOT into --path: /tmp/todoforai/milk.js
+  # is where the file actually lands. Look there before believing a run failed --
+  # "Warning: Stopped: DISCONNECTED" is exit noise, not a failure.
   if [ ! -f "$d/milk.js" ]; then
-    f=$(find "$d" /tmp -name milk.js -newermt '-2 hours' 2>/dev/null | head -1)
-    [ -n "$f" ] && cp "$f" "$d/milk.js"
+    f=$(find /tmp/todoforai "$d" -name milk.js -newermt "-${MILKCROWN_TIMEOUT:-3600} seconds" 2>/dev/null \
+        | xargs -r ls -t 2>/dev/null | head -1)
+    [ -n "$f" ] && cp "$f" "$d/milk.js" && echo "   found $f"
   fi
   if [ -f "$d/milk.js" ]; then cp "$d/milk.js" "entries/$slug.js"; echo "   -> entries/$slug.js"
   else echo "   NO milk.js"; fi
