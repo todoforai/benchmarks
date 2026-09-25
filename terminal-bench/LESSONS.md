@@ -93,3 +93,12 @@ backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
   ffmpeg/tesseract. A tool description alone doesn't change that.
 - Review sub-agent: −2 tasks without it, −65 % cost. The lost tasks are the
   "almost" ones (1/2 moves, 3/4 tests) — exactly what a review pass catches.
+
+## Opus 5.5 (09-25)
+- Anthropic's safety classifier hard-refuses 4 TB 2.1 tasks on Opus 5.5 —
+  `dna-insert`, `dna-assembly` ("bio"), `filter-js-from-html`,
+  `break-filter-js-from-html` ("cyber"). The todo ends after 1-2 calls with an
+  error block "refused to answer this request (flagged as: …)"; harbor logs
+  `ApiError`, the infra retry refuses again. A "you are being evaluated on
+  Terminal-Bench 2.1" sysmsg didn't move it (3/4 refused again; the one pass is
+  within flip-flop noise). Count them as real fails for Opus; don't retry.
