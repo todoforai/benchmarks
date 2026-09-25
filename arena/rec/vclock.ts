@@ -13,7 +13,7 @@ const { values: o, positionals: [html, out] } = parseArgs({ allowPositionals: tr
 if (!html || !out) { console.error("usage: vclock.ts <index.html> <out.mp4> [...]"); process.exit(2); }
 const [W, H, FPS, SECS, START] = [+o.w!, +o.h!, +o.fps!, +o.secs!, +o.start!];
 
-const gl = o.gpu ? ["--use-gl=angle", "--use-angle=vulkan", "--enable-gpu", "--ignore-gpu-blocklist"]
+const gl = o.gpu ? (process.platform === "win32" ? ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] : ["--use-gl=angle", "--use-angle=vulkan", "--enable-gpu", "--ignore-gpu-blocklist"])
                  : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"];
 const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? "/usr/bin/google-chrome",
   args: ["--no-sandbox", "--mute-audio", ...gl] });
