@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
-# Build compiled todoforai-cli + todoforai-edge binaries for terminal-bench Docker containers.
-# Uses `bun build --compile` so containers need no bun/npm/curl at runtime.
+# Build compiled todoforai-cli + todoforai-bridge binaries for terminal-bench
+# Docker containers. CLI via `bun build --compile`, bridge as a static musl
+# binary (`make static`, needs zig) so it runs in any task image.
 #
 # Usage: ./scripts/rebuild_binaries.sh
 
@@ -13,20 +14,20 @@ DIST_DIR="$PROJECT_DIR/todoforai_tbench/dist"
 
 MONOREPO_DIR="$(cd "$PROJECT_DIR/../.." && pwd)"
 CLI_DIR="${CLI_DIR:-$MONOREPO_DIR/cli}"
-EDGE_DIR="${EDGE_DIR:-$MONOREPO_DIR/edge/bun}"
+BRIDGE_DIR="${BRIDGE_DIR:-$MONOREPO_DIR/bridge}"
 
 echo "=== Building compiled binaries ==="
 echo "  cli:    $CLI_DIR"
-echo "  edge:   $EDGE_DIR"
+echo "  bridge: $BRIDGE_DIR"
 echo "  output: $DIST_DIR"
 echo ""
 
 mkdir -p "$DIST_DIR"
 
-cd "$EDGE_DIR"
-bun install --silent
-bun build src/index.ts --compile --outfile "$DIST_DIR/todoforai-edge"
-echo "  -> $DIST_DIR/todoforai-edge ($(du -sh "$DIST_DIR/todoforai-edge" | cut -f1))"
+cd "$BRIDGE_DIR"
+make -s static
+cp build/todoforai-bridge-static "$DIST_DIR/todoforai-bridge"
+echo "  -> $DIST_DIR/todoforai-bridge ($(du -sh "$DIST_DIR/todoforai-bridge" | cut -f1))"
 
 cd "$CLI_DIR"
 bun install --silent
@@ -35,4 +36,4 @@ echo "  -> $DIST_DIR/todoforai-cli ($(du -sh "$DIST_DIR/todoforai-cli" | cut -f1
 
 echo ""
 echo "=== Done ==="
-ls -lh "$DIST_DIR"/todoforai-cli "$DIST_DIR"/todoforai-edge
+ls -lh "$DIST_DIR"/todoforai-cli "$DIST_DIR"/todoforai-bridge
