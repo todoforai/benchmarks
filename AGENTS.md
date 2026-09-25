@@ -31,8 +31,9 @@ scripts/run_batches.sh P B C [start-batch]  # sweep; resume with the printed cmd
 scripts/progress.sh                         # infra damage vs real fails
 scripts/failed_tasks.sh                     # rerun candidates
 ```
-Keys: `TODOFORAI_API_KEYS_FILE` (default `dev_api_keys.txt`, `<key> <email>`, header
-`x-api-key`), one per concurrent container. Never commit keys or run artifacts
+Key: ONE account runs every trial (`--isolated` mayfly bridges are todo-scoped):
+`TODOFORAI_API_KEY` or first line of `dev_api_keys.txt` (`<key> <email>`, header
+`x-api-key`). Its `app` agent is the bench config. Never commit keys or run artifacts
 (`runs/`, `logs/`, `*.json` are gitignored).
 
 Prompt size: per-call cost is `runMeta.extras.contextTokens` on the first assistant

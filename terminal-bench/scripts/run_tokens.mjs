@@ -64,19 +64,14 @@ for (const job of readdirSync(join(root, 'jobs'), { withFileTypes: true })
   }
 }
 
-const keys = readFileSync(join(root, 'dev_api_keys.txt'), 'utf8')
-  .split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
-  .map(l => l.split(/\s+/)[0]);
+const key = process.env.TODOFORAI_API_KEY || readFileSync(join(root, 'dev_api_keys.txt'), 'utf8')
+  .split('\n').map(l => l.trim()).find(l => l && !l.startsWith('#'))?.split(/\s+/)[0];
 
-// Each todo belongs to one of the dev accounts; try keys until one is allowed.
+// Old sweeps (before 0cda60a) spread todos over 6 accounts; those are unreachable now.
 const getMessages = async (todoId) => {
-  for (const key of keys) {
-    const r = await fetch(`${BASE}/api/v1/todos/${todoId}/messages?limit=500`, { headers: { 'x-api-key': key } });
-    if (!r.ok) continue;
-    const j = await r.json();
-    if (j.messages) return j.messages;
-  }
-  return null;
+  const r = await fetch(`${BASE}/api/v1/todos/${todoId}/messages?limit=500`, { headers: { 'x-api-key': key } });
+  if (!r.ok) return null;
+  return (await r.json()).messages ?? null;
 };
 
 const byModel = new Map();

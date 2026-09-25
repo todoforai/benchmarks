@@ -31,23 +31,18 @@ from harbor.models.agent.context import AgentContext
 
 
 def _api_key() -> str:
-    """Single key: mayfly sessions are todo-scoped, so parallel trials no longer
-    need distinct accounts. TODOFORAI_API_KEY > first key in
-    TODOFORAI_API_KEYS/-_FILE (backwards compat) > checked-in dev_api_keys.txt
+    """One account for every trial: mayfly sessions are todo-scoped, so parallel
+    trials don't collide. TODOFORAI_API_KEY > first key in dev_api_keys.txt
     (Harbor 0.22 runs trials without inheriting the launching shell's env)."""
-    single = os.environ.get("TODOFORAI_API_KEY", "").strip()
-    if single:
-        return single
-    multi = os.environ.get("TODOFORAI_API_KEYS", "").strip()
-    if multi:
-        return multi.split(",")[0].strip()
-    for p in (os.environ.get("TODOFORAI_API_KEYS_FILE", "").strip(),
-              str(Path(__file__).resolve().parent.parent / "dev_api_keys.txt")):
-        if p and Path(p).is_file():
-            for line in Path(p).read_text().splitlines():
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    return line.split()[0]
+    key = os.environ.get("TODOFORAI_API_KEY", "").strip()
+    if key:
+        return key
+    f = Path(__file__).resolve().parent.parent / "dev_api_keys.txt"
+    if f.is_file():
+        for line in f.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                return line.split()[0]
     return ""
 
 
@@ -75,8 +70,8 @@ def preflight(agent_name: str = "app") -> None:
     key = _api_key()
     if not key:
         raise RuntimeError(
-            "No API key configured. Set TODOFORAI_API_KEY (or TODOFORAI_API_KEYS / "
-            "TODOFORAI_API_KEYS_FILE)."
+            "No API key configured. Set TODOFORAI_API_KEY or put `<key> <email>` "
+            "in dev_api_keys.txt."
         )
     print(f"[preflight] api_url={url}")
     req = urllib.request.Request(f"{url}/api/v1/agents", headers={"x-api-key": key})

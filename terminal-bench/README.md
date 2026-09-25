@@ -1,168 +1,50 @@
 # TODOforAI Terminal-Bench Adapter
 
-[Terminal-Bench](https://github.com/terminal-bench/terminal-bench) adapter for evaluating the TODOforAI agent in Docker containers.
+[Harbor](https://github.com/laude-institute/harbor) adapter that runs the TODOforAI agent on
+Terminal-Bench 2.1 (`terminal-bench/terminal-bench-2-1`). Read `LESSONS.md` before a sweep.
 
-## Quick Start
-
-### Harbor (Terminal-Bench 2.0)
-
-```bash
-# 1. Install the adapter (from this directory)
-pip install -e .
-
-# 2. Set up API keys (see "API Keys" section below)
-export TODOFORAI_API_KEYS="key1,key2,..."
-export TODOFORAI_API_URL="http://172.17.0.1:4000"  # local dev backend
-
-# 3. Run a benchmark
-harbor run -d "terminal-bench@2.0" \
-  --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
-  --task-id hello-world
-```
-
-### Legacy (`tb` CLI, terminal-bench-core 0.1.x)
+## Setup
 
 ```bash
-tb run --dataset "terminal-bench-core==0.1.1" \
-  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
-  --task-id hello-world \
-  --livestream
+pip install -e .                       # Python 3.10+, Docker
+echo "<api-key> <email>" > dev_api_keys.txt   # or export TODOFORAI_API_KEY
+scripts/check_tiers.sh                 # must be a paid tier (hobby is clamped to Sonnet)
 ```
 
-## Prerequisites
+One account runs every trial: `todoforai-cli --isolated` gives each trial its own
+todo-scoped mayfly bridge, so concurrent trials don't collide. The account needs an
+agent named `app` (the benchmark config: tool deny list, sysmsg — see the
+`terminal-bench-82` registry template); the model comes from harbor's `-m`.
 
-- Python 3.10+
-- Docker (tasks run in isolated containers)
-- `terminal-bench` CLI: `pip install terminal-bench`
-- A running TODOforAI backend (local dev or production)
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TODOFORAI_API_KEY` | first key in `dev_api_keys.txt` | Account key (`x-api-key` header) |
+| `TODOFORAI_API_URL` | `https://api.todofor.ai` | Backend (`http://172.17.0.1:4000` = host's local dev) |
 
-## API Keys
-
-Each Docker container needs its own API key. The adapter fails immediately with a clear error if no keys are configured.
-
-| Variable | Format | Description |
-|----------|--------|-------------|
-| `TODOFORAI_API_KEYS` | `key1,key2,key3` | Comma-separated pool for concurrent runs |
-| `TODOFORAI_API_KEYS_FILE` | `/path/to/keys.txt` | File with one key per line |
-| `TODOFORAI_API_KEY` | `single-key` | Single key (for serial runs only) |
-
-Priority: `TODOFORAI_API_KEYS` > `TODOFORAI_API_KEYS_FILE` > `TODOFORAI_API_KEY`
-
-You can also put these in a `.env` file in your working directory — it's auto-loaded.
-
-### Generating Dev Keys
-
-Run the dev account creation script against your local backend:
+## Running
 
 ```bash
-# Backend must be running (pm2 status → backend)
-./scripts/create_dev_accounts.sh
-
-# Or with a custom backend URL
-./scripts/create_dev_accounts.sh http://localhost:4000
+./run_single.sh terminal-bench/<task>          # one task, preflights the key + `app` agent
+TB_MODEL=anthropic:anthropic/claude-opus-5.5 \
+  scripts/run_batches.sh <prefix> 10 5         # full sweep: batches of 10, 5 concurrent
+scripts/progress.sh                            # infra damage vs real fails
+scripts/verify_model.sh jobs/<job>             # model that actually served each trial
 ```
 
-This creates accounts via the email OTP flow (OTPs are extracted from PM2 backend logs) and outputs a `TODOFORAI_API_KEYS` export command you can copy-paste.
+## Rebuilding dist
 
-Customize with env vars: `NUM_ACCOUNTS`, `EMAIL_PREFIX`, `EMAIL_DOMAIN`.
+`todoforai_tbench/dist/` holds compiled `todoforai-cli` / `todoforai-bridge` binaries
+copied into each container. After changing `cli` or `bridge`: `scripts/rebuild_binaries.sh`.
 
-## Configuration
+## How it works
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `TODOFORAI_API_KEYS` | Yes* | - | API key(s) — see above |
-| `TODOFORAI_API_URL` | No | production | API endpoint (use `http://172.17.0.1:4000` for local dev) |
-| `TODOFORAI_PROJECT_ID` | No | - | Specific project ID to use |
-
-*At least one of the three key variables must be set.
-
-Note: `172.17.0.1` is Docker's default host gateway — it lets containers reach your host's `localhost:4000`.
-
-## Running Benchmarks
-
-### Single task
-
-```bash
-tb run --dataset "terminal-bench-core==0.1.1" \
-  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
-  --task-id hello-world \
-  --livestream \
-  --output-path runs
-```
-
-### Concurrent tasks
-
-Match `--n-concurrent` to your number of API keys:
-
-```bash
-export TODOFORAI_API_KEYS="key1,key2,key3"
-
-tb run --dataset "terminal-bench-core==0.1.1" \
-  --agent-import-path "todoforai_tbench:TODOforAIAgent" \
-  --n-concurrent 3 \
-  --output-path runs
-```
-
-### Common flags
-
-| Flag | Description |
-|------|-------------|
-| `--task-id <id>` | Run a specific task (omit to run all) |
-| `--n-concurrent N` | Parallel containers (default 1) |
-| `--livestream` | Stream agent output in real-time |
-| `--output-path runs` | Save results to `runs/` directory |
-| `--global-test-timeout-sec N` | Override test timeout (default varies by task) |
-
-### Available tasks
-
-List tasks in the dataset:
-
-```bash
-tb list-tasks --dataset "terminal-bench-core==0.1.1"
-```
-
-## Rebuilding Dist
-
-The adapter ships pre-built JS bundles for `todoforai-cli` and `todoforai-edge` in `todoforai_tbench/dist/`. These are copied into Docker containers during task setup.
-
-After modifying either package, rebuild:
-
-```bash
-./scripts/rebuild_wheels.sh
-```
-
-This bundles from the monorepo source (`../../cli` and `../../edge/bun`) and places them in `todoforai_tbench/dist/`.
-
-Override source paths with `CLI_DIR` and `EDGE_DIR` env vars.
-
-## How It Works
-
-1. Terminal-bench spins up a Docker container for each task
-2. The adapter copies dist files into the container and runs `install.sh`
-3. `install.sh` installs bun, then installs `todoforai-cli` and `todoforai-edge` (from dist or npm)
-4. `todoforai-edge --path /app` is started in the background
-5. The task instruction is piped into `todoforai-cli --non-interactive --allow-all`
-6. `todoforai-cli` creates a TODO and streams output; the edge executes blocks inside the container
-7. Terminal-bench runs pytest to verify the task was completed correctly
-
-## Troubleshooting
-
-**"No TODOforAI API keys configured"** — Set one of the key environment variables. See "API Keys" above.
-
-**401 UNAUTHORIZED inside container** — Your API key is invalid or expired. Regenerate dev keys with `./scripts/create_dev_accounts.sh`.
-
-**"No tasks found matching pattern"** — Make sure you include the dataset version: `--dataset "terminal-bench-core==0.1.1"` (not just `terminal-bench-core`).
-
-**Agent only runs one turn** — Complex tasks may need multiple LLM turns. The CLI's idle timeout is 60s; if the backend doesn't produce a second turn within that window, the CLI exits. This is typically a backend/agent-side issue.
-
-**Dist changes not taking effect** — Run `./scripts/rebuild_wheels.sh` after modifying `cli` or `edge`. The bundles in `todoforai_tbench/dist/` are what gets installed in containers.
+1. Harbor starts a Docker container per task; the adapter uploads `dist/` and runs `install-todoforai.sh.j2`.
+2. The instruction is piped into `todoforai-cli --isolated --non-interactive --allow-all --agent app`.
+3. The CLI mints a mayfly bridge inside the container; the agent's tool calls run there.
+4. Harbor runs the task's tests and writes `verifier/reward.txt`.
 
 ## Development
 
 ```bash
-# Install with dev dependencies
-pip install -e ".[dev]"
-
-# Run tests
-pytest
+pip install -e ".[dev]" && pytest
 ```

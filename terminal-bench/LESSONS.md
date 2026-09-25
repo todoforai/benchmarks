@@ -10,8 +10,8 @@ echoes the model you asked for. A whole batch ran on the wrong model and only
 wall-clock regression (211s -> 1266s on the same task) exposed it.
 - Before a run: `scripts/check_tiers.sh` — every account must be a paid tier.
 - After a run: `scripts/verify_model.sh <job>` — reads the dispatched model
-  from assistant message metadata, the only honest signal. It must try every
-  pool key: a todo is only readable by the account that owns it.
+  from assistant message metadata, the only honest signal. A todo is only
+  readable by the account that owns it (pre-0cda60a sweeps used 6 accounts).
 
 ## 2. Backend deploys kill in-flight trials — and the damage is asymmetric
 A deploy closes edge WebSockets (1012 "Server restarting" / 1013). In batch 1

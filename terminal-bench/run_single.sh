@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 cd "$(dirname "$0")"
-: "${TODOFORAI_API_KEYS_FILE:=$PWD/dev_api_keys.txt}"
-export TODOFORAI_API_KEYS_FILE
 TASK="${1:-terminal-bench/adaptive-rejection-sampler}"
 JOB="${2:-gpt-5.5-xhigh__$(date +%Y-%m-%d__%H-%M-%S)}"
 echo "JOB=$JOB TASK=$TASK"

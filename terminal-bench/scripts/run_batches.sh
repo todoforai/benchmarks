@@ -24,7 +24,6 @@ TASKS_FILE="${TASKS_FILE:-tasks_all.txt}"
 MODEL="${TB_MODEL:-openai:openai/gpt-5.6-sol}"
 # Allow an out-of-tree venv (e.g. WSL native, when the repo lives on /mnt/c).
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
-export TODOFORAI_API_KEYS_FILE="$PWD/dev_api_keys.txt"
 
 mapfile -t TASKS < <(grep -v '^\s*$' "$TASKS_FILE")
 TOTAL=${#TASKS[@]}

@@ -10,7 +10,6 @@ PREFIX="${2:-smoke}"
 MODEL="${TB_MODEL:-openai:openai/gpt-5.6-sol}"
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
 JOB="${PREFIX}__$(date '+%F__%H-%M-%S')"
-export TODOFORAI_API_KEYS_FILE="$PWD/dev_api_keys.txt"
 
 echo "task=$TASK model=$MODEL job=$JOB"
 docker ps -q | xargs -r docker rm -f >/dev/null 2>&1
