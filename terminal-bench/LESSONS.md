@@ -102,3 +102,17 @@ backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
   `ApiError`, the infra retry refuses again. A "you are being evaluated on
   Terminal-Bench 2.1" sysmsg didn't move it (3/4 refused again; the one pass is
   within flip-flop noise). Count them as real fails for Opus; don't retry.
+
+## Concurrency (09-25, `scripts/bench_concurrency.sh`, 20 fast Sol tasks)
+| -n | wall | pass | peak RAM | peak load |
+|---|---|---|---|---|
+| 5 | 1286 s (one 984 s timeout outlier) | 19/20 | 2 GB | 1.9 |
+| 10 | 291 s | 19/20 | 3 GB | 2.4 |
+| 20 | 227 s | 19/20 | 3 GB | 4.4 |
+No 429s, no infra errors, per-trial agent time flat (~77 s) from 10 to 20: the
+backend and one account don't limit at 20. Wall time is set by the slowest
+task, so one harbor call over all tasks beats batches. Host (64 threads,
+62 GB) is idle at 20. Launch detached as a `systemd-run --user` unit
+(linger on) while a `wsl.exe -- sleep infinity` holds the VM — Avast blocked
+the schtasks keepalive after a reboot, and the distro stops with the last
+wsl.exe.
