@@ -1,0 +1,5 @@
+Generate a realistic 3D render of a futuristic cyberpunk city run by super-advanced AI, in a single index.html with three.js. The camera should move slowly on its own to show it off.
+
+Target the quality of a high-end cinematic game environment or a commercial CGI campaign. Use the strongest rendering techniques you can within a real-time budget, and match the real complexity of a city: irregularity, material variation, fine detail, imperfections. Get the geometry right first, with no visual artifacts. Make your own artistic choices for composition, lighting, camera, palette and motion so the scene is compelling.
+
+Before finishing, look at the rendered result critically against professional references and fix the biggest issues.

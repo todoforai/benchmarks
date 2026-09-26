@@ -25,7 +25,7 @@ BUN=$(command -v bun || true); [ -n "$BUN" ] && binds+=(--ro-bind "$(readlink -f
 exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/bin /bin --symlink usr/sbin /sbin \
   --proc /proc --dev /dev --tmpfs /tmp --tmpfs /run --tmpfs /var --tmpfs /home \
-  "${binds[@]}" --ro-bind-try /run/systemd/resolve /run/systemd/resolve \
+  "${binds[@]}" --ro-bind-try /run/systemd/resolve /run/systemd/resolve --ro-bind-try /mnt/wsl /mnt/wsl \
   --dir /tmp/home --dir /tbin --bind "$W" /work --bind "$W" /tmp/todoforai --ro-bind "$DIST" /tfa --ro-bind "$PWD/rec" /rec --chdir /work \
   --unshare-pid --unshare-uts --unshare-ipc --die-with-parent --new-session \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \
