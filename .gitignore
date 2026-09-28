@@ -45,3 +45,6 @@ online-mind2web/data/
 # Terminal bench runs and logs
 terminal-bench/runs/
 terminal-bench/logs/
+
+# Terminal-Bench run artifacts (archive a run explicitly with git add -f)
+terminal-bench/jobs/
