@@ -116,3 +116,19 @@ task, so one harbor call over all tasks beats batches. Host (64 threads,
 (linger on) while a `wsl.exe -- sleep infinity` holds the VM — Avast blocked
 the schtasks keepalive after a reboot, and the distro stops with the last
 wsl.exe.
+
+## Wall-time anatomy (09-29, `RESULTS_long_runs_0929.md`)
+- Measure from the backend, not the harness: `GET /api/v1/todos/<id>/messages` (page with
+  `?before=<oldestMsgId>` while `hasMore`) — `runMeta(_ai).elapsed` = LLM call ending at
+  `runMeta.timestamp`; tool end = result attachment `createdAt`; output text via
+  `/api/v1/resources/?uri=todoforai:todos/<id>/<att>`. Bench todos: project list
+  `/api/v1/projects/<pid>/todos?limit=500&cursor=…`.
+- The backend clamps every bash `timeout` to **600 s** (`AgentHandler.ts` bridge_exec) and the
+  model is not told; 60 calls in the 0926 sweep asked for 900-3600 s. Before fc53f37f such
+  runs ended as `TIMEOUT: bridge sent no result` at 605 s with the output lost (8 ks / 16 % of
+  long-trial time). After it: `[detached]` at ~600 s.
+- A command waiting on a tty prompt (`awaitingInput=true`) still sits until its full
+  `timeout`; tzdata cost ~300 s per polyglot trial (413-498 s → 71 s with DEBIAN_FRONTEND).
+- Backend/bridge overhead between turns is ~1.4 s median (2 %) — never the bottleneck.
+- `high` and `xhigh` have the same per-turn cost on Opus 5.5 (~32 s, ~3 k tokens); long
+  trials are either LLM-bound (few 100-580 s thinking turns) or tool-bound, not both.
