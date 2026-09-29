@@ -193,6 +193,10 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                     f'printf "%s" "${instr_var}" | '
                     # Workspace = the image's WORKDIR (harbor execs there); 119/120
                     # tasks use /app, prove-plus-comm uses /workspace.
+                    # The bridge (and every agent PTY) inherits the CLI's env;
+                    # its /bin/sh reads neither /etc/environment nor .bashrc,
+                    # so setup()'s DEBIAN_FRONTEND only takes effect here.
+                    "DEBIAN_FRONTEND=noninteractive "
                     'todoforai-cli --isolated --non-interactive --allow-all --path "$PWD"'
                     f"{cli_flags} 2>&1 | tee /logs/agent/todoforai-cli.txt"
                 ),
