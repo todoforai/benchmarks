@@ -84,6 +84,16 @@ def _cpu_limit_prefix(cpus) -> tuple[str, str]:
     return f"OMP_NUM_THREADS={n} ", pin
 
 
+_ENSURE_CURL = (
+    "command -v curl >/dev/null 2>&1 || ! command -v apt-get >/dev/null 2>&1 || { "
+    "apt-get update -qq >/dev/null 2>&1; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl >/dev/null 2>&1 || { "
+    "S=/tmp/tfa-nosec.list; cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null | grep -v -- -security > $S; "
+    "O='-o Dir::Etc::SourceList='$S' -o Dir::Etc::SourceParts=/dev/null'; "
+    "apt-get $O update -qq >/dev/null 2>&1; DEBIAN_FRONTEND=noninteractive apt-get $O install -y -qq curl >/dev/null 2>&1; }; }; "
+    "true"
+)
+
+
 def preflight(agent_name: str = "app") -> None:
     """Validate the credential before the first container starts.
 
@@ -246,3 +256,8 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                 ),
                 user="root",
             )
+            # Verifier prerequisite, after the agent (agent's env untouched): the
+            # qemu-* test.sh `apt-get install curl` pulls bullseye-security debs
+            # the mirror has dropped (404) -> no curl -> no uvx -> reward 0 no
+            # matter what the agent did. Install curl skipping -security.
+            await environment.exec(command=_ENSURE_CURL, user="root")
