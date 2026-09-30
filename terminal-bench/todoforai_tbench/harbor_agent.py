@@ -57,6 +57,33 @@ def _api_url() -> str:
     return os.environ.get("TODOFORAI_API_URL", "").strip() or "https://api.todofor.ai"
 
 
+def _cpu_limit_prefix(cpus) -> tuple[str, str]:
+    """Make the task's CPU limit visible inside the container, no prompt change.
+
+    harbor sets only a docker CPU *quota* (task.toml `cpus`, 1 for 83/89 tasks),
+    so `nproc` still reports every host core (64): the model ran
+    `xargs -P $(nproc)` = 64 tesseracts on 1 CPU (extract-moves 0928).
+    `taskset` makes nproc / make -j$(nproc) / xargs -P see N; OMP_NUM_THREADS
+    caps OpenMP libs (tesseract, numpy). The cores are a random window so
+    concurrent trials don't all land on core 0; the quota still does the limiting.
+    Returns (env prefix for the CLI, shell snippet setting $TFA_PIN).
+    """
+    try:
+        n = int(cpus)
+    except (TypeError, ValueError):
+        return "", ""
+    if n < 1:
+        return "", ""
+    pin = (
+        "TFA_PIN=; if command -v taskset >/dev/null 2>&1; then "
+        "T=$(nproc); S=$(( $(od -An -N2 -tu2 /dev/urandom) % T )); L=; i=0; "
+        f"while [ $i -lt {n} ] && [ $i -lt $T ]; do L=$L${{L:+,}}$(( (S + i) % T )); i=$((i + 1)); done; "
+        'TFA_PIN="taskset -c $L"; fi; '
+        f'echo "cpus={n} pin=$TFA_PIN" > /logs/agent/cpus.txt; '
+    )
+    return f"OMP_NUM_THREADS={n} ", pin
+
+
 def preflight(agent_name: str = "app") -> None:
     """Validate the credential before the first container starts.
 
@@ -183,11 +210,13 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
             secret_env["TODOFORAI_API_TOKEN"] = api_key
         if api_url:
             secret_env["TODOFORAI_API_URL"] = api_url
+        cpu_env, cpu_pin = _cpu_limit_prefix(getattr(getattr(environment, "task_env_config", None), "cpus", None))
         try:
             await self.exec_as_agent(
                 environment,
                 command=(
                     "mkdir -p /logs/agent && "
+                    f"{cpu_pin}"
                     # Diagnostic: record whether the secret env arrived (lengths only).
                     'echo "token_len=${#TODOFORAI_API_TOKEN} url=$TODOFORAI_API_URL" > /logs/agent/envcheck.txt && '
                     f'printf "%s" "${instr_var}" | '
@@ -197,7 +226,8 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                     # its /bin/sh reads neither /etc/environment nor .bashrc,
                     # so setup()'s DEBIAN_FRONTEND only takes effect here.
                     "DEBIAN_FRONTEND=noninteractive "
-                    'todoforai-cli --isolated --non-interactive --allow-all --path "$PWD"'
+                    f"{cpu_env}"
+                    '$TFA_PIN todoforai-cli --isolated --non-interactive --allow-all --path "$PWD"'
                     f"{cli_flags} 2>&1 | tee /logs/agent/todoforai-cli.txt"
                 ),
                 env=secret_env,
