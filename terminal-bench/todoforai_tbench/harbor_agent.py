@@ -84,13 +84,11 @@ def _cpu_limit_prefix(cpus) -> tuple[str, str]:
     return f"OMP_NUM_THREADS={n} ", pin
 
 
-_ENSURE_CURL = (
-    "command -v curl >/dev/null 2>&1 || ! command -v apt-get >/dev/null 2>&1 || { "
-    "apt-get update -qq >/dev/null 2>&1; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl >/dev/null 2>&1 || { "
-    "S=/tmp/tfa-nosec.list; cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null | grep -v -- -security > $S; "
-    "O='-o Dir::Etc::SourceList='$S' -o Dir::Etc::SourceParts=/dev/null'; "
-    "apt-get $O update -qq >/dev/null 2>&1; DEBIAN_FRONTEND=noninteractive apt-get $O install -y -qq curl >/dev/null 2>&1; }; }; "
-    "true"
+# bullseye (EOL) -security pool drops superseded debs (404) while its index
+# still lists them, so any `apt-get install` pulling a security update fails.
+_DROP_EOL_SECURITY = (
+    "sed -i '/bullseye-security/s/^deb /# deb /' /etc/apt/sources.list "
+    "$(ls /etc/apt/sources.list.d/*.list 2>/dev/null) 2>/dev/null; true"
 )
 
 
@@ -257,7 +255,7 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                 user="root",
             )
             # Verifier prerequisite, after the agent (agent's env untouched): the
-            # qemu-* test.sh `apt-get install curl` pulls bullseye-security debs
-            # the mirror has dropped (404) -> no curl -> no uvx -> reward 0 no
-            # matter what the agent did. Install curl skipping -security.
-            await environment.exec(command=_ENSURE_CURL, user="root")
+            # qemu-* test.sh (debian:bullseye-slim) `apt-get install curl sshpass
+            # expect` hits 404'd -security debs -> no curl/uvx/sshpass -> reward 0
+            # no matter what the agent did (all Opus 5.5 qemu runs, 09-25..30).
+            await environment.exec(command=_DROP_EOL_SECURITY, user="root")
