@@ -29,6 +29,7 @@ const PRICES = {
     promo: { in: 2, out: 10, cacheRead: 0.2, cacheWrite: 2.5 },
   },
   'anthropic:anthropic/claude-opus-5':   { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },
+  'anthropic:anthropic/claude-opus-5.5': { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },   // same list price as opus-5
   'anthropic:anthropic/claude-haiku-4.5': { list: { in: 1, out: 5,  cacheRead: 0.1, cacheWrite: 1.25 } },
 };
 const tierOf = (p) => p.promo || p.list;   // what this run would actually be charged
