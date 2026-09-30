@@ -45,6 +45,11 @@ The distro shuts down after ~5 min without an active wsl.exe process, killing
 everything. `.wslconfig vmIdleTimeout=-1` does NOT cover the distro. Fix:
 launch via Scheduled Tasks (schtasks) so the process tree is independent, plus
 a keepalive task.
+Agent-driven variant (09-30): `systemd-run --user` alone dies ~20 s after the
+launching `wsl.exe` returns (user manager hits exit.target). Keep a
+`wsl.exe -d Ubuntu -- sleep infinity` alive as a *detached agent-shell process*;
+PowerShell `Start-Process -WindowStyle Hidden wsl.exe ...` did not survive, and
+the keepalive dies with the pc_2 bridge (BRIDGE_OFFLINE -> job killed).
 
 ## 7. Retry infra errors, never agent outcomes
 Harbor default is max_retries=0, so a provider stall (backend gives a stall 2
@@ -102,6 +107,24 @@ backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
   `ApiError`, the infra retry refuses again. A "you are being evaluated on
   Terminal-Bench 2.1" sysmsg didn't move it (3/4 refused again; the one pass is
   within flip-flop noise). Count them as real fails for Opus; don't retry.
+- The 0926 full sweep added 4 more (1 attempt each): `protein-assembly` ("bio"),
+  `crack-7z-hash`, `password-recovery`, `vulnerable-secret` ("cyber") → 8 refused
+  tasks in total. `ApiError` in `result.json` looks like infra; check the todo's
+  messages for "flagged as" before queuing an infra retry.
+
+## Verifier / container traps (09-30)
+- **Read `verifier/test-stdout.txt` before calling a 0 a model fail.** qemu-startup
+  and qemu-alpine-ssh (debian:bullseye-slim) failed on every Opus 5.5 run because
+  test.sh's `apt-get install curl ...` 404s on the EOL bullseye-security pool
+  (index still lists debs the pool dropped) → no curl/uvx → reward 0; the agent had
+  solved both. Harness now comments out bullseye-security after the agent run
+  (fa3234d). All other tasks are ubuntu:24.04 / bookworm / trixie.
+- **`nproc` lies in harbor containers.** task.toml `cpus` (1 for 83/89 tasks) is
+  only a docker CPU quota; `nproc` still says 64. extract-moves 0928 ran
+  `xargs -P $(nproc)` = 64 tesseracts on 1 CPU. Harness now runs the CLI under
+  `taskset` on a random N-core window + `OMP_NUM_THREADS=N` (695e674, logged in
+  `/logs/agent/cpus.txt`); getconf / os.cpu_count() still say 64. The rerun didn't
+  thrash but still timed out: 951 OCR frames don't fit 1 CPU × 1800 s.
 
 ## Concurrency (09-25, `scripts/bench_concurrency.sh`, 20 fast Sol tasks)
 | -n | wall | pass | peak RAM | peak load |
