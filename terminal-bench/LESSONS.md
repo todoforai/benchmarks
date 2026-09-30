@@ -106,7 +106,8 @@ backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
   error block "refused to answer this request (flagged as: …)"; harbor logs
   `ApiError`, the infra retry refuses again. A "you are being evaluated on
   Terminal-Bench 2.1" sysmsg didn't move it (3/4 refused again; the one pass is
-  within flip-flop noise). Count them as real fails for Opus; don't retry.
+  within flip-flop noise). Don't retry; exclude them from the score (09-30 decision: report X/81, raw /89
+  only as a footnote, and compare other models on the same 81).
 - The 0926 full sweep added 4 more (1 attempt each): `protein-assembly` ("bio"),
   `crack-7z-hash`, `password-recovery`, `vulnerable-secret` ("cyber") → 8 refused
   tasks in total. `ApiError` in `result.json` looks like infra; check the todo's

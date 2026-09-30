@@ -1,6 +1,8 @@
 # Terminal-Bench 2.1 — claude-opus-5.5, 2026-09-26/30
 
-FINAL: 77/89 = 86.5%  (last attempt per task)
+FINAL: 77/81 = 95.1%  (last attempt per task; the 8 safety-classifier refusals are
+not counted — Opus is not allowed to attempt them). Raw over all 89: 77/89 = 86.5%.
+Same 81 tasks for Sol xhigh (`RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md`): 67/81 = 82.7%.
 
 Sweep: `claude-opus-5.5-full__0926` (xhigh, 89 tasks), then reruns:
 `high-timeouts__0928` (high, 6 timed-out tasks), `polyglot-debfe__0929`
@@ -11,9 +13,10 @@ Sweep: `claude-opus-5.5-full__0926` (xhigh, 89 tasks), then reruns:
 Same harness as the Sol 82.0% result (`RESULTS_tb2-clean-win_gpt-5.6-sol-xhigh.md`):
 bash + read + webfetch, `--isolated` mayfly bridge, no review sub-agent.
 
-## Failures (12)
+## Not counted: refusals (8), fails (4)
 **Safety-classifier refusals — 8** (Anthropic flags the task, todo stops after 1-2
-calls, harbor records `ApiError`). Not retried: they refuse again (LESSONS.md).
+calls, harbor records `ApiError`). Excluded from the score; not retried: they refuse
+again (LESSONS.md).
 | task | flag |
 |---|---|
 | dna-assembly, dna-insert, protein-assembly | bio |
@@ -33,7 +36,6 @@ bullseye-security pool → no curl/uvx/sshpass → reward 0 regardless of the ag
 every Opus 5.5 run (09-25..30). The agent had solved both. With the harness fix
 (fa3234d: drop bullseye-security after the agent, before the verifier) both pass.
 
-Excluding refusals: 77/81 = 95.1% of the tasks Opus 5.5 is allowed to attempt.
 
 ## Cost
 List price = opus-5 ($5 in / $25 out / $0.5 cacheRead / $6.25 cacheWrite per 1M),
