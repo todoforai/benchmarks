@@ -21,7 +21,7 @@ START_BATCH="${4:-1}"
 TASKS_FILE="${TASKS_FILE:-tasks_all.txt}"
 # The model belongs in the harbor invocation, so a job is fully described by its
 # command instead of by mutable per-account state.
-MODEL="${TB_MODEL:-openai:openai/gpt-5.6-sol}"
+MODEL="${TB_MODEL:-anthropic:anthropic/claude-opus-5.5}"
 # Allow an out-of-tree venv (e.g. WSL native, when the repo lives on /mnt/c).
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
 DATASET="${TB_DATASET:-terminal-bench/terminal-bench-2-1}"  # TB4: terminal-bench/terminal-bench@4.0.0
