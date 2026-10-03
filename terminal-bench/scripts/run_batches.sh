@@ -24,6 +24,7 @@ TASKS_FILE="${TASKS_FILE:-tasks_all.txt}"
 MODEL="${TB_MODEL:-openai:openai/gpt-5.6-sol}"
 # Allow an out-of-tree venv (e.g. WSL native, when the repo lives on /mnt/c).
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
+DATASET="${TB_DATASET:-terminal-bench/terminal-bench-2-1}"  # TB4: terminal-bench/terminal-bench@4.0.0
 
 mapfile -t TASKS < <(grep -v '^\s*$' "$TASKS_FILE")
 TOTAL=${#TASKS[@]}
@@ -58,7 +59,7 @@ while [ $i -lt $TOTAL ]; do
   # (AgentTimeoutError etc.) stay excluded by harbor's default list, so
   # retries never inflate the score -- they only remove provider noise.
   "$HARBOR" run \
-    -d "terminal-bench/terminal-bench-2-1" \
+    -d "$DATASET" \
     --agent-import-path "todoforai_tbench:TODOforAIHarborAgent" \
     -m "$MODEL" \
     "${ARGS[@]}" \
