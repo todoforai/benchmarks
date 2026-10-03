@@ -19,11 +19,13 @@ from pathlib import Path
 
 from harbor.agents.installed.base import (
     AgentAuthenticationError,
+    AgentSafetyRefusalError,
     ApiError,
     BaseInstalledAgent,
     ErrorPattern,
     ModelNotFoundError,
     NetworkConnectionError,
+    NonZeroAgentExitCodeError,
     with_prompt_template,
 )
 from harbor.environments.base import BaseEnvironment
@@ -128,6 +130,41 @@ def preflight(agent_name: str = "app") -> None:
     print(f"[preflight]   {key[:6]}… ok  agent={agent_name} model={match.get('model')}")
 
 
+_REFUSAL_RE = r"refused to answer this request|flagged as: cyber"
+
+
+def _refusal_reason(cli_log: Path) -> str | None:
+    """The todo's error-block text if the run ended in a model refusal.
+
+    The CLI prints only `Stopped: ERROR`; the refusal ("`claude-opus-5-5`
+    refused to answer this request (flagged as: cyber)") lives in the todo's
+    last assistant message. Without this it classified as ApiError and was
+    retried as infra (kv-live-surgery, TB4 mini sweep 2026-10-03).
+    """
+    import re
+    import urllib.request
+
+    try:
+        m = re.search(r"todofor\.ai/t/([0-9a-f-]{36})", cli_log.read_text(errors="replace"))
+        if not m:
+            return None
+        req = urllib.request.Request(
+            f"{_api_url()}/api/v1/todos/{m.group(1)}/messages",
+            headers={"x-api-key": _api_key()},
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            msgs = json.loads(resp.read())
+        msgs = msgs if isinstance(msgs, list) else msgs.get("messages", [])
+        last = next((x for x in reversed(msgs) if x.get("role") == "assistant"), {})
+        for block in last.get("blocks") or []:
+            err = block.get("error_message") or ""
+            if block.get("type") == "error" and re.search(_REFUSAL_RE, err, re.I):
+                return err
+    except Exception:
+        return None
+    return None
+
+
 class TODOforAIHarborAgent(BaseInstalledAgent):
     # Our failure surface. Without these, an infra failure (dead LLM auth, bad
     # API key, missing agent) is recorded as reward 0.0 with 0 exceptions —
@@ -152,6 +189,10 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         ErrorPattern(r"WebSocket (closed|disconnected)", NetworkConnectionError),
         # The todo ended in a non-success terminal state.
         ErrorPattern(r"Stopped: ERROR", ApiError),
+        # Provider safety refusal = model outcome, not infra -> never retried
+        # (--retry-include matches exact type names). The CLI itself prints only
+        # "Stopped: ERROR"; run() upgrades via _refusal_reason().
+        ErrorPattern(_REFUSAL_RE, AgentSafetyRefusalError),
     ]
 
     @staticmethod
@@ -240,6 +281,12 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
                 ),
                 env=secret_env,
             )
+        except NonZeroAgentExitCodeError as exc:
+            if not isinstance(exc, AgentSafetyRefusalError):
+                reason = _refusal_reason(Path(self.logs_dir) / "todoforai-cli.txt")
+                if reason:
+                    raise AgentSafetyRefusalError(f"{reason}\n{exc}") from exc
+            raise
         finally:
             # Kill leftovers (bridge if the CLI died hard, background apt from the
             # agent) so they don't hold the dpkg lock or linger into the next
