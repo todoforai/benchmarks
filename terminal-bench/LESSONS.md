@@ -160,3 +160,6 @@ wsl.exe.
 - Backend/bridge overhead between turns is ~1.4 s median (2 %) — never the bottleneck.
 - `high` and `xhigh` have the same per-turn cost on Opus 5.5 (~32 s, ~3 k tokens); long
   trials are either LLM-bound (few 100-580 s thinking turns) or tool-bound, not both.
+
+- No default model in scripts (`TB_MODEL` required). A leftover gpt-5.6-sol default ran a
+  TB4 mini sweep on the wrong model for 40 min (2026-10-03); copy the model from the last job.

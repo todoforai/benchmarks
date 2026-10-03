@@ -7,7 +7,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 TASKS_FILE="${1:?tasks file}"; PREFIX="${2:?prefix}"; shift 2
-MODEL="${TB_MODEL:-anthropic:anthropic/claude-opus-5.5}"
+MODEL="${TB_MODEL:?set TB_MODEL, e.g. anthropic:anthropic/claude-opus-5.5 (no default: a silent default once ran the wrong model)}"
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
 mapfile -t TASKS < <(grep -v '^\s*$' "$TASKS_FILE")
 ARGS=(); for t in "${TASKS[@]}"; do ARGS+=(-i "terminal-bench/$t"); done

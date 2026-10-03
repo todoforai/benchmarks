@@ -7,7 +7,7 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 TASK="${1:-openssl-selfsigned-cert}"
 PREFIX="${2:-smoke}"
-MODEL="${TB_MODEL:-anthropic:anthropic/claude-opus-5.5}"
+MODEL="${TB_MODEL:?set TB_MODEL, e.g. anthropic:anthropic/claude-opus-5.5 (no default: a silent default once ran the wrong model)}"
 HARBOR="${HARBOR_BIN:-$PWD/.venv/bin/harbor}"
 JOB="${PREFIX}__$(date '+%F__%H-%M-%S')"
 
