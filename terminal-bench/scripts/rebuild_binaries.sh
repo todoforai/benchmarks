@@ -24,10 +24,14 @@ echo ""
 
 mkdir -p "$DIST_DIR"
 
-cd "$BRIDGE_DIR"
-make -s static
-cp build/todoforai-bridge-static "$DIST_DIR/todoforai-bridge"
-echo "  -> $DIST_DIR/todoforai-bridge ($(du -sh "$DIST_DIR/todoforai-bridge" | cut -f1))"
+if [ -n "${SKIP_BRIDGE:-}" ]; then
+  echo "  (SKIP_BRIDGE set: keeping existing $DIST_DIR/todoforai-bridge)"
+else
+  cd "$BRIDGE_DIR"
+  make -s static
+  cp build/todoforai-bridge-static "$DIST_DIR/todoforai-bridge"
+  echo "  -> $DIST_DIR/todoforai-bridge ($(du -sh "$DIST_DIR/todoforai-bridge" | cut -f1))"
+fi
 
 cd "$CLI_DIR"
 bun install --silent
