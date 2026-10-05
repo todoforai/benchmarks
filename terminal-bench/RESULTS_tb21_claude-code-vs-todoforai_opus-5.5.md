@@ -59,7 +59,38 @@ Opus 4.8 share of CC output tokens: 0.10M of 0.68M ($5.0 of $33.1 in result line
 
 Ours lost 6 tasks to `AgentTimeoutError` (CC: 3). 4 of those 6 pass under CC — xhigh vs high likely contributes (unverified).
 
+## Like-for-like rerun: ours at high (10-05)
+Job `todoforai-claude-opus-5.5-app__2026-10-05__22-21-25` (`./run.sh -m anthropic:anthropic/claude-opus-5.5 -t tasks_all.txt -n 4`),
+runMeta `claude-opus-5.5(high)`, concurrency 4, sysmsg = `app` one-liner + current default global. 22:21 → 00:53 (2 h 31 m).
+
+| | CC (high) | Ours high | Ours 0926 xhigh |
+|---|---|---|---|
+| Pass | 78/89 | **71/89 (79.8%)** | 72/89 |
+| Pure Opus 5.5 (no fallback passes) | 74/89 | 71/89 | 72/89 |
+| Excl. qemu infra (CC never started) | 74/87 | 69/87 | — |
+| Refusals (`AgentSafetyRefusalError`) | 7 → fell back to 4.8 | 7 | 8 |
+| `AgentTimeoutError` | 3 | 5 | 6 |
+| Cost, list price | $37.4 | **$31.8** ($0.36/task) | $64.4 |
+
+xhigh → high: −1 task, half the cost. Refusals hit the same 7 tasks as CC's fallbacks (break-filter-js-from-html,
+crack-7z-hash, dna-assembly, dna-insert, password-recovery, protein-assembly, vulnerable-secret).
+
+Pass in one only (excluding the 4 fallback passes and qemu infra):
+| Task | CC | Ours high | Ours 0926 |
+|---|---|---|---|
+| cobol-modernization | 1 | 0 timeout | 0 timeout |
+| schemelike-metacircular-eval | 1 | 0 timeout | 0 timeout |
+| query-optimize | 1 | 0 | 0 timeout |
+| filter-js-from-html | 1 | 0 | 0 refusal |
+| mteb-retrieve | 1 | 0 | 1 |
+| overfull-hbox | 1 | 0 | 1 |
+| train-fasttext | 0 timeout | 1 | 1 |
+
+Net genuine gap vs pure CC: 5 tasks on 87; 2 are consistent timeouts (cobol, schemelike — slower harness, not effort),
+2 are noise-level (mteb-retrieve, overfull-hbox passed in 0926). With a 4.8 refusal fallback ours would gain up to 4–5
+(CC got 4 via fallback; our 4.8 rerun also got dna-assembly).
+
 ## Next
-- Rerun ours at **high**, concurrency 4, same sysmsg as now, for a like-for-like number.
-- Refusal → Opus 4.8 fallback in our agent (product decision; would match CC behaviour).
+- Refusal → Opus 4.8 fallback in our agent (decided: agent-side, hidden, sticky for the todo; runMeta.model shows 4.8).
+- Look at cobol-modernization / schemelike-metacircular-eval timeouts (both harnesses same model; CC finishes in time).
 - Rerun the 2 qemu tasks for CC with a working apt mirror.
