@@ -23,6 +23,20 @@ agent named `app` (the benchmark config: tool deny list, sysmsg — see the
 
 ## Running
 
+One command, same shape as https://www.tbench.ai/run (`./run.sh -h` for flags):
+
+```bash
+./run.sh -m anthropic:anthropic/claude-opus-5.5                     # our agent, whole TB 2.1
+./run.sh -a claude-code -m anthropic/claude-opus-5-5 -e high        # reference: Claude Code
+./run.sh -m ... -d terminal-bench/terminal-bench@4.0.0 -t tasks_tb4_20.txt   # dataset / task list
+```
+
+Concurrency defaults to 4 (hard max on the WSL host). Claude Code uses a Max
+subscription token: `claude setup-token` → `~/claude-oauth.env` with
+`CLAUDE_FORCE_OAUTH=1` and `CLAUDE_CODE_OAUTH_TOKEN=...` (chmod 600, never committed).
+
+Older scripts (batches, STOP brake, per-batch docker prune):
+
 ```bash
 ./run_single.sh terminal-bench/<task>          # one task, preflights the key + `app` agent
 TB_MODEL=anthropic:anthropic/claude-opus-5.5 \
