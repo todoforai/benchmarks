@@ -1,0 +1,5 @@
+# Codex CLI -> Claude via the local cliproxy fork (scripts/cliproxy_config.sh).
+# harbor adds openai_base_url from OPENAI_BASE_URL (~/codex-cliproxy.env).
+# Codex has no metadata for claude-* models; without these it warns and guesses.
+model_context_window = 200000
+model_auto_compact_token_limit = 160000

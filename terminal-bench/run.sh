@@ -3,20 +3,23 @@
 #
 #   ./run.sh -m anthropic:anthropic/claude-opus-5.5                       # our agent, all tasks
 #   ./run.sh -a claude-code -m anthropic/claude-opus-5-5 -e high          # reference agent
+#   ./run.sh -a codex -m openai/claude-opus-5-5 -e high                   # Codex CLI on Claude via cliproxy
 #   ./run.sh -m ... -d terminal-bench/terminal-bench@4.0.0 -t tasks_tb4_20.txt -n 4
 #
-#   -a  todoforai (default) | claude-code
+#   -a  todoforai (default) | claude-code | codex
 #   -m  model (required; no default -- a silent default once ran the wrong model)
 #   -d  dataset              (default terminal-bench/terminal-bench-2-1)
 #   -t  task-list file       (one task name per line; default: whole dataset)
 #   -i  single task          (repeatable; overrides -t)
 #   -n  concurrency          (default 4, max 4: 4 x 8 GB task RAM fits the WSL host)
 #   -k  attempts per task    (default 1)
-#   -e  effort for claude-code (low|medium|high|xhigh|max). todoforai takes its
+#   -e  effort for claude-code/codex (low|medium|high|xhigh|max). todoforai takes its
 #       effort from the `app` agent's thinkingLevel, not from this flag.
 #
 # claude-code auth: CLAUDE_FORCE_OAUTH=1 + CLAUDE_CODE_OAUTH_TOKEN in
 # $CLAUDE_ENV_FILE (default ~/claude-oauth.env, from `claude setup-token`).
+# codex: local cliproxy fork on :8317 (scripts/cliproxy_config.sh writes
+# ~/codex-cliproxy.env); config codex_cliproxy.toml. No Opus 4.8 refusal fallback.
 # One harbor call for the whole list (wall time = slowest task, not sum of batches).
 # Results: jobs/<agent>-<model>-<effort>__<timestamp>; `harbor view jobs`.
 set -euo pipefail
@@ -51,7 +54,13 @@ case $AGENT in
     [ -f "$ENV_FILE" ] || { echo "missing $ENV_FILE (CLAUDE_FORCE_OAUTH=1, CLAUDE_CODE_OAUTH_TOKEN=...)" >&2; exit 2; }
     ARGS+=(-a claude-code --env-file "$ENV_FILE")
     [ -z "$EFFORT" ] || ARGS+=(--ak "reasoning_effort=$EFFORT") ;;
-  *) echo "-a must be todoforai or claude-code" >&2; exit 2 ;;
+  codex)
+    ENV_FILE="${CODEX_ENV_FILE:-$HOME/codex-cliproxy.env}"
+    [ -f "$ENV_FILE" ] || { echo "missing $ENV_FILE (run scripts/cliproxy_config.sh)" >&2; exit 2; }
+    curl -s -m 5 -o /dev/null http://172.17.0.1:8317/ || { echo "cliproxy not reachable on 172.17.0.1:8317" >&2; exit 2; }
+    ARGS+=(-a codex --env-file "$ENV_FILE" --ak "config=$PWD/codex_cliproxy.toml")
+    [ -z "$EFFORT" ] || ARGS+=(--ak "reasoning_effort=$EFFORT") ;;
+  *) echo "-a must be todoforai, claude-code or codex" >&2; exit 2 ;;
 esac
 
 if [ ${#TASKS[@]} -eq 0 ] && [ -n "$TASKS_FILE" ]; then
