@@ -1,4 +1,6 @@
-A lava lamp: glass, wax, and light. Blobs rise, merge and split; lit from the bulb below. Slow and hypnotic, dark room, one hero object.
+A lava lamp: glass, wax, and light. Blobs rise, merge and split; the wax glows from the bulb below and casts its warm light around. Slow and hypnotic, one hero object.
+
+Go all out: this is your showcase of what a world-class three.js artist YOU are.
 
 Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
 
