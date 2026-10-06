@@ -112,6 +112,10 @@ backend+edge deploys, budget ~445 trials (~8-10 h, ~$235 promo / ~$450 list).
   `crack-7z-hash`, `password-recovery`, `vulnerable-secret` ("cyber") → 8 refused
   tasks in total. `ApiError` in `result.json` looks like infra; check the todo's
   messages for "flagged as" before queuing an infra retry.
+- Since 10-06 there's an opt-in agent setting `refusalFallbackModel`: on a refusal
+  the run continues on that model (toast + run meta show the switch). Set it per
+  agent: `tfa-cli agent update <agent> refusalFallbackModel=<model>` (`""` = off).
+  A score that uses it is a mixed-model score — say so in the results.
 
 ## Verifier / container traps (09-30)
 - **Read `verifier/test-stdout.txt` before calling a 0 a model fail.** qemu-startup
