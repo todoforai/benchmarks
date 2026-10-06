@@ -8,4 +8,4 @@ Output: a single `/work/index.html`, three.js only. Use this importmap (library 
 </script>
 ```
 
-Judged at 1280x800, headless Chrome on SwiftShader (software WebGL — keep it light), 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`.
+Judged at 1280x800, headless Chrome, 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
