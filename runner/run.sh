@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Run one arena task across models, each in its own throwaway container.
-#   ./run.sh <task> [-p N] [model ...]      default models: $DEFAULT_MODELS
+# Run one bench task across models, each in its own throwaway container.
+#   ./run.sh <task|bench/task> [-p N] [model ...]      default models: $DEFAULT_MODELS
 # Isolation (sandbox.sh / bwrap): /work = empty dir + tasks/<task>/assets copy is
 # the only writable path, private /tmp+HOME, no /home, one mayfly session per model.
 # Output: runs/<task>/<ts>/<model>/{work/,timeline/,timelapse.mp4,agent.log,meta.json}
@@ -15,14 +15,17 @@ PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 : "${AGENT:=arena}" "${TIMEOUT:=1800}"
 DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
-TD="tasks/$TASK"; [ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
+# Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. threejs-bench/lava-lamp).
+case $TASK in */*) TD="../${TASK%/*}/tasks/${TASK##*/}";; *) TD="tasks/$TASK";; esac
+[ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
+SLUG=${TASK//\//_}
 [ -f "$TD/task.env" ] && . "$TD/task.env"          # TIMEOUT=...
 # One key per concurrent container (same rule as terminal-bench).
 mapfile -t KEYS < <(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | awk 'NF && !seen[$1]++{print $1}')
 [ ${#KEYS[@]} -ge "$PAR" ] || { echo "need $PAR keys, have ${#KEYS[@]}" >&2; exit 1; }
 ./sandbox.sh . -- true 2>/dev/null || { echo "bwrap blocked — see README (apparmor profile)" >&2; exit 1; }
 
-RUN="runs/$TASK/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$TD/prompt.txt" "$RUN/"
+RUN="runs/$SLUG/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$TD/prompt.txt" "$RUN/"
 one() {  # $1 model  $2 key
   local M=$1 KEY=$2 slug=${1#*:} d rc; slug=${slug//\//_}; slug=${slug//[()]/_}; slug=${slug%_}; d="$RUN/$slug"; mkdir -p "$d/work"
   [ -d "$TD/assets" ] && cp -r "$TD/assets/." "$d/work/"
@@ -37,8 +40,8 @@ one() {  # $1 model  $2 key
     ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
     2>&1 | while IFS= read -r l; do printf '%(%H:%M:%S)T %s\n' -1 "$l"; done >"$d/agent.log"; rc=${PIPESTATUS[0]}
   set -e; kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
-  jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --argjson s "$(( $(date +%s) - t0 ))" \
-    '{model:$m,task:$task,agent:$agent,exit:$rc,wall_s:$s}' >"$d/meta.json"
+  jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --arg prompt_sha "$(sha256sum "$TD/prompt.txt" | cut -c1-12)" --argjson s "$(( $(date +%s) - t0 ))" \
+    '{model:$m,task:$task,agent:$agent,prompt_sha:$prompt_sha,exit:$rc,wall_s:$s}' >"$d/meta.json"
   ./metrics.sh "$d" "$KEY" || true                     # + cost_usd, turns (from the todo)
   [ -x "$TD/collect.sh" ] && "$TD/collect.sh" "$d" || true
   ./timelapse.sh "$d" || true

@@ -1,4 +1,4 @@
-# arena — creative one-shot benchmarks (SVG / web / 3D game / Blender)
+# runner — sandboxed one-shot bench harness (web / three.js / 3D / video). Formerly `arena`.
 
 Same harness idea as `../pelican` but every run is **sandboxed** with bubblewrap
 (`sandbox.sh`, no Docker, no images, ~0 MB/run): host `/usr` `/snap` `/opt` read-only, `/work`
@@ -29,8 +29,8 @@ runs/<task>/<ts>/<model>/   work/ (= sandbox /work), agent.log (timestamped stre
                             timelapse.mp4 (timeline rasterized + labelled), meta.json
 ```
 
-Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `blender-island`
-(reference-image match, from `api-apps/blender-api/demo`), `blender-danger`
+Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `3d-bench/island`
+(reference-image match, from `api-apps/blender-api/demo`), `3d-bench/pizza`
 (Breaking Bad pizza-throw scene from a reference gif, animated),
 `svg-pizza` (same scene as animated SMIL/CSS SVG), `promo-gsap`
 (30 s TODO for AI promo in GSAP, cut to a Suno track via `beats.json`).

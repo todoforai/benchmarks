@@ -17,6 +17,7 @@ binds=(); for p in /snap /opt/google /etc/alternatives; do [ -e "$p" ] && binds+
 # (order matters: these come after --dev /dev / --tmpfs /run; resolv.conf → /run/systemd/resolve.)
 # GPU passthrough (EEVEE/Cycles/WebGL): DRM render nodes + NVIDIA device nodes.
 for g in /dev/dri /dev/nvidia*; do [ -e "$g" ] && binds+=(--dev-bind "$g" "$g"); done
+# /vendor: pinned three.js for threejs-* tasks (vendor.sh), read-only, same for every model.
 # bun: modern JS runtime/bundler (host node is 18).
 [ -x /snap/blender/current/blender ] && binds+=(--symlink /snap/blender/current/blender /tbin/blender)
 # Host's current bridge over dist's (old bridges don't advertise READ → no `read`/image tool).
@@ -26,7 +27,7 @@ exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/bin /bin --symlink usr/sbin /sbin \
   --proc /proc --dev /dev --tmpfs /tmp --tmpfs /run --tmpfs /var --tmpfs /home \
   "${binds[@]}" --ro-bind-try /run/systemd/resolve /run/systemd/resolve --ro-bind-try /mnt/wsl /mnt/wsl \
-  --dir /tmp/home --dir /tbin --bind "$W" /work --bind "$W" /tmp/todoforai --ro-bind "$DIST" /tfa --ro-bind "$PWD/rec" /rec --chdir /work \
+  --dir /tmp/home --dir /tbin --bind "$W" /work --bind "$W" /tmp/todoforai --ro-bind "$DIST" /tfa --ro-bind "$PWD/rec" /rec --ro-bind-try "$PWD/vendor" /vendor --chdir /work \
   --unshare-pid --unshare-uts --unshare-ipc --die-with-parent --new-session \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \
   --setenv PATH /tbin:/tfa:/usr/local/bin:/usr/bin:/bin \

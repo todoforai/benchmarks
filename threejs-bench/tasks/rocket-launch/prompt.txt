@@ -1,0 +1,11 @@
+A rocket launch, looping: ignition, plume and smoke across the pad, lift-off, ascent through clouds, stage separation. Cinematic camera and lighting.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome on SwiftShader (software WebGL — keep it light), 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`.

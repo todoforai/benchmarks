@@ -7,8 +7,17 @@ import { parseArgs } from "node:util";
 
 const { values: o, positionals: [url, out] } = parseArgs({ allowPositionals: true, options: {
   secs: { type: "string", default: "12" }, w: { type: "string", default: "1440" }, h: { type: "string", default: "900" },
-  fps: { type: "string", default: "30" }, script: { type: "string", default: "scroll" }, shot: { type: "string" } } });
+  fps: { type: "string", default: "30" }, script: { type: "string", default: "scroll" }, shot: { type: "string" },
+  serve: { type: "string" } } });   // --serve <root>: static http server so absolute paths (/vendor/three@…) resolve; url is then a path
 if (!url || !out) { console.error("usage: rec.ts <url> <out.mp4> [...]"); process.exit(2); }
+let target = url, srv: ReturnType<typeof Bun.serve> | undefined;
+if (o.serve) {
+  const root = o.serve.replace(/\/$/, "");
+  srv = Bun.serve({ port: 0, hostname: "127.0.0.1", fetch: async (r) => {
+    const p = decodeURIComponent(new URL(r.url).pathname); if (p === "/favicon.ico") return new Response("", { status: 204 });
+    const f = Bun.file(root + p); return (await f.exists()) ? new Response(f) : new Response("", { status: 404 }); } });
+  target = `http://127.0.0.1:${srv.port}${url}`;
+}
 const [W, H, FPS, SECS] = [+o.w!, +o.h!, +o.fps!, +o.secs!];
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? "/usr/bin/google-chrome",
@@ -16,7 +25,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?
 const page = await browser.newPage({ viewport: { width: W, height: H } });
 const errors: string[] = [];
 page.on("pageerror", e => errors.push(String(e))); page.on("console", m => m.type() === "error" && errors.push(m.text()));
-await page.goto(url, { waitUntil: "load" }).catch(e => errors.push(String(e)));
+await page.goto(target, { waitUntil: "load" }).catch(e => errors.push(String(e)));
 await page.waitForTimeout(1500);
 if (o.shot) await page.screenshot({ path: o.shot });
 
@@ -43,6 +52,6 @@ if (o.script === "idle") {           // just watch (attract mode / intro)
   while (left() > 0) { await page.mouse.wheel(0, 120); await page.waitForTimeout(100); }
 }
 clearInterval(tick); await cdp.send("Page.stopScreencast").catch(() => {});
-ff.stdin.end(); await ff.exited; await browser.close();
+ff.stdin.end(); await ff.exited; await browser.close(); srv?.stop(true);
 if (errors.length) await Bun.write(out.replace(/\.mp4$/, ".errors.txt"), errors.join("\n"));
 console.log(`   ${out}${errors.length ? ` (${errors.length} page errors)` : ""}`);
