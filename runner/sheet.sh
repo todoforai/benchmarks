@@ -4,7 +4,7 @@
 set -euo pipefail; run=$(readlink -f "$1"); shot=${2:-shot.png}; cd "$run"
 rows=(); files=()
 for d in */; do d=${d%/}; [ -f "$d/meta.json" ] || continue
-  m=$(jq -r '"\(.model|sub(".*/";""))\t\(.qualified // "?")\t\(.cost_usd // 0 | . * 100 | round / 100)\t\(.wall_s)\t\(.turns // "")\t\(.reason // "")"' "$d/meta.json")
+  m=$(jq -r '"\(.model|sub(".*/";""))\t\(if .qualified == null then "?" else .qualified end)\t\(.cost_usd // 0 | . * 100 | round / 100)\t\(.wall_s)\t\(.turns // "")\t\(.reason // "")"' "$d/meta.json")
   rows+=("$m"); f="$d/work/$shot"; [ -s "$f" ] || f=""
   [ -n "$f" ] && { ffmpeg -y -loglevel error -i "$f" -vf "scale=640:-1,drawtext=text='${d//_/ }':x=10:y=10:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6" "/tmp/sheet_$d.png"; files+=("/tmp/sheet_$d.png"); }
 done

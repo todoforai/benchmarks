@@ -7,10 +7,11 @@ name=$(basename "$(dirname "$run")"); bench=${name%%_*}; task=${name#*_}
 PUB=$(readlink -f "$(dirname "$0")/../../frontend/public/bench")/$bench/$task; mkdir -p "$PUB"
 entries=()
 for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basename "$d")
-  [ -s "$d/work/$shot" ] && ffmpeg -y -loglevel error -i "$d/work/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
-  [ -s "$d/work/$vid" ] && ffmpeg -y -loglevel error -i "$d/work/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
-  entries+=("$(jq -c --arg slug "$slug" --arg img "/bench/$bench/$task/$slug.jpg" --arg v "/bench/$bench/$task/$slug.mp4" \
-    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:((.cost_usd//0)*1000|round/1000), wall_s:.wall_s, turns:(.turns//null), img:$img, video:$v, todo:(.todo//null)}' "$d/meta.json")")
+  img=""; v=""
+  [ -s "$d/work/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$d/work/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
+  [ -s "$d/work/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$d/work/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
+  entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" \
+    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:((.cost_usd//0)*1000|round/1000), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), todo:(.todo//null)}' "$d/meta.json")")
 done
 jq -n --arg bench "$bench" --arg task "$task" --arg date "$(basename "$run" | cut -c1-10)" --arg prompt "$(cat "$run/prompt.txt" | head -1)" \
   --argjson runs "$(printf '%s\n' "${entries[@]}" | jq -s .)" '{bench:$bench, task:$task, date:$date, prompt:$prompt, runs:$runs}'
