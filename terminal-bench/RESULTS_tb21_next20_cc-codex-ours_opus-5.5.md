@@ -5,7 +5,7 @@
 | dna-assembly | 0 | 0 | 0 refusal | 0 |
 | dna-insert | 0 | 0 | 0 refusal | **1** |
 | extract-elf | 1 | 1 | 1 | 1 |
-| extract-moves-from-video | 0 timeout | running | 0 timeout | **1** |
+| extract-moves-from-video | 0 timeout | 0 timeout | 0 timeout | **1** |
 | feal-differential-cryptanalysis | 1 | 1 | 1 | 1 |
 | feal-linear-cryptanalysis | 1 | 1 | 1 | 1 |
 | filter-js-from-html | 1 | 0 | 0 | 0 timeout |
@@ -22,9 +22,10 @@
 | install-windows-3.11 | 1 | 1 | 1 | 1 |
 | kv-store-grpc | 1 | 1 | 1 | 1 |
 | large-scale-text-editing | 1 | 1 | 1 | 1 |
-| **total** | **17/20** | **16/19** (+1 running) | **16/20** | **18/20** |
+| **total** | **17/20** | **16/20** | **16/20** | **18/20** |
 
-First 40 combined: ours (new) 36/40 (first-20 rerun 18 + crack-7z still 0 after k=2 with fallback), CC 35/40.
+First 40 combined: ours (new) 36/40, CC 35/40, Codex 32/40 (crack-7z still 0 for us after k=2 with the fallback).
+Codex extract-moves: agent timeout, then the verifier hung 30 min and its docker exec never returned; harbor was stopped by hand (SIGINT) at 01:08 so the chain could continue. Container left stuck in dockerd like compcert's.
 
 Jobs: ours `todoforai-claude-opus-5.5-app__2026-10-06__22-51-17`, Codex
 `codex-claude-opus-5-5-high__2026-10-06__23-33-55`; crack-7z-hash k=2 with the 4.8
