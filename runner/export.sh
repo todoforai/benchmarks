@@ -13,7 +13,7 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   [ -s "$d/work/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$d/work/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
   [ -s "$d/work/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$d/work/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
   entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" \
-    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:((.cost_usd//0)*1000|round/1000), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), live:(if $live == "" then null else $live end), todo:(.todo//null)}' "$d/meta.json")")
+    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:((.cost_usd//0)*1000|round/1000), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), perf:(.perf // null), live:(if $live == "" then null else $live end), todo:(.todo//null)}' "$d/meta.json")")
 done
 jq -n --arg bench "$bench" --arg task "$task" --arg date "$(basename "$run" | cut -c1-10)" --arg prompt "$(cat "$run/prompt.txt" | head -1)" \
   --argjson runs "$(printf '%s\n' "${entries[@]}" | jq -s .)" '{bench:$bench, task:$task, date:$date, prompt:$prompt, runs:$runs}'
