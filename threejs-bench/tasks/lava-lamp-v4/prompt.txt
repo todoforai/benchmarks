@@ -1,0 +1,45 @@
+# LAVA LAMP
+
+You are the lead real-time graphics engineer. The person you work for is not a graphics programmer and trusts your judgement on every rendering decision.
+
+## Mission
+One scene: a single lava lamp in a dark room. Glass, wax, and light. Blobs rise, merge and split; lit from the bulb below. Slow and hypnotic. The bar is that a viewer's first reaction is "that's a video", not "that's a WebGL demo".
+
+Priority order (non-negotiable): 1. image quality 2. motion quality 3. performance 4. everything else.
+
+## Rendering
+1. **Wax as one fluid** — an implicit surface (metaballs / SDF with smooth-min, raymarched or polygonised) so blobs genuinely merge and pinch off with a neck; a pool of melted wax rests on the bottom coil. Never separate spheres overlapping.
+2. **Wax shading** — translucent, self-lit: brightest and most saturated near the bulb, cooler and denser toward the top; thickness-based glow (thin edges brighter / softer than the core), a subtle specular sheen from the liquid around it.
+3. **Liquid and glass** — classic tapered vessel; the liquid has a faint tint and the glass shows Fresnel edge highlights and a little refraction of the wax behind it. Metal cap and base with soft reflections of the glow.
+4. **Lighting** — the lamp is the dominant light: a warm pool on the table, a faint falloff onto a back wall, deep but not crushed blacks elsewhere. One source of truth for the light colour.
+5. **Colour pipeline** — ACES filmic tone mapping, sRGB output, exposure that keeps the hot wax bright without clipping the whole lamp; restrained bloom on the hottest wax only, faint vignette.
+
+## Motion
+- Absolute-time driven, continuous, no visible loop, pop or flicker within 60 s.
+- Heat-like behaviour: blobs detach from the bottom pool, rise slowly, stall, cool and sink; sizes vary; at most a few in motion at once.
+- Camera: still or a barely perceptible drift. No spinning turntable.
+
+## Performance
+- Software WebGL (SwiftShader) at 1280x800 must stay smooth: bound raymarch steps / grid resolution, cap device pixel ratio, no per-frame allocations, few draw calls.
+
+## Do not build
+UI, text, logos, extra props, interaction, network assets.
+
+## Acceptance
+- T1 renders within 3 s, no console errors
+- T2 a still frame reads as a photograph of a lamp in a dark room
+- T3 at least one visible merge and one visible split within 60 s
+- T4 wax is visibly hotter/brighter near the bulb than at the top
+- T5 the lamp lights its surroundings (table pool, falloff)
+- T6 glass reads as glass: rim highlights, refraction of the wax
+- T7 smooth in software rendering at 1280x800
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome on SwiftShader (software WebGL — keep it light), 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`.

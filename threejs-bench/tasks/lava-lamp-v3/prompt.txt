@@ -1,0 +1,23 @@
+A lava lamp: glass, wax, and light. Blobs rise, merge and split; lit from the bulb below. Slow and hypnotic, dark room, one hero object.
+
+The bar: a still frame should read as a photograph of a real lamp, not a WebGL demo. Priorities, in order: image, motion, performance.
+
+What separates a strong answer from a weak one:
+- Wax is one continuous fluid that truly merges and pinches apart (metaballs / SDF raymarch or marching cubes) — not separate spheres passing through each other.
+- Wax shading: emissive, subsurface-looking glow — hot and bright near the bulb, darker and denser as it cools at the top; a warm inner core and softer edges.
+- Glass: a real tapered lamp silhouette, Fresnel rim highlights, slight refraction/tint of the liquid; metal cap and base with believable reflections.
+- Light: the lamp is the main light source — it casts a warm pool on the surface it stands on and a faint glow on the surroundings; the rest of the room falls off into darkness.
+- Motion: driven by absolute time, heat-like (slow rise, stall, sink), blobs vary in size; nothing pops or repeats within 60 s. A very slow camera drift is fine; a spinning turntable is not.
+- Colour pipeline: ACES tone mapping, sRGB output, a restrained bloom on the hottest wax only.
+
+Do not build: UI, text, logos, extra props, interaction.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome on SwiftShader (software WebGL — keep it light), 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`.
