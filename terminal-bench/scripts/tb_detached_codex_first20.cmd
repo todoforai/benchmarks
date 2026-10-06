@@ -1,0 +1,2 @@
+@echo off
+wsl.exe -e bash -lc "cd ~/cliproxyapi && (curl -s -m2 localhost:8317/v1/models >/dev/null || (setsid nohup ./cli-proxy-api --config /home/six/cliproxyapi/config.yaml > run.log 2>&1 < /dev/null &)); sleep 3; docker ps -aq --filter status=exited | xargs -r docker rm >/dev/null; docker network prune -f >/dev/null; cd /mnt/c/repo/todoforai/benchmarks/terminal-bench && source ~/tbench-venv/bin/activate && ./run.sh -a codex -m openai/claude-opus-5-5 -e high -t tasks_first20.txt -n 4 > codex-first20.log 2>&1"

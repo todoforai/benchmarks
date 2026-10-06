@@ -50,6 +50,10 @@ launching `wsl.exe` returns (user manager hits exit.target). Keep a
 `wsl.exe -d Ubuntu -- sleep infinity` alive as a *detached agent-shell process*;
 PowerShell `Start-Process -WindowStyle Hidden wsl.exe ...` did not survive, and
 the keepalive dies with the pc_2 bridge (BRIDGE_OFFLINE -> job killed).
+Working recipe (10-06): a `setsid nohup` job inside `wsl -e bash` dies with that
+session. Use `scripts/tb_detached_codex_first20.cmd` via PowerShell
+`Register-ScheduledTask` + `Start-ScheduledTask` (Git-bash mangles `schtasks /create`
+paths). Later `wsl -e bash` checks do not restart the distro.
 
 ## 7. Retry infra errors, never agent outcomes
 Harbor default is max_retries=0, so a provider stall (backend gives a stall 2
