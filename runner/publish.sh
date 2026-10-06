@@ -5,7 +5,9 @@
 set -euo pipefail; cd "$(dirname "$0")"
 OUT=../../frontend/src/data/bench-results.json
 for b in "${@:-threejs-bench}"; do
-  for r in $(ls -d runs/"$b"_*/*/ 2>/dev/null | sort); do ./export.sh "$r" 2>/dev/null; done   # ts-named dirs → chronological
+  for r in $(ls -d runs/"$b"_*/*/ 2>/dev/null | sort); do
+    pid=${r%/}; pid=${pid##*_}; kill -0 "$pid" 2>/dev/null && { echo "skip (still running): $r" >&2; continue; }
+    ./export.sh "$r" 2>/dev/null; done   # ts-named dirs → chronological; run dirs end in the run.sh pid
 done | jq -s 'group_by(.bench + "/" + .task) | map(. as $g | $g[-1] + {date: ($g | map(.date) | max),
   runs: ($g | map(.runs) | add | reverse | unique_by(.model))})' > "$OUT"
 jq -r '.[] | "\(.bench)/\(.task): \(.runs | length) models"' "$OUT"
