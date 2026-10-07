@@ -398,3 +398,12 @@ Harbor's built-in `-k N` retries are only worth using if we report best-of-N.
 | **Job results** | `benchmarks/terminal-bench/jobs/` |
 
 All paths relative to `~/repo/todoforai/` monorepo root.
+
+## Fair Codex score: rerun its refusals on Opus 4.8
+Codex has no refusal fallback (CC falls back to 4.8 silently, ours via `refusalFallbackModel`).
+Codex got a hard refusal (`turn.completed` with `output_tokens:0,reasoning_output_tokens:0`, 5.5 stop_reason refusal) on
+**4 tasks**: break-filter-js-from-html, dna-assembly, protein-assembly, vulnerable-secret.
+- [ ] rerun these 4 with Codex on `claude-opus-4-8` (same cliproxy, same effort high), k=1, and count a pass as the
+      fallback result → Codex "with fallback" score (max 76/89). Keep the pure-5.5 72 as a separate row.
+- [ ] CC refusal tasks for reference (7, from `scripts/cc_models.py`): the 4 above + crack-7z-hash, dna-insert, password-recovery.
+Detection: `grep -l '"output_tokens":0,"reasoning_output_tokens":0' jobs/codex-*/*/agent/codex.txt`.
