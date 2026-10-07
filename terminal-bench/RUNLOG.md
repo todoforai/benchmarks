@@ -43,3 +43,5 @@ Config changes vs the 89-sweep (anything from `…10-35-09` on is NOT the 89-swe
 - 2026-10-07 ~10:30 sysmsg 234 B → 297 B: added the "long-running commands: pipe to a file, read it back" line.
 - 2026-10-07 13:34 UTC+2 agent deploy `cf5c476e` + OpenRouter.jl `9623edf`: `extras.thinkingTokens` on AI runMeta
   (subset of outputTokens). Also fixes a cost double-count for OpenAI/xAI reasoning_tokens (ours Opus runs unaffected).
+
+- 10-07 ~13:26: `app` sysmsg back to the 1-line original (pipe/tail line removed; it was wrong about `head`). Runs after this use 234 B sysmsg again. Still-running schemelike trial of top5cost started with the 2-line one.
