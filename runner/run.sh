@@ -20,9 +20,10 @@ case $TASK in */*) TD="../${TASK%/*}/tasks/${TASK##*/}";; *) TD="tasks/$TASK";; 
 [ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
 SLUG=${TASK//\//_}
 [ -f "$TD/task.env" ] && . "$TD/task.env"          # TIMEOUT=...
-# One key per concurrent container (same rule as terminal-bench).
+# --isolated = one todo-scoped mayfly bridge per run, so one account can run them all in parallel.
+# Several keys in the file are just spread round-robin.
 mapfile -t KEYS < <(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | awk 'NF && !seen[$1]++{print $1}')
-[ ${#KEYS[@]} -ge "$PAR" ] || { echo "need $PAR keys, have ${#KEYS[@]}" >&2; exit 1; }
+[ ${#KEYS[@]} -ge 1 ] || { echo "no keys in $TODOFORAI_API_KEYS_FILE" >&2; exit 1; }
 ./sandbox.sh . -- true 2>/dev/null || { echo "bwrap blocked — see README (apparmor profile)" >&2; exit 1; }
 
 RUN="runs/$SLUG/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$TD/prompt.txt" "$RUN/"
@@ -49,7 +50,7 @@ one() {  # $1 model  $2 key
 }
 i=0
 for M in "${MODELS[@]}"; do
-  one "$M" "${KEYS[$((i % PAR))]}" & i=$((i+1))
+  one "$M" "${KEYS[$((i % ${#KEYS[@]}))]}" & i=$((i+1))
   [ $(( i % PAR )) -eq 0 ] && wait
 done; wait
 echo "DONE $RUN"
