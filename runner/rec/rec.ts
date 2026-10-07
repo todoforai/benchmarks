@@ -40,6 +40,15 @@ const tick = setInterval(() => { if (last) ff.stdin.write(last); }, 1000 / FPS);
 const t0 = Date.now(), left = () => SECS * 1000 - (Date.now() - t0);
 if (o.script === "idle") {           // just watch (attract mode / intro)
   await new Promise(r => setTimeout(r, left()));
+} else if (o.script === "hover") {          // 4 s idle, then the pointer glides between points and rests 1.5 s on each
+  await page.waitForTimeout(Math.min(4000, left()));
+  const pts = [[.5, .5], [.35, .4], [.62, .38], [.42, .62], [.66, .6], [.28, .55], [.55, .28], [.75, .48], [.5, .72]];
+  await page.mouse.move(W / 2, H / 2);
+  for (let i = 0; left() > 500; i++) {
+    const [x, y] = pts[i % pts.length];
+    await page.mouse.move(x * W, y * H, { steps: 8 });
+    await page.waitForTimeout(Math.min(1500, Math.max(0, left())));
+  }
 } else if (o.script === "game") {           // click to start / pointer lock, walk, turn, shoot
   await page.mouse.click(W / 2, H / 2).catch(() => {});
   const keys = ["w", "w", "a", "w", "d", "w", "s", "w"];
