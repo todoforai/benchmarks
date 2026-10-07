@@ -1,0 +1,3 @@
+A California brown pelican in full breeding plumage riding a bicycle: big pouch, clearly readable feathers, seated on the saddle, wings on the handlebar, webbed feet on the pedals and visibly pedaling. A correctly shaped diamond frame, spoked wheels, chain and chainring.
+
+Output: a single `/work/pelican.svg`, written by hand (no image models, no drawing libraries, no external assets or fonts). Rendered as a static image in headless Chrome at its own viewBox size; it must render with no errors.
