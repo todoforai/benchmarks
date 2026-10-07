@@ -1,4 +1,4 @@
-# ThreeJSBench — output contract (appended to every task prompt)
+# 3DBench three.js tasks — output contract (appended to every task prompt)
 
 Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
 

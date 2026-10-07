@@ -6,8 +6,7 @@ each model in its own sandbox, identical prompt. Five categories:
 | Bench | What | Scoring | Dir |
 |---|---|---|---|
 | **TerminalBench** (our rerun) | Terminal-Bench 2.1 / 4.0 tasks via Harbor adapter | pass rate | [terminal-bench/](terminal-bench/) |
-| **ThreeJSBench** | one design prompt → single-file three.js page (lava lamp, rocket, ocean, turntable, black hole) | contact sheet + ranking, cost, time, qualified | [threejs-bench/](threejs-bench/) |
-| **3DBench** | Blender headless: reference image / scene → render + .blend | side-by-side renders + ranking | [3d-bench/](3d-bench/) |
+| **3DBench** | one prompt → single-file three.js page (lava lamp, rocket, ocean, turntable, black hole) or headless Blender render + .blend | contact sheet + ranking, cost, time, qualified | [3d-bench/](3d-bench/) |
 | **VideoBench** | the *Painted Launch Video* template sysprompt on a fixed project → MP4 | side-by-side + ranking, cost, time | [video-bench/](video-bench/) |
 | **TODO Bench** | our agent pieces on real todo prompts (explore / webfetch / compaction); tasks private | judge scores | [todo-bench/](todo-bench/) |
 

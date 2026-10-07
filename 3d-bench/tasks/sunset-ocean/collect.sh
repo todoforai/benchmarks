@@ -1,0 +1,1 @@
+../../threejs/collect.sh

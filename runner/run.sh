@@ -15,7 +15,7 @@ PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 : "${AGENT:=arena}" "${TIMEOUT:=1800}"
 DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
-# Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. threejs-bench/lava-lamp).
+# Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. 3d-bench/lava-lamp).
 case $TASK in */*) TD="../${TASK%/*}/tasks/${TASK##*/}";; *) TD="tasks/$TASK";; esac
 [ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
 SLUG=${TASK//\//_}
