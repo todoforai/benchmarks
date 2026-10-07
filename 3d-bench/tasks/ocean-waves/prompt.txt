@@ -1,0 +1,12 @@
+An ocean you could sail on: layered swell under a shifting wind, whitecaps where crests steepen, waves slowing and breaking into foam on a sloping beach, a slow tide moving the waterline. A small boat rides it, pitching and rolling with the actual surface (no sine bobbing). Sky, sun and haze; convincing from the horizon down to the waterline.
+
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome, 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
