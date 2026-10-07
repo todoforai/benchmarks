@@ -35,14 +35,24 @@ one() {  # $1 model  $2 key
   setsid ./record.sh "$d" & local rec=$!               # artifact timelapse (own pgroup → clean kill)
   # Key via env only (never argv); sandbox.sh --clearenv drops everything else
   # (incl. the calling shell's TODOFORAI_PROJECT_ID/TODO_ID → 403 otherwise).
+  # Watchdog: the CLI sometimes misses the end of the stream and hangs until the timeout although the
+  # todo is finished server-side. Once the todo is DONE and the log is idle, kill the sandbox.
+  ( abs=$(readlink -f "$d/work"); while sleep 30; do
+      id=$(grep -oEm1 'todofor\.ai/t/[0-9a-f-]{36}' "$d/agent.log" 2>/dev/null | cut -d/ -f3); [ -n "$id" ] || continue
+      [ $(( $(date +%s) - $(stat -c %Y "$d/agent.log") )) -ge 120 ] || continue
+      st=$(curl -s -m 20 -H "x-api-key: $KEY" "$TODOFORAI_API_URL/api/v1/todos/$id" | jq -r '.status // empty' 2>/dev/null)
+      case $st in DONE) touch "$d/.server_done"; pkill -f "^bwrap .*--bind $abs /work" ; exit;; esac
+    done ) & local wd=$!
   set +e
   # Model/agent via env too: ids like "…/claude-opus-5.5(high)" break shell quoting.
   TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$TD/prompt.txt")" TFA_MODEL="$M" TFA_AGENT="$AGENT" \
     ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
     2>&1 | while IFS= read -r l; do printf '%(%H:%M:%S)T %s\n' -1 "$l"; done >"$d/agent.log"; rc=${PIPESTATUS[0]}
-  set -e; kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
+  set -e; kill "$wd" 2>/dev/null || true; kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
+  [ -f "$d/.server_done" ] && { echo "   (stream dropped; todo DONE server-side → collected)"; rc=0; }
   jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --arg prompt_sha "$(sha256sum "$TD/prompt.txt" | cut -c1-12)" --argjson s "$(( $(date +%s) - t0 ))" \
     '{model:$m,task:$task,agent:$agent,prompt_sha:$prompt_sha,exit:$rc,wall_s:$s}' >"$d/meta.json"
+  [ -f "$d/.server_done" ] && jq '.badges=["stream dropped, output collected"]' "$d/meta.json" >"$d/m.tmp" && mv "$d/m.tmp" "$d/meta.json"
   ./metrics.sh "$d" "$KEY" || true                     # + cost_usd, turns (from the todo)
   [ -x "$TD/collect.sh" ] && "$TD/collect.sh" "$d" || true
   ./timelapse.sh "$d" || true
