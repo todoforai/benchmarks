@@ -1,0 +1,11 @@
+A mechanical clock movement in motion: mainspring barrel, a gear train with truly meshing teeth, the escapement wheel and pallet fork ticking, a swinging balance wheel, and hands driven by the real gear ratios. Point at any part and it eases out of the assembly in an exploded view with its name, then glides back when the pointer leaves. Brass, steel and ruby jewels under warm studio light. Go all out.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome, no console errors: a few seconds idle, then the mouse slowly sweeps the scene, resting on parts. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
