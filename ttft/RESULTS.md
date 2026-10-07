@@ -20,7 +20,9 @@ Routes (all via `~/cliproxyapi/config.yaml`, host `hm`):
 Gotchas:
 - Trivial prompt ⇒ no model actually thinks; level ordering on it is noise. OpenAI-side latency
   swings run-to-run (luna-5.6(none): 869ms on 2026-07-31, 2246ms on 2026-09-23).
-- Opus 5.5 rejects `thinking.type.disabled` → measured as `(default)` / `(low)`.
+- Opus 5.5 rejects `thinking.type.disabled` and `between_tools` → measured as `(default)` / `(low)`.
+- Sonnet 5.5 rejects `disabled`; thinking off = `thinking: {type: "between_tools"}` (no thinking before
+  the answer, only short updates between tool calls). `ttft-check.mjs` sends it as `sonnet-5.5(none)` via `offBody`.
 - GLM 5.3 direct on OpenCode Go rejects disabled thinking, but `glm-5.3(none)` through the proxy works.
 - Z.AI coding plan (`api.z.ai/api/coding/paas/v4`) serves glm-5.3 at ~2.2–2.5s TTFT — slow;
   Z.AI pay-as-you-go `paas/v4` has no balance. Cerebras has no GLM (only gpt-oss-120b, qwen-3.8-27b).
@@ -183,3 +185,29 @@ Sorted by worst sample. CV = stddev/mean of visible TTFT. gen = total − visibl
 With the large JARVIS system prompt and tools, Sonnet 5's short-prompt TTFT lead goes away: whole
 turns are 1.3–2× slower and it talks longer. Haiku's failures were all narration ("I'll check…");
 Sonnet's were one extra answer_todo call and a 13-word ack (limit 10). Kept JARVIS on Haiku.
+
+### 2026-10-07 11:20 — Sonnet 5.5 added, long prompt (150 words about bridges), 8 runs + 2 warmup
+Sonnet 5.5 rejects `(none)`/`thinking.type: disabled` (400) — its off switch is `thinking.type: between_tools`, see next run. `(default)` rows have 7/8 samples.
+
+| model | vis p50 | worst | CV% | <1s | <2s | gen p50 | total p50 |
+|---|---|---|---|---|---|---|---|
+| haiku-4.5(none) | **497** | 536 | 5 | 8/8 | 8/8 | 2390 | **2926** |
+| sonnet-5(none) | 1127 | 1771 | 18 | 0/8 | 8/8 | 4553 | 5792 |
+| sonnet-5.5(low) | 9187 | 11025 | 35 | 1/8 | 1/8 | 1769 | 11134 |
+| sonnet-5.5(default) | 10090 | 12542 | 14 | 0/7 | 0/7 | **1663** | 12121 |
+| opus-5.5(low) | 10815 | 18165 | 23 | 0/8 | 0/8 | 2448 | 13259 |
+| opus-5.5(default) | 19230 | 22185 | 13 | 0/7 | 0/7 | 5561 | 23050 |
+
+- With default/low thinking Sonnet 5.5 thinks ~9–10s before the first word, like Opus 5.5.
+- Once it starts writing it's the fastest generator measured (150 words in ~1.7s, faster than Haiku's 2.4s).
+- Opus 5.5 `(default)` was ~19s this run (11s on 2026-09-23).
+
+### 2026-10-07 11:45 — Sonnet 5.5 with thinking off (`thinking.type: between_tools`), same long prompt, 8 runs + 2 warmup
+| model | vis p50 | worst | CV% | <1s | <2s | gen p50 | total p50 |
+|---|---|---|---|---|---|---|---|
+| haiku-4.5(none) | **502** | 571 | 6 | 8/8 | 8/8 | 2475 | **3030** |
+| sonnet-5.5(none) | 818 | 1118 | 12 | 7/8 | 8/8 | 3676 | 4623 |
+| sonnet-5(none) | 1176 | 1272 | 5 | 0/8 | 8/8 | 4619 | 5837 |
+
+- With `between_tools` Sonnet 5.5 starts in ~0.8s and finishes in ~4.6s — faster than Sonnet 5 on both, second only to Haiku.
+- Generation without thinking (3.7s) is slower than with thinking (1.7s) — the earlier run's fast gen was likely a shorter answer after planning.

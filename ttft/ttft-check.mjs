@@ -49,6 +49,7 @@ const LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'];
 // entry (none) disables reasoning explicitly and is the baseline for each.
 // `levels: false` = (none) only (no reasoning-effort suffix sweep); `levels: [...]` = only those.
 // `noOff: true` = model can't disable thinking (Opus 5.5: adaptive only) → bare model (default) instead of (none).
+// `offBody` = model rejects (none)/disabled but has its own off switch (Sonnet 5.5: thinking.type between_tools).
 const MODELS = [
   { name: 'luna-5.6', model: 'gpt-5.6-luna' },
   { name: 'luna-6', model: 'gpt-6-luna' },
@@ -59,6 +60,7 @@ const MODELS = [
   { name: 'sonnet-5', model: 'claude-sonnet-5', levels: false },
   { name: 'opus-5', model: 'claude-opus-5', levels: false },
   { name: 'opus-5.5', model: 'claude-opus-5-5', levels: ['low'], noOff: true },
+  { name: 'sonnet-5.5', model: 'claude-sonnet-5-5', levels: ['low'], offBody: { thinking: { type: 'between_tools' } } },
   // OpenCode Go subscription via the proxy's openai-compatibility provider `opencode-go`.
   { name: 'glm-5.3', model: 'glm-5.3', levels: ['low'] },
   { name: 'glm-5.3-flash', model: 'glm-5.3-flash', levels: false },
@@ -67,8 +69,10 @@ const MODELS = [
 ];
 // --only a,b  → keep targets whose label contains any of the substrings.
 const ONLY = getArg('--only', '').split(',').filter(Boolean);
-const TARGETS = MODELS.flatMap(({ name, model, levels = true, noOff = false }) => [
-  noOff
+const TARGETS = MODELS.flatMap(({ name, model, levels = true, noOff = false, offBody }) => [
+  offBody
+    ? { label: `${name}(none)`, model, extra: offBody }
+    : noOff
     ? { label: `${name}(default)`, model }                  // provider-default thinking
     : { label: `${name}(none)`, model: `${model}(none)` },  // reasoning explicitly off
   ...(levels === true ? LEVELS : levels || []).map((level) => ({ label: `${name}(${level})`, model: `${model}(${level})` })),
@@ -92,7 +96,7 @@ const headers = {
  * With extended thinking on, `any` fires on the thinking block and `visible` fires later
  * once the answer starts; without thinking the two are equal.
  */
-async function measure(model) {
+async function measure(model, extra = {}) {
   const start = performance.now();
   const res = await fetch(`${BASE_URL}/v1/messages`, {
     method: 'POST',
@@ -105,6 +109,7 @@ async function measure(model) {
       stream: true,
       ...(CONTEXT && { system: [{ type: 'text', text: CONTEXT, cache_control: { type: 'ephemeral' } }] }),
       messages: [{ role: 'user', content: PROMPT }],
+      ...extra,
     }),
   });
   if (!res.ok || !res.body) {
@@ -158,13 +163,13 @@ async function main() {
   console.log();
 
   const rows = [];
-  for (const { label, model } of TARGETS) {
+  for (const { label, model, extra } of TARGETS) {
     const anys = [], visibles = [], totals = [], cacheReads = [], inputs = [];
     let err = null;
     for (let i = 0; i < RUNS + WARMUP; i++) {
       let r = null;
       for (let attempt = 0; attempt < 3; attempt++) {   // retry transient proxy errors (503 etc.)
-        try { r = await measure(model); err = null; break; }
+        try { r = await measure(model, extra); err = null; break; }
         catch (e) { err = e.message; await new Promise((res) => setTimeout(res, 400)); }
       }
       if (!r) continue;   // all retries failed — skip this sample, keep going
