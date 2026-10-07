@@ -1,0 +1,11 @@
+A snow globe on a wooden base: a tiny winter village inside the glass, real refraction and reflections on the dome, snow drifting down and settling. Moving the pointer over the globe shakes it: the flakes swirl up in the water, then slowly fall and settle again. Warm interior light, soft studio backdrop. Go all out.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome, no console errors: a few seconds idle, then the mouse slowly sweeps the scene, resting on parts. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
