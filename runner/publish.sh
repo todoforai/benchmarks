@@ -11,3 +11,4 @@ for b in "${@:-3d-bench}"; do
 done | jq -s 'group_by(.bench + "/" + .task) | map(. as $g | $g[-1] + {date: ($g | map(.date) | max),
   runs: ($g | map(.runs) | add | reverse | unique_by(.model))})' > "$OUT"
 jq -r '.[] | "\(.bench)/\(.task): \(.runs | length) models"' "$OUT"
+(cd ../../frontend && bun scripts/gen-bench-og.ts >/dev/null && echo "OG cards → frontend/public/og/bench/")   # commit public/og/bench/ with the results
