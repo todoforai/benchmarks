@@ -4,8 +4,8 @@ Same harness idea as `../pelican` but every run is **sandboxed** with bubblewrap
 (`sandbox.sh`, no Docker, no images, ~0 MB/run): host `/usr` `/snap` `/opt` read-only, `/work`
 = empty dir + the task's `assets/` is the only writable path, private `/tmp` and
 HOME, no `/home`, own PID namespace, env cleared. Models can't see each other's
-files, the host user's files, or earlier runs. Key via env (never argv), one key
-per concurrent container. Host tools are reused (blender, google-chrome, ffmpeg,
+files, the host user's files, or earlier runs. Key via env (never argv); one
+account runs every model in parallel (`--isolated` = todo-scoped mayfly bridge). Host tools are reused (blender, google-chrome, ffmpeg,
 bun, node) — install what a task needs on the host. GPU is passed through
 (`/dev/dri`, `/dev/nvidia*`): Cycles OPTIX/CUDA and EEVEE work in the sandbox.
 The mayfly bridge runs bash in `$TMPDIR/todoforai`, so that path is bound to `/work` too.
