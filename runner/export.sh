@@ -10,6 +10,10 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   img=""; v=""
   # Live page: same html, importmap repointed from the sandbox's /vendor to the same version on a CDN.
   live=""; [ -s "$d/work/index.html" ] && live="/bench/$bench/$task/$slug.html" && sed -e 's#"/vendor/three@\([0-9.]*\)/three\.module\.min\.js"#"https://unpkg.com/three@\1/build/three.module.min.js"#' -e 's#"/vendor/three@\([0-9.]*\)/addons/"#"https://unpkg.com/three@\1/examples/jsm/"#' "$d/work/index.html" > "$PUB/$slug.html"
+  # SVG bench: live view = the animated svg itself (SMIL/CSS), fitted into a tiny html page.
+  svg=$(ls "$d"/work/*.svg 2>/dev/null | head -1 || true)
+  [ -z "$live" ] && [ -n "$svg" ] && live="/bench/$bench/$task/$slug.html" && cp "$svg" "$PUB/$slug.svg" \
+    && printf '<!doctype html><body style="margin:0;height:100vh;display:grid;place-items:center;background:#fff"><img src="%s.svg" style="width:100%%;height:100%%;object-fit:contain"></body>\n' "$slug" > "$PUB/$slug.html"
   [ -s "$d/work/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$d/work/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
   [ -s "$d/work/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$d/work/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
   entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" \
