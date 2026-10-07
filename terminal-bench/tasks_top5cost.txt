@@ -1,0 +1,5 @@
+schemelike-metacircular-eval
+filter-js-from-html
+winning-avg-corewars
+dna-assembly
+make-doom-for-mips

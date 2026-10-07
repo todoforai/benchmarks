@@ -28,3 +28,18 @@ The 10-07 00:38 update was on **pc-6**; no TB run uses pc-6's proxy. pc_2 still 
 Junk / do not count: codex `…15-37-04`, `…16-56-30` (accidental duplicate), smoke `…15-34-14`.
 Agent deploys during runs: `f032fa75` (refusal fallback) 10-06 20:04 UTC — before `…22-28-00`;
 backend deploy by the user ~10-07 00:00 (announced 00:01) while only Codex `…23-33-55` ran (not affected).
+
+## 10-07 runs
+| job | agent | tasks | result |
+|---|---|---|---|
+| todoforai-…__2026-10-07__01-09-13 | ours (1.1k prompt + 4.8 fallback) | tasks 41–89 | 41/49 → full89 raw 77 |
+| codex-…__2026-10-07__03-34-51 | Codex | tasks 41–89 | → full89 72 |
+| todoforai-…__2026-10-07__06-12-30 | ours | pypi-server infra rerun | 1 → 78 |
+| todoforai-…__2026-10-07__09-19-36 | ours | vulnerable-secret k=2 | 2/2 → 79 (counted by decision) |
+| todoforai-…__2026-10-07__10-35-09 | ours, **new sysmsg** (A/B "B") | timeouts4 k=2 | filter-js 1/2, qemu-alpine-ssh 1/2, schemelike 1/2, make-doom 0/2 (all 4 were 0 before) |
+| todoforai-…__2026-10-07__13-40-59 | ours, new sysmsg, **thinkingTokens in runMeta** | top-5 cost tasks k=1 (`tasks_top5cost.txt`) | running |
+
+Config changes vs the 89-sweep (anything from `…10-35-09` on is NOT the 89-sweep config):
+- 2026-10-07 ~10:30 sysmsg 234 B → 297 B: added the "long-running commands: pipe to a file, read it back" line.
+- 2026-10-07 13:34 UTC+2 agent deploy `cf5c476e` + OpenRouter.jl `9623edf`: `extras.thinkingTokens` on AI runMeta
+  (subset of outputTokens). Also fixes a cost double-count for OpenAI/xAI reasoning_tokens (ours Opus runs unaffected).
