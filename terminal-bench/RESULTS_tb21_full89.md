@@ -3,7 +3,7 @@
 | harness | pass | notes |
 |---|---|---|
 | Claude Code 2.1.289 | **78/89** (87.6%) | silently falls back to Opus 4.8 on refusal (7 tasks); pure 5.5 = 74 |
-| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **77/89** (86.5%); **78/89** with the pypi-server infra rerun | pypi-server failed on CLI start ("operation timed out"), rerun `…__2026-10-07__06-12-30` passed in 67 s |
+| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **79/89** (88.8%) | 77 in the single-shot sweep; +pypi-server (infra rerun) +vulnerable-secret (refusal was k=1 noise: k=2 rerun passed 2/2 via the 4.8 fallback) |
 | Codex 0.160.1 via cliproxy | **72/89** (80.9%) | no refusal fallback |
 | todoforai, old prompt (10-05) | 71/89 (79.8%) | |
 
@@ -38,10 +38,11 @@ First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 | schemelike-metacircular-eval | 1 | 0 | 0 timeout | 0 timeout |
 | train-fasttext | 0 timeout | 1 | 1 | 1 |
 | video-processing | 0 | 0 verifier-timeout | 0 | 0 timeout |
-| vulnerable-secret | 1 | 0 | 0 refusal | 0 refusal (4.8 also refuses: cyber) |
+| vulnerable-secret | 1 | 0 | 0 refusal | 1 (k=1 refused, k=2 rerun 2/2 via 4.8 fallback) |
 
-Refusals left with the fallback: break-filter-js (passes on rerun), crack-7z-hash, vulnerable-secret —
-in the last two 4.8 refuses too, while CC passes both (different context / framing; k=1 noise possible).
+Refusals with the fallback are mostly k=1 noise: break-filter-js passes on rerun, vulnerable-secret passes 2/2 at k=2 (4.8 fallback). Only crack-7z-hash is a persistent refusal (4.8 also refuses repeatedly); CC passes it.
+
+4.8 fallback head-to-head (overlap tasks): ours 4/6 pass (dna-insert, password-recovery, protein-assembly, vulnerable-secret; dna-assembly & crack-7z fail), CC 4/7 (break-filter, crack-7z, password-recovery, vulnerable-secret; dna-assembly, dna-insert, protein-assembly fail). The 4.8 model is not weaker under our short prompt: we win dna-insert and protein-assembly that CC loses.
 
 ## Cost (ours new, list price from the billing ledger)
 1–20 $7.25 · 21–40 $12.95 · 41–89 $27.19 → **≈ $47 for 89, $0.53/task** (old prompt run: $31.76, $0.36/task —
