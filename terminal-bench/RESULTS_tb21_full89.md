@@ -3,7 +3,7 @@
 | harness | pass | notes |
 |---|---|---|
 | Claude Code 2.1.289 | **78/89** (87.6%) | silently falls back to Opus 4.8 on refusal (7 tasks); pure 5.5 = 74 |
-| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **77/89** (86.5%) | pypi-server = infra (CLI "operation timed out" at start, 3.5 min) — rerun pending |
+| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **77/89** (86.5%); **78/89** with the pypi-server infra rerun | pypi-server failed on CLI start ("operation timed out"), rerun `…__2026-10-07__06-12-30` passed in 67 s |
 | Codex 0.160.1 via cliproxy | **72/89** (80.9%) | no refusal fallback |
 | todoforai, old prompt (10-05) | 71/89 (79.8%) | |
 
@@ -31,7 +31,7 @@ First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 | overfull-hbox | 1 | 1 | 0 | 1 |
 | password-recovery | 1 | 1 | 0 refusal | 1 |
 | protein-assembly | 0 api error | 0 | 0 refusal | 1 |
-| pypi-server | 1 | 1 | 1 | 0 **infra** (CLI start timeout) |
+| pypi-server | 1 | 1 | 1 | 0 **infra** (CLI start timeout); rerun 1 |
 | qemu-alpine-ssh | 0 exit≠0 | 0 exit≠0 | 1 | 0 timeout |
 | qemu-startup | 0 exit≠0 | 0 exit≠0 | 1 | 1 |
 | query-optimize | 1 | 0 | 0 | 1 |
