@@ -1,4 +1,4 @@
-An ocean you could sail on: layered swell under a shifting wind, whitecaps where crests steepen, waves slowing and breaking into foam on a sloping beach, a slow tide moving the waterline. A small boat rides it, pitching and rolling with the actual surface (no sine bobbing). Sky, sun and haze; convincing from the horizon down to the waterline.
+An ocean you could sail on: layered swell under a shifting wind, whitecaps where crests steepen, waves slowing and breaking into foam on a sloping beach, a slow tide moving the waterline. A small boat rides it, pitching and rolling with the actual surface (no sine bobbing). Sky, sun and haze; convincing from the horizon down to the waterline. Add two small on-screen sliders for the two parameters you find most worth tweaking; the defaults must look great untouched.
 
 
 Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
