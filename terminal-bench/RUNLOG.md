@@ -49,3 +49,4 @@ Config changes vs the 89-sweep (anything from `…10-35-09` on is NOT the 89-swe
 ## 2026-10-08 night chain (`scripts/tb_night.cmd`, Task Scheduler TB_run)
 - `codex-claude-opus-4-8-high__2026-10-08__00-38-06` — Codex on Opus 4.8, the 4 Codex refusal tasks (`tasks_codex_refusals4.txt`), k=1 → Codex "with fallback" score (NEXT.md). Same "Model metadata … fallback" warning as the 5.5 runs.
 - then ours video-processing A (`tasks_video.txt`, k=1, unchanged config). Bench agent permissions now `allow [device:READ, device:BASH]` + `deny device:*` (backend b8a7e50b: defaults no longer out-rank user wildcards); debug dump verified tools = read+bash only.
+- Results: Codex 4.8 refusals 3/4 (protein-assembly ✗) → Codex with-fallback 75/89. video-processing A: clean run, 0 (4/5 tests). Audit: break-filter-js config rerun was in the table but not the headline → ours corrected 79 → **80/89**.

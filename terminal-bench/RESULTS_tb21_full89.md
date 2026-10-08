@@ -3,11 +3,11 @@
 | harness | pass | notes |
 |---|---|---|
 | Claude Code 2.1.289 | **78/89** (87.6%) | silently falls back to Opus 4.8 on refusal (7 tasks); pure 5.5 = 74 |
-| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **79/89** (88.8%) | 77 in the single-shot sweep; +pypi-server (infra rerun: CLI start timeout, no model call) +vulnerable-secret (k=1 refusal, k=2 rerun 2/2 via the 4.8 fallback) |
-| Codex 0.160.1 via cliproxy | **72/89** (80.9%) | no refusal fallback |
+| **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **80/89** (89.9%) | 77 in the single-shot sweep; +pypi-server (infra rerun: CLI start timeout, no model call) +break-filter-js (config rerun: tasks 1–20 ran before the 4.8 fallback was set) +vulnerable-secret (k=1 refusal, k=2 rerun 2/2 via the 4.8 fallback). Earlier sheets said 79: the break-filter-js config rerun was in the table but never added to the headline. |
+| Codex 0.160.1 via cliproxy | **72/89** (80.9%) | no refusal fallback. With its 4 refusals rerun on Opus 4.8 (`codex-claude-opus-4-8-high__2026-10-08__00-38-06`: break-filter-js ✓, dna-assembly ✓, vulnerable-secret ✓, protein-assembly ✗) = **75/89** (84.3%), the fallback-equivalent score |
 | todoforai, old prompt (10-05) | 71/89 (79.8%) | |
 
-One above Claude Code (78). Vals AI lists Opus 5.5 on TB 2.1 at 87.6% = 78/89, the same number our CC run gave.
+Two above Claude Code (78). Vals AI lists Opus 5.5 on TB 2.1 at 87.6% = 78/89, the same number our CC run gave.
 
 First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 
@@ -15,7 +15,7 @@ First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 - Reruns count only for infrastructure failures (pypi-server: CLI timed out before the first model call) and
   configuration mismatches (break-filter-js: tasks 1–20 ran before the 4.8 fallback was configured; the rerun with
   the same config as tasks 21–89 passes). Real refusals, wrong answers and timeouts are NOT rerun into the score.
-- k=1 noise: at p≈0.87 over 89 tasks σ≈3 tasks. 78 vs 77 vs 78 is a tie; Codex 72 and old-prompt 71 are ~2σ lower.
+- k=1 noise: at p≈0.87 over 89 tasks σ≈3 tasks. 80 vs 78 is within noise; Codex 72 (75 with a 4.8 fallback) and old-prompt 71 are ~2σ lower.
 - vulnerable-secret: refused at k=1, then passed 2/2 at k=2 with identical config — counted (refusals with the fallback are k=1 noise, the fallback will be made to work in one run)
   (job `…09-19-36`, both via the 4.8 fallback) — refusals are non-deterministic.
 
@@ -47,7 +47,7 @@ First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 | query-optimize | 1 | 0 | 0 | 1 |
 | schemelike-metacircular-eval | 1 | 0 | 0 timeout | 0 timeout |
 | train-fasttext | 0 timeout | 1 | 1 | 1 |
-| video-processing | 0 | 0 verifier-timeout | 0 | 0 (system: todo CANCELLED at 306 s, harbor idled to 3600 s) |
+| video-processing | 0 | 0 verifier-timeout | 0 | 0 (system: todo CANCELLED at 306 s, harbor idled to 3600 s; clean rerun `…10-08__00-51-43` also 0: 4/5 tests, hidden video takeoff off) |
 | vulnerable-secret | 1 | 0 | 0 refusal | 1 (k=1 refused, k=2 rerun 2/2 via 4.8 fallback) |
 
 Only CC passes: crack-7z-hash, filter-js, schemelike, make-mips-interpreter, model-extraction-relu-logits.
@@ -68,13 +68,13 @@ dna-assembly, crack-7z fail), CC 4/7 (break-filter, crack-7z, password-recovery,
 dna-insert, protein-assembly fail). 4.8 is not weaker under our short prompt.
 
 ## Cost (ours new, list price, 5.5 and 4.8 both 5/25/0.5/6.25 per M)
-1–20 $7.25 · 21–40 $16.24 · 41–89 $29.92 · pypi rerun $0.08 · vulnerable-secret rerun $0.24 → **$53.73 for 89, $0.60/task**
+1–20 $7.25 · 21–40 $16.24 · 41–89 $29.92 · pypi rerun $0.08 · break-filter-js rerun ~$0.17 (half of the $0.33 two-task `…22-28-00` job) · vulnerable-secret rerun $0.24 → **$53.90 for 89, $0.61/task**
 (old prompt run: $31.76, $0.36/task — the new run finishes the long tasks the old one timed out/refused on,
 which is where the output tokens go). `scripts/run_tokens.mjs <job>`.
 
 ## Jobs
 - CC `claude-code-claude-opus-5-5-high__2026-10-05__15-26-07`
-- Codex `codex-…__2026-10-06__16-26-05` (1–20), `…__2026-10-06__23-33-55` (21–40), `…__2026-10-07__03-34-51` (41–89)
+- Codex `codex-…__2026-10-06__16-26-05` (1–20), `…__2026-10-06__23-33-55` (21–40), `…__2026-10-07__03-34-51` (41–89), `codex-claude-opus-4-8-high__2026-10-08__00-38-06` (4 refusals on 4.8)
 - ours old `todoforai-…__2026-10-05__22-21-25`
 - ours new `todoforai-…__2026-10-06__21-04-34` (1–20), `…__2026-10-06__22-28-00` (break-filter-js config rerun),
   `…__2026-10-06__22-51-17` (21–40), `…__2026-10-07__01-09-13` (41–89), `…__2026-10-07__06-12-30` (pypi infra rerun),
