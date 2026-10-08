@@ -57,9 +57,8 @@ one() {  # $1 model  $2 key
   set -e; kill "$wd" 2>/dev/null || true; wait "$wd" 2>/dev/null || true
   kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
   [ -f "$d/.server_done" ] && echo "   (stream dropped; todo finished server-side → sandbox stopped, collecting)"
-  # Non-default timeout (the bench standard is 1h) gets a badge so the page says why a run had more time.
   jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --arg prompt_sha "$(sha256sum "$PROMPT_FILE" | cut -c1-12)" --argjson s "$(( $(date +%s) - t0 ))" --argjson to "$TIMEOUT" \
-    '{model:$m,task:$task,agent:$agent,prompt_sha:$prompt_sha,exit:$rc,wall_s:$s,timeout_s:$to} | if $to != 3600 then .badges=["\($to/3600|if .==floor then floor else . end)h timeout"] else . end' >"$d/meta.json"
+    '{model:$m,task:$task,agent:$agent,prompt_sha:$prompt_sha,exit:$rc,wall_s:$s,timeout_s:$to}' >"$d/meta.json"
   [ -f "$d/.server_done" ] && jq '.watchdog_killed=true | .badges=((.badges//[])+["stream dropped, output collected"])' "$d/meta.json" >"$d/m.tmp" && mv "$d/m.tmp" "$d/meta.json"
   ./metrics.sh "$d" "$KEY" || true                     # + cost_usd, turns (from the todo)
   [ -x "$TD/collect.sh" ] && "$TD/collect.sh" "$d" || true
