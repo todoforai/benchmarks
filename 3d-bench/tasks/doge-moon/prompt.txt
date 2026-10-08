@@ -1,12 +1,12 @@
-Doge rocket to the moon, ~20 s, looping with a hard cut back to the pad. A rocket shaped like a gold Ð coin, piloted by Doge: `/work/ref/doge.png` (body) and `/work/ref/doge_head.png` (head only), transparent PNGs — use them as flat cut-outs (window, billboard, sticker on the hull), don't model the dog. Doge is the star: keep him in the shot and readable whenever it matters, not a speck. This is a cartoon universe, not a simulation: forget real scale, the rocket can be as big as a continent, Earth and Moon as close as you like, and sizes can shift between beats if it reads better. Meme-bright, but real light: the plume lights the smoke, the coin catches the sun, hard shadows on the Moon.
+Doge rocket to the moon, ~20 s, looping with a hard cut back to the pad. A rocket shaped like a gold Ð coin, piloted by Doge: `/work/ref/doge.png` (body) and `/work/ref/doge_head.png` (head only), transparent PNGs — flat cut-outs in the window, on a billboard, as a sticker on the hull. Doge is the star: keep him in the shot and readable whenever it matters. This is a cartoon universe: forget real scale, the rocket can be as big as a continent, Earth and Moon as close as you like, and sizes can shift between beats if it reads better. Meme-bright, but real light: the plume lights the smoke, the coin catches the sun, hard shadows on the Moon.
 
-Beats (timings are a feel, not a spec):
+Beats (timings are a feel):
 - ~5 s on the pad: countdown, ignition, Doge in the frame.
 - ~5 s lift-off: pure hype, plume and smoke, the camera chasing.
 - ~5 s in space: trails, a green chart climbing behind it all, Earth and Moon in one frame, the rocket crossing it.
 - ~5 s the Moon: impact, dust, Doge plants a Ð flag, celebration. Then cut to the pad.
 
-One continuous ride between beats if you can, cuts where you must.
+One continuous ride between beats where you can.
 
 Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
 
