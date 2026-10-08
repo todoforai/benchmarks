@@ -6,8 +6,6 @@ Beats (timings are a feel):
 - ~5 s in space: trails, a green chart climbing behind it all, Earth and Moon in one frame, the rocket crossing it.
 - ~5 s the Moon: impact, dust, Doge plants a Ð flag, celebration. Then cut to the pad.
 
-One continuous ride between beats where you can.
-
 Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
 
 ```html
