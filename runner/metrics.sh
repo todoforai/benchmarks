@@ -21,5 +21,8 @@ m=$(todoforai-cli --inspect "$id" --json --debug --api-key "$K" 2>/dev/null | jq
      tokens: {input: ($ai | map(.extras.inputTokens // 0) | add), output: ($ai | map(.extras.outputTokens // 0) | add),
               cache_read: ($ai | map(.extras.cacheReadTokens // 0) | add), cache_write: ($ai | map(.extras.cacheWriteTokens // 0) | add),
               context_max: ($ai | map(.extras.contextTokens // 0) | max)}}')
+pub=$(curl -s -o /dev/null -w '%{http_code}' -X PUT -H "x-api-key: $K" -H 'content-type: application/json' \
+  -d '{"isPublic":true}' "https://api.todofor.ai/api/v1/todos/$id")   # replay link on /bench; 403 = key isn't the todo owner
+m=$(jq -c --argjson p "$([ "$pub" = 200 ] && echo true || echo false)" '. + {todo_public: $p}' <<<"$m")
 jq --argjson m "$m" '. + $m' "$d/meta.json" > "$d/meta.json.tmp" && mv "$d/meta.json.tmp" "$d/meta.json"
 echo "   $m"
