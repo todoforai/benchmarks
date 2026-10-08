@@ -211,3 +211,14 @@ Sonnet 5.5 rejects `(none)`/`thinking.type: disabled` (400) — its off switch i
 
 - With `between_tools` Sonnet 5.5 starts in ~0.8s and finishes in ~4.6s — faster than Sonnet 5 on both, second only to Haiku.
 - Generation without thinking (3.7s) is slower than with thinking (1.7s) — the earlier run's fast gen was likely a shorter answer after planning.
+
+### 2026-10-08 — Haiku 5.5 vs 4.5 (JARVIS candidate), thinking off, prompt cache hit on both
+| context | haiku-4.5 p50 | haiku-5.5 p50 | 5.5 worst | n |
+|---|---|---|---|---|
+| 0 | 511* | 553 | 853 | 25 |
+| ~3k tok | **486** | 873 | 1264 | 20 |
+| ~8k tok | **511** | 879 | 1066 | 25 |
+
+\* 4.5 had a bad-tail run at ctx=0 (p50 1133, worst 10.4s, CV 121%) — proxy/pool noise; its ctx runs were stable.
+With a cached system prompt 5.5 adds ~+380ms first-token (cache read confirmed: 18.8k/18.8k). JARVIS persona
+is ~20KB (~5k tok) + tools, so expect ~+400ms per turn on 5.5. Quality: jarvis-flows judge 4.55 vs 4.23.

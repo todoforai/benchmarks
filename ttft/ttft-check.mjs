@@ -55,6 +55,7 @@ const MODELS = [
   { name: 'luna-6', model: 'gpt-6-luna' },
   { name: 'sol-6', model: 'gpt-6-sol' },
   { name: 'haiku-4.5', model: 'claude-haiku-4-5-20251001' },
+  { name: 'haiku-5.5', model: 'claude-haiku-5-5', levels: ['low'] },
   { name: 'sonnet-4.5', model: 'claude-sonnet-4-5-20250929', levels: false },
   { name: 'sonnet-4.6', model: 'claude-sonnet-4-6', levels: false },
   { name: 'sonnet-5', model: 'claude-sonnet-5', levels: false },
