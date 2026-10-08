@@ -20,8 +20,12 @@ for g in /dev/dri /dev/nvidia*; do [ -e "$g" ] && binds+=(--dev-bind "$g" "$g");
 # /vendor: pinned three.js for threejs-* tasks (vendor.sh), read-only, same for every model.
 # bun: modern JS runtime/bundler (host node is 18).
 [ -x /snap/blender/current/blender ] && binds+=(--symlink /snap/blender/current/blender /tbin/blender)
-# Host's current bridge over dist's (old bridges don't advertise READ → no `read`/image tool).
-BR=$(readlink -f "$(command -v todoforai-bridge)" 2>/dev/null || true); [ -x "$BR" ] && binds+=(--ro-bind "$BR" /tbin/todoforai-bridge)
+# Host's current bridge over dist's: the agent's `read` needs read_file_b64 (bridge ≥ v1.5.x,
+# 10-07); an older one returns "unknown function" → models can't see their screenshots. Fail hard.
+BR=; for b in $(type -ap todoforai-bridge) "$HOME/.local/bin/todoforai-bridge"; do
+  b=$(readlink -f "$b"); [ -x "$b" ] && grep -q read_file_b64 "$b" && { BR=$b; break; }; done
+[ -n "$BR" ] || { echo "sandbox: no todoforai-bridge with read_file_b64 (image read) — update the bridge" >&2; exit 3; }
+binds+=(--ro-bind "$BR" /tbin/todoforai-bridge)
 BUN=$(command -v bun || true); [ -n "$BUN" ] && binds+=(--ro-bind "$(readlink -f "$BUN")" /tbin/bun --symlink bun /tbin/bunx)
 exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/bin /bin --symlink usr/sbin /sbin \
