@@ -1,0 +1,11 @@
+Doge rocket to the moon, looping. A rocket shaped like a gold Ð coin, piloted by Doge: `/work/ref/doge.png` (body) and `/work/ref/doge_head.png` (head only), transparent PNGs — use them as flat cut-outs (window, billboard, sticker on the hull), don't model the dog. Start close enough to feel ignition, plume and smoke on the pad, then find a cinematic way to pull out until the whole trip is in one frame: Earth, the arc of the trail, the Moon, and the tiny rocket arriving. Touchdown, Doge plants a Ð flag, and what happens after the flag is up to you. Meme-bright, but real light: the plume lights the smoke, the coin catches the sun, hard shadows on the Moon.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome, 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
