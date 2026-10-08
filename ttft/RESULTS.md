@@ -222,3 +222,13 @@ Sonnet 5.5 rejects `(none)`/`thinking.type: disabled` (400) — its off switch i
 \* 4.5 had a bad-tail run at ctx=0 (p50 1133, worst 10.4s, CV 121%) — proxy/pool noise; its ctx runs were stable.
 With a cached system prompt 5.5 adds ~+380ms first-token (cache read confirmed: 18.8k/18.8k). JARVIS persona
 is ~20KB (~5k tok) + tools, so expect ~+400ms per turn on 5.5. Quality: jarvis-flows judge 4.55 vs 4.23.
+
+### 2026-10-08 — + Sonnet 5.5 (thinking off = between_tools), n=20, p50 / worst ms
+| context | haiku-4.5 | haiku-5.5 | sonnet-5.5 |
+|---|---|---|---|
+| 0 | 763 / 10512* | **559** / 645 | 1203 / 3913 |
+| ~3k tok | **486** / 1298 | 953 / 1406 | 1753 / 11912 |
+| ~8k tok | **512** / 931 | 906 / 1248 | 1976 / 7284 |
+
+Sonnet 5.5: 0/60 under 1s, 39/60 under 2s, CV 50–91% — ~2× Haiku 5.5, ~4× Haiku 4.5 with context.
+\* haiku-4.5 bad tail again at ctx=0 (same as earlier run).
