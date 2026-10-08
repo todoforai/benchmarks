@@ -4,7 +4,7 @@
 |---|---|---|
 | Claude Code 2.1.289 | **78/89** (87.6%) | silently falls back to Opus 4.8 on refusal (7 tasks); pure 5.5 = 74 |
 | **todoforai, 1.1k-token prompt + 4.8 refusal fallback (10-06/07)** | **80/89** (89.9%) | 77 in the single-shot sweep; +pypi-server (infra rerun: CLI start timeout, no model call) +break-filter-js (config rerun: tasks 1–20 ran before the 4.8 fallback was set) +vulnerable-secret (k=1 refusal, k=2 rerun 2/2 via the 4.8 fallback). Earlier sheets said 79: the break-filter-js config rerun was in the table but never added to the headline. |
-| Codex 0.160.1 via cliproxy | **72/89** (80.9%) | no refusal fallback. With its 4 refusals rerun on Opus 4.8 (`codex-claude-opus-4-8-high__2026-10-08__00-38-06`: break-filter-js ✓, dna-assembly ✓, vulnerable-secret ✓, protein-assembly ✗) = **75/89** (84.3%), the fallback-equivalent score |
+| Codex 0.160.1 via cliproxy | **75/89** (84.3%) | no refusal fallback of its own, so its 4 refusals were rerun on Opus 4.8 by hand and counted (`codex-claude-opus-4-8-high__2026-10-08__00-38-06`: break-filter-js ✓, dna-assembly ✓, vulnerable-secret ✓, protein-assembly ✗); pure 5.5 = 72/89 (80.9%). Cost $35.58 + $3.08 rerun = $38.66 (harbor totals × list price) |
 | todoforai, old prompt (10-05) | 71/89 (79.8%) | |
 
 Two above Claude Code (78). Vals AI lists Opus 5.5 on TB 2.1 at 87.6% = 78/89, the same number our CC run gave.
@@ -15,7 +15,7 @@ First-call input context: CC ~15.4k tok, Codex ~15.4k, ours 1.1k (old: 1.9k).
 - Reruns count only for infrastructure failures (pypi-server: CLI timed out before the first model call) and
   configuration mismatches (break-filter-js: tasks 1–20 ran before the 4.8 fallback was configured; the rerun with
   the same config as tasks 21–89 passes). Real refusals, wrong answers and timeouts are NOT rerun into the score.
-- k=1 noise: at p≈0.87 over 89 tasks σ≈3 tasks. 80 vs 78 is within noise; Codex 72 (75 with a 4.8 fallback) and old-prompt 71 are ~2σ lower.
+- k=1 noise: at p≈0.87 over 89 tasks σ≈3 tasks. 80 vs 78 is within noise; Codex 75 (72 on pure 5.5) and old-prompt 71 are ~2σ lower.
 - vulnerable-secret: refused at k=1, then passed 2/2 at k=2 with identical config — counted (refusals with the fallback are k=1 noise, the fallback will be made to work in one run)
   (job `…09-19-36`, both via the 4.8 fallback) — refusals are non-deterministic.
 
