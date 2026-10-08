@@ -17,7 +17,9 @@ DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthro
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
 # Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. 3d-bench/lava-lamp).
 case $TASK in */*) TD="../${TASK%/*}/tasks/${TASK##*/}";; *) TD="tasks/$TASK";; esac
-[ -f "$TD/prompt.txt" ] || { echo "no $TD/prompt.txt" >&2; exit 1; }
+# A/B variants: PROMPT_FILE overrides the prompt, RUNS keeps the variant out of runs/ (publish.sh reads runs/ only).
+: "${PROMPT_FILE:=$TD/prompt.txt}" "${RUNS:=runs}"
+[ -f "$PROMPT_FILE" ] || { echo "no $PROMPT_FILE" >&2; exit 1; }
 SLUG=${TASK//\//_}
 [ -f "$TD/task.env" ] && . "$TD/task.env"          # TIMEOUT=...
 # --isolated = one todo-scoped mayfly bridge per run, so one account can run them all in parallel.
@@ -26,7 +28,7 @@ mapfile -t KEYS < <(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | awk 'NF && !seen[$
 [ ${#KEYS[@]} -ge 1 ] || { echo "no keys in $TODOFORAI_API_KEYS_FILE" >&2; exit 1; }
 ./sandbox.sh . -- true 2>/dev/null || { echo "bwrap blocked — see README (apparmor profile)" >&2; exit 1; }
 
-RUN="runs/$SLUG/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$TD/prompt.txt" "$RUN/"
+RUN="$RUNS/$SLUG/$(date +%Y-%m-%d__%H-%M-%S)_$$"; mkdir -p "$RUN"; cp "$PROMPT_FILE" "$RUN/prompt.txt"
 one() {  # $1 model  $2 key
   local M=$1 KEY=$2 slug=${1#*:} d rc; slug=${slug//\//_}; slug=${slug//[()]/_}; slug=${slug%_}; d="$RUN/$slug"; mkdir -p "$d/work"
   [ -d "$TD/assets" ] && cp -r "$TD/assets/." "$d/work/"
@@ -49,13 +51,13 @@ one() {  # $1 model  $2 key
     done ) & local wd=$!
   set +e
   # Model/agent via env too: ids like "…/claude-opus-5.5(high)" break shell quoting.
-  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$TD/prompt.txt")" TFA_MODEL="$M" TFA_AGENT="$AGENT" \
+  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$PROMPT_FILE")" TFA_MODEL="$M" TFA_AGENT="$AGENT" \
     ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
     2>&1 | while IFS= read -r l; do printf '%(%H:%M:%S)T %s\n' -1 "$l"; done >"$d/agent.log"; rc=${PIPESTATUS[0]}
   set -e; kill "$wd" 2>/dev/null || true; wait "$wd" 2>/dev/null || true
   kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true
   [ -f "$d/.server_done" ] && echo "   (stream dropped; todo finished server-side → sandbox stopped, collecting)"
-  jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --arg prompt_sha "$(sha256sum "$TD/prompt.txt" | cut -c1-12)" --argjson s "$(( $(date +%s) - t0 ))" \
+  jq -n --arg m "$M" --arg task "$TASK" --arg agent "$AGENT" --argjson rc "$rc" --arg prompt_sha "$(sha256sum "$PROMPT_FILE" | cut -c1-12)" --argjson s "$(( $(date +%s) - t0 ))" \
     '{model:$m,task:$task,agent:$agent,prompt_sha:$prompt_sha,exit:$rc,wall_s:$s}' >"$d/meta.json"
   [ -f "$d/.server_done" ] && jq '.watchdog_killed=true | .badges=((.badges//[])+["stream dropped, output collected"])' "$d/meta.json" >"$d/m.tmp" && mv "$d/m.tmp" "$d/meta.json"
   ./metrics.sh "$d" "$KEY" || true                     # + cost_usd, turns (from the todo)
