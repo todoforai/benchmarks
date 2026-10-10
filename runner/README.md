@@ -41,6 +41,10 @@ Tasks: `pelican`, `device-svg`, `web-animated`, `game-3d`, `3d-bench/island`
 ./run.sh game-3d -p 3 openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5
 ```
 
+Model policy: **no Kimi K3** (10× price on OpenCode Go, it drained the Go plan). Opus 5.5 /
+Opus 5 / Sonnet 5.5 run at `(medium)` (high burns the output budget), everything else `(high)`.
+No Gemini, no DeepSeek.
+
 Recording — no X/Xvfb, no screen grabbing:
 - `record.sh` (inotify) keeps every saved artifact version in `timeline/`;
   `timelapse.sh` → `rec/timelapse.ts` renders them (headless Chrome) into a labelled mp4.
