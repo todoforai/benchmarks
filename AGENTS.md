@@ -23,6 +23,11 @@ Read `terminal-bench/LESSONS.md` — every rule there cost real hours. The big o
 - CRLF from Windows checkouts breaks every script (`sed -i 's/\r$//'`; see
   `.gitattributes`). `sed -i` on a running script creates a new inode.
 
+## Models
+Default set (high where supported): Opus 5.5, Sonnet 5.5, GPT-6.1 Sol, GPT-6 Sol, GPT-6 Luna,
+GPT-6 Astra, Grok 4.7, MiMo v2.6 Pro. **Never run Kimi K3**: 10× price on OpenCode Go, it
+burned the package quota (2026-10-09). No Gemini, no DeepSeek.
+
 ## Running
 ```bash
 cd terminal-bench
