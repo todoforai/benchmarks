@@ -133,6 +133,16 @@ def preflight(agent_name: str = "app") -> None:
 _REFUSAL_RE = r"refused to answer this request|flagged as: cyber"
 
 
+def _todo_id(cli_log: Path) -> str | None:
+    import re
+
+    try:
+        m = re.search(r"todofor\.ai/t/([0-9a-f-]{36})", cli_log.read_text(errors="replace"))
+    except OSError:
+        return None
+    return m.group(1) if m else None
+
+
 def _refusal_reason(cli_log: Path) -> str | None:
     """The todo's error-block text if the run ended in a model refusal.
 
@@ -145,11 +155,11 @@ def _refusal_reason(cli_log: Path) -> str | None:
     import urllib.request
 
     try:
-        m = re.search(r"todofor\.ai/t/([0-9a-f-]{36})", cli_log.read_text(errors="replace"))
-        if not m:
+        todo_id = _todo_id(cli_log)
+        if not todo_id:
             return None
         req = urllib.request.Request(
-            f"{_api_url()}/api/v1/todos/{m.group(1)}/messages",
+            f"{_api_url()}/api/v1/todos/{todo_id}/messages",
             headers={"x-api-key": _api_key()},
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -203,8 +213,49 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
     def _install_agent_template_path(self) -> Path:
         return Path(__file__).parent / "install-todoforai.sh.j2"
 
+    SUPPORTS_ATIF = True
+
     def populate_context_post_run(self, context: AgentContext) -> None:
-        pass
+        """Write logs_dir/trajectory.json (ATIF) from the todo conversation.
+
+        The leaderboard requires an ATIF trajectory on every passing trial so
+        its judge can audit for reward hacking. Never raises: a missing
+        trajectory must not turn into a failed trial.
+        """
+        from . import atif
+
+        logs = Path(self.logs_dir)
+        todo_id = _todo_id(logs / "todoforai-cli.txt")
+        if not todo_id:
+            print("[atif] no todo id in todoforai-cli.txt; trajectory skipped")
+            return
+        url, key = _api_url(), _api_key()
+
+        def load(tid: str) -> list[dict] | None:
+            try:
+                return atif.fetch_messages(url, key, tid)
+            except Exception as exc:
+                print(f"[atif] messages of {tid} unavailable: {exc}")
+                return None
+
+        try:
+            messages = load(todo_id)
+            if not messages:
+                return
+            traj = atif.to_trajectory(
+                messages, atif.attachment_fetcher(url, key),
+                agent_version=self.version() or "unknown", model_name=self.model_name,
+                session_id=todo_id, load_sub=load,
+            )
+            (logs / "trajectory.json").write_text(json.dumps(traj.to_json_dict(), indent=2))
+        except Exception as exc:
+            print(f"[atif] trajectory conversion failed for {todo_id}: {exc}")
+            return
+        fm = traj.final_metrics
+        context.n_input_tokens = fm.total_prompt_tokens
+        context.n_cache_tokens = fm.total_cached_tokens
+        context.n_output_tokens = fm.total_completion_tokens
+        context.cost_usd = fm.total_cost_usd
 
     async def install(self, environment: BaseEnvironment) -> None:
         install_script = Path(__file__).parent / "install-todoforai.sh.j2"
