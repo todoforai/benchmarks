@@ -89,7 +89,32 @@ Findings:
 - QnA judge: `~/qna-judge.env` (WSL) = `OPENAI_API_KEY`=cliproxy client key, `OPENAI_API_BASE=http://172.17.0.1:8317/v1`,
   `EVAL_MODEL=claude-opus-4-5-20251101`. The cliproxy rejects the `anthropic/` prefix. Start the cliproxy first (`~/cliproxyapi`).
 - The container has no git user, so the agent committed as "Claude Code <noreply@anthropic.com>". Harmless; consider setting a git identity in `setup()`.
-- Full sweep estimate: 303 tasks × ~30 min / 4 concurrent ≈ 38 h per k. The task timeout is 3 h.
+- Full sweep estimate: 303 tasks × ~30 min / 4 concurrent ≈ 38 h per k. Agent timeout: Hub `deep-swe-1-1` = **5400 s (90 min)**, not 3 h.
+
+### 5+5 run 2026-10-14 (Opus 5.5, `app`, k=1, n=2+2): DeepSWE 1/5, QnA 2/5
+
+| Bench | Task | Reward | Detail | Agent time |
+|---|---|--:|---|--:|
+| DeepSWE | aiomonitor-task-snapshots-diff | 1 | F2P 53/53 | 26 min |
+| DeepSWE | yaegi-go-embed-directives | 0 | AgentTimeout, no commit (F2P 0/38) | 90 |
+| DeepSWE | ink-grid-box-layout | 0 | AgentTimeout, no commit (0/25) | 90 |
+| DeepSWE | tengo-callable-instance-isolation | 0 | AgentTimeout, no commit (0/23) | 90 |
+| DeepSWE | true-myth-iterable-collection-combinators | 0 | AgentTimeout, no commit (0/96) | 90 |
+| QnA | …9cd / …a21 | 1 / 1 | 6/6, 11/11 rubrics | |
+| QnA | …9b6 / …9eb / …9be | 0 | 8/10, 7/9, 10/12 rubrics | |
+
+Timeouts, 2 kinds:
+- **yaegi, ink: real timeouts.** Both were working until the kill (yaegi made 125 messages) but never committed.
+- **tengo, true-myth: harness stall.** At about 12:37–12:38 CEST both todos stopped getting assistant output:
+  an empty reply, or the reason block left PENDING. The CLI then sat idle until the kill. true-myth made only 18 tool calls,
+  all in its first minute; tengo was idle for about 66 min. Probably a backend/LLM stream outage.
+Needed: (1) a CLI no-progress watchdog (resend or fail fast); (2) a prompt or adapter step that commits WIP
+early and often, since uncommitted work scores 0 and the 90 min limit is tight (AA: Claude Code averages about 64 min per task).
+Re-run tengo and true-myth.
+
+QnA misses: answers come after 2–8 min of exploration and skip exact constants (modifier bits, `Number.isFinite` paths)
+and inline evidence. A QnA-specific prompt (exact values, every consumer, evidence inline) could help.
+Jobs: `jobs/todoforai-claude-opus-5.5-app__2026-10-14__10-36-22`, `jobs/…__qna5__2026-10-14__10-36-22`.
 
 Open points:
 
