@@ -71,8 +71,27 @@ $/task = pay-per-token list price incl. cache. Wall time = agent only (no env bu
 
 ## Running them with our harness (`terminal-bench/run.sh`, Harbor 0.22 on the WSL host)
 
-All three are Harbor datasets, so the existing `todoforai_tbench` adapter applies as-is:
-`./run.sh -m <model> -d <dataset> -k 3`. Not yet tried on DeepSWE/QnA. Open points:
+All three are Harbor datasets, so the existing `todoforai_tbench` adapter applies as-is.
+
+### Smoke 2026-10-14 (ours, Opus 5.5, `app` agent, k=1): both pass
+
+| Bench | Task | Reward | Agent time | Command |
+|---|---|--:|--:|---|
+| DeepSWE v1.1 | abs-module-cache-flags | 1 (F2P 20/20, P2P 3/3) | 33 min | `./run.sh -m anthropic:anthropic/claude-opus-5.5 -d datacurve/deep-swe-1-1 -i abs-module-cache-flags -n 1 -- --allow-agent-host api.todofor.ai` |
+| SWE-Atlas QnA | task-6905333b74f22949d97ba998 | 1 | 16 min | `harbor run -p ~/SWE-Atlas/data/qa -i task-6905333b74f22949d97ba998 -m anthropic:anthropic/claude-opus-5.5 -n 1 -k 1 -o jobs --agent-import-path todoforai_tbench:TODOforAIHarborAgent --env-file ~/qna-judge.env` |
+
+Jobs (pc_2): `jobs/todoforai-claude-opus-5.5-app__2026-10-14__09-53-38`, `jobs/todoforai-claude-opus-5.5-app__qna-v1.1-smoke`.
+Findings:
+- The DeepSWE egress allowlist (Harbor docker sidecar) lets the backend through. The bridge works inside the no-network agent phase.
+- **Do not use the Hub `scale-ai/swe-atlas-qna`**. It points at the old `swe-atlas:…_1.0` images, whose ENTRYPOINT is `/bin/bash`,
+  so harbor's `sh -c "sleep infinity"` exits 126 and the trial dies. Use the GitHub `scaleapi/SWE-Atlas` `data/qa`
+  (v1.1 images) with `-p`. AA also ran from a local path.
+- QnA judge: `~/qna-judge.env` (WSL) = `OPENAI_API_KEY`=cliproxy client key, `OPENAI_API_BASE=http://172.17.0.1:8317/v1`,
+  `EVAL_MODEL=claude-opus-4-5-20251101`. The cliproxy rejects the `anthropic/` prefix. Start the cliproxy first (`~/cliproxyapi`).
+- The container has no git user, so the agent committed as "Claude Code <noreply@anthropic.com>". Harmless; consider setting a git identity in `setup()`.
+- Full sweep estimate: 303 tasks × ~30 min / 4 concurrent ≈ 38 h per k. The task timeout is 3 h.
+
+Open points:
 
 - **DeepSWE**: the agent phase is `no-network`. Our agent needs the backend (`api.todofor.ai`)
   → `--allow-agent-host api.todofor.ai`. Harbor's docker env has an egress allowlist, untested by us.
