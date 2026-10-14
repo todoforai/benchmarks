@@ -15,6 +15,9 @@
 #   -k  attempts per task    (default 1)
 #   -e  effort for claude-code/codex (low|medium|high|xhigh|max). todoforai takes its
 #       effort from the `app` agent's thinkingLevel, not from this flag.
+#   --  everything after goes to `harbor run` verbatim, e.g.
+#       -- --allow-agent-host api.todofor.ai   (DeepSWE: no-network agent phase)
+#       -- --env-file ~/codex-cliproxy.env     (SWE-Atlas QnA judge: OPENAI_API_KEY/BASE_URL)
 #
 # claude-code auth: CLAUDE_FORCE_OAUTH=1 + CLAUDE_CODE_OAUTH_TOKEN in
 # $CLAUDE_ENV_FILE (default ~/claude-oauth.env, from `claude setup-token`).
@@ -31,9 +34,11 @@ while getopts "a:m:d:t:i:n:k:e:h" o; do
   case $o in
     a) AGENT=$OPTARG ;; m) MODEL=$OPTARG ;; d) DATASET=$OPTARG ;; t) TASKS_FILE=$OPTARG ;;
     i) TASKS+=("$OPTARG") ;; n) CONC=$OPTARG ;; k) K=$OPTARG ;; e) EFFORT=$OPTARG ;;
-    *) sed -n '2,20p' "$0"; exit 2 ;;
+    *) sed -n '2,23p' "$0"; exit 2 ;;
   esac
 done
+shift $((OPTIND - 1)); [ "${1:-}" != -- ] || shift
+EXTRA=("$@")
 [ -n "$MODEL" ] || { echo "-m <model> is required" >&2; exit 2; }
 [ "$CONC" -le 4 ] || { echo "-n $CONC > 4: the WSL host swaps/crashes above 4 (LESSONS.md)" >&2; exit 2; }
 
@@ -75,4 +80,4 @@ echo "$(date '+%F %T') $AGENT $MODEL effort=${EFFORT:-default} $DATASET tasks=$N
 
 # Leaked compose networks exhaust docker's address pools and fail later trials.
 docker network prune -f >/dev/null 2>&1 || true
-exec "$HARBOR" run "${ARGS[@]}"
+exec "$HARBOR" run "${ARGS[@]}" "${EXTRA[@]}"
