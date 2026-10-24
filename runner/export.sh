@@ -6,10 +6,13 @@ set -euo pipefail; run=$(readlink -f "$1"); shot=${2:-shot.png}; vid=${3:-previe
 name=$(basename "$(dirname "$run")"); bench=${name%%_*}; task=${name#*_}
 PUB=$(readlink -f "$(dirname "$0")/../../frontend/public/bench")/$bench/$task; mkdir -p "$PUB"
 entries=()
+# Task assets the prompt hands the model at /work/... (e.g. ref/doge.png): ship them next to the live pages,
+# whose absolute /work/ paths are rewritten to relative below.
+TD=$(dirname "$0")/../$bench/tasks/$task/assets; [ -d "$TD" ] && cp -r "$TD"/. "$PUB"/
 for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basename "$d")
   img=""; v=""
   # Live page: same html, importmap repointed from the sandbox's /vendor to the same version on a CDN.
-  live=""; [ -s "$d/work/index.html" ] && live="/bench/$bench/$task/$slug.html" && sed -e 's#"/vendor/three@\([0-9.]*\)/three\.module\.min\.js"#"https://unpkg.com/three@\1/build/three.module.min.js"#' -e 's#"/vendor/three@\([0-9.]*\)/addons/"#"https://unpkg.com/three@\1/examples/jsm/"#' "$d/work/index.html" > "$PUB/$slug.html"
+  live=""; [ -s "$d/work/index.html" ] && live="/bench/$bench/$task/$slug.html" && sed -e 's#"/vendor/three@\([0-9.]*\)/three\.module\.min\.js"#"https://unpkg.com/three@\1/build/three.module.min.js"#' -e 's#"/vendor/three@\([0-9.]*\)/addons/"#"https://unpkg.com/three@\1/examples/jsm/"#' -e 's#\([\x27"`(]\)/work/#\1#g' "$d/work/index.html" > "$PUB/$slug.html"
   # SVG bench: live view = the animated svg itself (SMIL/CSS), fitted into a tiny html page.
   svg=$(ls "$d"/work/*.svg 2>/dev/null | head -1 || true)
   [ -z "$live" ] && [ -n "$svg" ] && live="/bench/$bench/$task/$slug.html" && cp "$svg" "$PUB/$slug.svg" \
