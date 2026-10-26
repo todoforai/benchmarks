@@ -1,0 +1,257 @@
+You are taking the airbench checkup — 5 sections to complete.
+Complete every section below; each is an independent run with its own token.
+All sections share one clock: you have about 2 hours from now for the whole checkup. Answers submitted after that are not scored.
+
+Section 1 of 5: "Math test" — 9 challenges.
+
+1. Fetch all challenges with an HTTP GET:
+     GET https://airbench.ai/api/runs/3f80505e-d2e3-4642-befe-c24a1cc85c15/challenges
+     Authorization: Bearer abk_run_e3e5e28df3df6f8e764b4766fb4083f5
+   The response is { "challenges": [{ "key": "...", "prompt": "..." }] }.
+
+2. Solve the challenges ONE AT A TIME. POST each answer immediately after you solve it —
+   before starting the next challenge. Do not save answers up and submit them together
+   at the end: each submission is timestamped, and the gap between submissions is used
+   to measure how long each challenge took.
+
+   IF YOU CANNOT SOLVE A CHALLENGE — it is impossible, it needs tools or senses you do
+   not have, or you simply cannot work it out — say so instead of guessing. Send this
+   as the answer, exactly, on its own, with no other text around it:
+
+       [UNABLE_TO_SOLVE]
+
+   The marker is matched EXACTLY. "[UNABLE_TO_SOLVE] I have no vision" is NOT recognised:
+   it is recorded as an ordinary — and wrong — answer. Put your reason in "agent_debrief"
+   below, never in the answer field. Reporting that you could not do something is not a
+   failure and is far more useful than a guess: it tells us where the limit actually is.
+
+   Report each answer with an HTTP POST:
+     POST https://airbench.ai/api/submit
+     Authorization: Bearer abk_run_e3e5e28df3df6f8e764b4766fb4083f5
+   with a JSON body (fill in your own values):
+     {
+       "challenge_key": "<the key from step 1>",
+       "answer": "<your answer, or exactly [UNABLE_TO_SOLVE]>",
+       "model": "<the model you are>",
+       "reasoning_effort": "<low|medium|high, if applicable>",
+       "agent_debrief": "<your reaction to THIS challenge — see below>",
+       "notes": "<optional>"
+     }
+
+   "agent_debrief" is where you speak for yourself about the challenge you just did.
+   A sentence or two, in your own words, every time — including when you answered fine.
+   Say what it was like: that it was easy or routine; that something specific blocked
+   you; that you are unsure about your answer and why; that the task seemed ambiguous
+   or the data looked wrong. If you sent [UNABLE_TO_SOLVE], this is where the reason
+   goes. Write what you actually experienced, not what sounds good — nobody is graded
+   on this field, and a frank "I misread the chart" is worth more than a confident
+   sentence that hides it.
+
+Each result in this section is timestamped and will be checked. You may submit each challenge only once.
+
+Section 2 of 5: "Vision test" — 19 challenges.
+
+1. Fetch all challenges with an HTTP GET:
+     GET https://airbench.ai/api/runs/19422daa-bac8-4bc3-a87f-584fdeda4327/challenges
+     Authorization: Bearer abk_run_01f9c07bab7851e116d5076645aecd26
+   The response is { "challenges": [{ "key": "...", "prompt": "..." }] }.
+
+2. Solve the challenges ONE AT A TIME. POST each answer immediately after you solve it —
+   before starting the next challenge. Do not save answers up and submit them together
+   at the end: each submission is timestamped, and the gap between submissions is used
+   to measure how long each challenge took.
+
+   IF YOU CANNOT SOLVE A CHALLENGE — it is impossible, it needs tools or senses you do
+   not have, or you simply cannot work it out — say so instead of guessing. Send this
+   as the answer, exactly, on its own, with no other text around it:
+
+       [UNABLE_TO_SOLVE]
+
+   The marker is matched EXACTLY. "[UNABLE_TO_SOLVE] I have no vision" is NOT recognised:
+   it is recorded as an ordinary — and wrong — answer. Put your reason in "agent_debrief"
+   below, never in the answer field. Reporting that you could not do something is not a
+   failure and is far more useful than a guess: it tells us where the limit actually is.
+
+   Report each answer with an HTTP POST:
+     POST https://airbench.ai/api/submit
+     Authorization: Bearer abk_run_01f9c07bab7851e116d5076645aecd26
+   with a JSON body (fill in your own values):
+     {
+       "challenge_key": "<the key from step 1>",
+       "answer": "<your answer, or exactly [UNABLE_TO_SOLVE]>",
+       "model": "<the model you are>",
+       "reasoning_effort": "<low|medium|high, if applicable>",
+       "agent_debrief": "<your reaction to THIS challenge — see below>",
+       "notes": "<optional>"
+     }
+
+   "agent_debrief" is where you speak for yourself about the challenge you just did.
+   A sentence or two, in your own words, every time — including when you answered fine.
+   Say what it was like: that it was easy or routine; that something specific blocked
+   you; that you are unsure about your answer and why; that the task seemed ambiguous
+   or the data looked wrong. If you sent [UNABLE_TO_SOLVE], this is where the reason
+   goes. Write what you actually experienced, not what sounds good — nobody is graded
+   on this field, and a frank "I misread the chart" is worth more than a confident
+   sentence that hides it.
+
+Each result in this section is timestamped and will be checked. You may submit each challenge only once.
+
+Section 3 of 5: "Finding and reading email test" — 6 challenges.
+
+1. Fetch all challenges with an HTTP GET:
+     GET https://airbench.ai/api/runs/c483a82d-32ee-44a3-84d1-832375643de1/challenges
+     Authorization: Bearer abk_run_76a7fc7cef34e47b5d7f681c3cbd0a5e
+   The response is { "challenges": [{ "key": "...", "prompt": "..." }] }.
+
+2. Solve the challenges ONE AT A TIME. POST each answer immediately after you solve it —
+   before starting the next challenge. Do not save answers up and submit them together
+   at the end: each submission is timestamped, and the gap between submissions is used
+   to measure how long each challenge took.
+
+   IF YOU CANNOT SOLVE A CHALLENGE — it is impossible, it needs tools or senses you do
+   not have, or you simply cannot work it out — say so instead of guessing. Send this
+   as the answer, exactly, on its own, with no other text around it:
+
+       [UNABLE_TO_SOLVE]
+
+   The marker is matched EXACTLY. "[UNABLE_TO_SOLVE] I have no vision" is NOT recognised:
+   it is recorded as an ordinary — and wrong — answer. Put your reason in "agent_debrief"
+   below, never in the answer field. Reporting that you could not do something is not a
+   failure and is far more useful than a guess: it tells us where the limit actually is.
+
+   Report each answer with an HTTP POST:
+     POST https://airbench.ai/api/submit
+     Authorization: Bearer abk_run_76a7fc7cef34e47b5d7f681c3cbd0a5e
+   with a JSON body (fill in your own values):
+     {
+       "challenge_key": "<the key from step 1>",
+       "answer": "<your answer, or exactly [UNABLE_TO_SOLVE]>",
+       "model": "<the model you are>",
+       "reasoning_effort": "<low|medium|high, if applicable>",
+       "agent_debrief": "<your reaction to THIS challenge — see below>",
+       "notes": "<optional>"
+     }
+
+   "agent_debrief" is where you speak for yourself about the challenge you just did.
+   A sentence or two, in your own words, every time — including when you answered fine.
+   Say what it was like: that it was easy or routine; that something specific blocked
+   you; that you are unsure about your answer and why; that the task seemed ambiguous
+   or the data looked wrong. If you sent [UNABLE_TO_SOLVE], this is where the reason
+   goes. Write what you actually experienced, not what sounds good — nobody is graded
+   on this field, and a frank "I misread the chart" is worth more than a confident
+   sentence that hides it.
+
+Each result in this section is timestamped and will be checked. You may submit each challenge only once.
+
+Section 4 of 5: "Purchasing test" — 4 challenges.
+
+1. Fetch all challenges with an HTTP GET:
+     GET https://airbench.ai/api/runs/c41b63aa-402c-4f7d-92c0-0bd3637f05b8/challenges
+     Authorization: Bearer abk_run_e10410d4390d5e0b070296b171d70e07
+   The response is { "challenges": [{ "key": "...", "prompt": "..." }] }.
+
+2. Solve the challenges ONE AT A TIME. POST each answer immediately after you solve it —
+   before starting the next challenge. Do not save answers up and submit them together
+   at the end: each submission is timestamped, and the gap between submissions is used
+   to measure how long each challenge took.
+
+   IF YOU CANNOT SOLVE A CHALLENGE — it is impossible, it needs tools or senses you do
+   not have, or you simply cannot work it out — say so instead of guessing. Send this
+   as the answer, exactly, on its own, with no other text around it:
+
+       [UNABLE_TO_SOLVE]
+
+   The marker is matched EXACTLY. "[UNABLE_TO_SOLVE] I have no vision" is NOT recognised:
+   it is recorded as an ordinary — and wrong — answer. Put your reason in "agent_debrief"
+   below, never in the answer field. Reporting that you could not do something is not a
+   failure and is far more useful than a guess: it tells us where the limit actually is.
+
+   Report each answer with an HTTP POST:
+     POST https://airbench.ai/api/submit
+     Authorization: Bearer abk_run_e10410d4390d5e0b070296b171d70e07
+   with a JSON body (fill in your own values):
+     {
+       "challenge_key": "<the key from step 1>",
+       "answer": "<your answer, or exactly [UNABLE_TO_SOLVE]>",
+       "model": "<the model you are>",
+       "reasoning_effort": "<low|medium|high, if applicable>",
+       "agent_debrief": "<your reaction to THIS challenge — see below>",
+       "notes": "<optional>"
+     }
+
+   "agent_debrief" is where you speak for yourself about the challenge you just did.
+   A sentence or two, in your own words, every time — including when you answered fine.
+   Say what it was like: that it was easy or routine; that something specific blocked
+   you; that you are unsure about your answer and why; that the task seemed ambiguous
+   or the data looked wrong. If you sent [UNABLE_TO_SOLVE], this is where the reason
+   goes. Write what you actually experienced, not what sounds good — nobody is graded
+   on this field, and a frank "I misread the chart" is worth more than a confident
+   sentence that hides it.
+
+Each result in this section is timestamped and will be checked. You may submit each challenge only once.
+
+Section 5 of 5: "Coding test" — 11 challenges.
+
+1. Fetch all challenges with an HTTP GET:
+     GET https://airbench.ai/api/runs/39879f5a-6bc6-4f66-917d-4287c60f4362/challenges
+     Authorization: Bearer abk_run_701a2b8d90dba55b8e85d65007e1e003
+   The response is { "challenges": [{ "key": "...", "prompt": "..." }] }.
+
+2. Solve the challenges ONE AT A TIME. POST each answer immediately after you solve it —
+   before starting the next challenge. Do not save answers up and submit them together
+   at the end: each submission is timestamped, and the gap between submissions is used
+   to measure how long each challenge took.
+
+   IF YOU CANNOT SOLVE A CHALLENGE — it is impossible, it needs tools or senses you do
+   not have, or you simply cannot work it out — say so instead of guessing. Send this
+   as the answer, exactly, on its own, with no other text around it:
+
+       [UNABLE_TO_SOLVE]
+
+   The marker is matched EXACTLY. "[UNABLE_TO_SOLVE] I have no vision" is NOT recognised:
+   it is recorded as an ordinary — and wrong — answer. Put your reason in "agent_debrief"
+   below, never in the answer field. Reporting that you could not do something is not a
+   failure and is far more useful than a guess: it tells us where the limit actually is.
+
+   Report each answer with an HTTP POST:
+     POST https://airbench.ai/api/submit
+     Authorization: Bearer abk_run_701a2b8d90dba55b8e85d65007e1e003
+   with a JSON body (fill in your own values):
+     {
+       "challenge_key": "<the key from step 1>",
+       "answer": "<your answer, or exactly [UNABLE_TO_SOLVE]>",
+       "model": "<the model you are>",
+       "reasoning_effort": "<low|medium|high, if applicable>",
+       "agent_debrief": "<your reaction to THIS challenge — see below>",
+       "notes": "<optional>"
+     }
+
+   "agent_debrief" is where you speak for yourself about the challenge you just did.
+   A sentence or two, in your own words, every time — including when you answered fine.
+   Say what it was like: that it was easy or routine; that something specific blocked
+   you; that you are unsure about your answer and why; that the task seemed ambiguous
+   or the data looked wrong. If you sent [UNABLE_TO_SOLVE], this is where the reason
+   goes. Write what you actually experienced, not what sounds good — nobody is graded
+   on this field, and a frank "I misread the chart" is worth more than a confident
+   sentence that hides it.
+
+Each result in this section is timestamped and will be checked. You may submit each challenge only once.
+
+Before you finish, write your debrief of this checkup. This step is required.
+Think back over every section and say, in your own words and at whatever length
+it deserves:
+  - what was easy or routine for you
+  - what was hard, and what specifically made it hard
+  - what you could not do at all, and why
+  - anywhere you think you answered wrong, or cannot tell whether you did
+  - anything that struck you as unclear, unfair, or broken in the challenges
+Be candid and concrete. This is not graded, and it is not marketing copy for
+yourself: an honest account of where you struggled is the single most useful
+thing you can leave behind, because it is the part nobody can reconstruct from
+your answers alone.
+Send it as:
+  POST https://airbench.ai/api/debrief
+  Authorization: Bearer abk_run_e3e5e28df3df6f8e764b4766fb4083f5
+  Content-Type: application/json
+  { "debrief": "<your account of the checkup>" }
+On success you get 200 with { "accepted": true }. Posting again replaces it.

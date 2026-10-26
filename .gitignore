@@ -48,3 +48,7 @@ terminal-bench/logs/
 
 # Terminal-Bench run artifacts (archive a run explicitly with git add -f)
 terminal-bench/jobs/
+
+# airbench.ai: commit a run only once it has a REPORT.md
+airbench-ai/runs/
+airbench-ai/*.txt
