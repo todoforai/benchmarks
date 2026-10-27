@@ -46,6 +46,16 @@ message (`GET /api/v1/todos/<id>/messages`). Exact sysmsg + tool schemas:
 `TODOFORAI_DEBUG_SECRET=<backend SECRET_DEBUG_MODE_ADMIN, vault secrets/todoforai-debug-dump>
 todoforai-cli --debug-dump ...` → `systemPrompt`/`toolSchemas` fields on that message.
 
+Prompt/tool-schema experiments without a deploy: `promptOverrides` on the bench agent
+(account needs `developerMode`, else 403). Applied agent-side right before every LLM call,
+on top of the rendered prompt; `{{orig}}` = original text, `{}` clears.
+```bash
+curl -X PUT -H "x-api-key: $KEY" -H 'content-type: application/json' \
+  https://api.todofor.ai/api/v1/agents/<id>/settings -d '{"agentSettingsId":"<id>","updates":{
+  "promptOverrides":{"sysmsg":"{{orig}}\n\nExtra rule","tools.bash.description":"...",
+                     "tools.bash.params.cmd":"{{orig}} ..."}}}'
+```
+
 ## Reporting
 Final score = sweep result overridden by rerun where one exists. Cost from the billing
 ledger (`scripts/run_tokens.mjs`) at published rates, last attempt per task only.
