@@ -1,11 +1,11 @@
 # TB 2.1 full 89 — todoforai v1.0.11, bash + tfa-cat (no read tool), Opus 5.5 high, k=1
 
-**81/89 (91.0%)**, single sweep, no reruns. Previous best 80/89 (10-06/07, with 2 reruns).
+**81/89 (91.0%)**, single sweep, no reruns. Previous best 80/89 (10-06/07, 77 in the sweep + 3 declared reruns).
 
 | harness | pass | cost (list) |
 |---|---|---|
 | **todoforai v1.0.11, bash + tfa-cat (10-25/26)** | **81/89** (91.0%) | $50.82 |
-| todoforai v1.0.4, read + bash (10-06/07, 2 reruns) | 80/89 (89.9%) | $53.90 |
+| todoforai v1.0.4, read + bash (10-06/07, 3 declared reruns) | 80/89 (89.9%) | $53.90 |
 | Claude Code 2.1.289 | 78/89 (87.6%) | ≈$45.68 |
 | Codex 0.160.1 | 75/89 (84.3%) | ≈$38.66 |
 | todoforai old prompt (10-05) | 71/89 (79.8%) | $31.76 |
@@ -45,7 +45,7 @@ both reverted (`e451432d`).
 | financial-document-processor | all 17 docs read via tfa-cat, every amount right (total 81315.20 / VAT 5402.48 exact); misfiled one 440.0 "order/shipping summary" PDF vs the matching invoice → 3/7 tests | 1 |
 | video-processing | 4/5 tests (`test_jump_analyzer_test_video`) — never passed by any harness | 0 |
 
-Newly passing vs 10-06/07: break-filter-js, crack-7z-hash (first ever pass; via 4.8), filter-js-from-html,
+Newly passing vs the 10-06/07 single sweep (77; vs the published 80 only crack-7z-hash, filter-js-from-html, make-mips-interpreter, qemu-alpine-ssh, schemelike-metacircular-eval are new): break-filter-js, crack-7z-hash (first ever pass; via 4.8), filter-js-from-html,
 make-mips-interpreter, pypi-server, qemu-alpine-ssh, schemelike-metacircular-eval, vulnerable-secret.
 Lost: dna-insert, extract-moves-from-video, financial-document-processor, torch-tensor-parallelism (verifier).
 
