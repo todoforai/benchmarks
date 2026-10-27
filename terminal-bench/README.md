@@ -3,6 +3,12 @@
 [Harbor](https://github.com/laude-institute/harbor) adapter that runs the TODOforAI agent on
 Terminal-Bench 2.1 (`terminal-bench/terminal-bench-2-1`). Read `LESSONS.md` before a sweep.
 
+## Results
+
+TB 2.1, all 89 tasks, Opus 5.5 high, k=1, own harness (not a leaderboard submission):
+todoforai v1.0.11 **81/89 (91.0%)** · Claude Code 78/89 (87.6%) · Codex 75/89 (84.3%).
+σ≈3 tasks at k=1, so the gaps are within noise. Details: `RESULTS_tb21_tfacat_opus-5.5.md`, `RESULTS_tb21_full89.md`.
+
 ## Setup
 
 ```bash
