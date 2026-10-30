@@ -1,0 +1,1 @@
+../../../3d-bench/threejs/collect.sh
