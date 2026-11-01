@@ -1,1 +1,1 @@
-{ "name": "arena-rec", "private": true, "type": "module", "dependencies": { "playwright-core": "^1.61.1" } }
+{ "name": "arena-rec", "private": true, "type": "module", "dependencies": { "playwright-core": "^1.64.1" } }
