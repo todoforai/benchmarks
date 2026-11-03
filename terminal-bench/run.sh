@@ -11,7 +11,7 @@
 #   -d  dataset              (default terminal-bench/terminal-bench-2-1)
 #   -t  task-list file       (one task name per line; default: whole dataset)
 #   -i  single task          (repeatable; overrides -t)
-#   -n  concurrency          (default 4, max 4: 4 x 8 GB task RAM fits the WSL host)
+#   -n  concurrency          (default 4, max $TB_MAX_CONC or 4: 4 x 8 GB task RAM fits the WSL host)
 #   -k  attempts per task    (default 1)
 #   -e  effort for claude-code/codex (low|medium|high|xhigh|max). todoforai takes its
 #       effort from the `app` agent's thinkingLevel, not from this flag.
@@ -40,7 +40,8 @@ done
 shift $((OPTIND - 1)); [ "${1:-}" != -- ] || shift
 EXTRA=("$@")
 [ -n "$MODEL" ] || { echo "-m <model> is required" >&2; exit 2; }
-[ "$CONC" -le 4 ] || { echo "-n $CONC > 4: the WSL host swaps/crashes above 4 (LESSONS.md)" >&2; exit 2; }
+MAX_CONC=${TB_MAX_CONC:-4}
+[ "$CONC" -le "$MAX_CONC" ] || { echo "-n $CONC > $MAX_CONC: the WSL host swaps/crashes above 4 (LESSONS.md); set TB_MAX_CONC on bigger hosts" >&2; exit 2; }
 
 HARBOR="${HARBOR_BIN:-$HOME/tbench-venv/bin/harbor}"
 [ -x "$HARBOR" ] || HARBOR="$PWD/.venv/bin/harbor"
