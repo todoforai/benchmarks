@@ -30,6 +30,9 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" \
     '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:(if .cost_usd == null then null else (.cost_usd*1000|round/1000) end), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), badges:(.badges // []), perf:(.perf // null), live:(if $live == "" then null else $live end), todo:(.todo//null), todoPublic:(.todo_public//false)}' "$d/meta.json")")
 done
-jq -n --arg bench "$bench" --arg task "$task" --arg date "$(basename "$run" | cut -c1-10)" --arg prompt "$(cat "$run/prompt.txt" | head -1)" \
-  --argjson runs "$(printf '%s\n' "${entries[@]}" | jq -s .)" '{bench:$bench, task:$task, date:$date, prompt:$prompt, runs:$runs}'
+# KIND=spec in task.env = long multi-paragraph spec: publish the whole prompt (minus the "Output:" contract tail), not just line 1.
+KIND=$(TE=$(dirname "$0")/../$bench/tasks/$task/task.env; [ -f "$TE" ] && . "$TE"; echo "${KIND:-}")
+if [ "$KIND" = spec ]; then prompt=$(sed '/^Output:/,$d' "$run/prompt.txt"); else prompt=$(head -1 "$run/prompt.txt"); fi
+jq -n --arg bench "$bench" --arg task "$task" --arg date "$(basename "$run" | cut -c1-10)" --arg prompt "$prompt" --arg kind "$KIND" \
+  --argjson runs "$(printf '%s\n' "${entries[@]}" | jq -s .)" '{bench:$bench, task:$task, date:$date, prompt:$prompt, runs:$runs} + (if $kind == "" then {} else {kind:$kind} end)'
 du -sh "$PUB" >&2
