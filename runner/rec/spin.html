@@ -1,0 +1,19 @@
+<script type="module">/* bench turntable: the main scene turns slowly (one turn / SPIN s, task.env). Hook = Object3D.onBeforeRender
+   (WebGLRenderer.render is an instance method). Pages that render once get their last frame's
+   passes (target, scene, camera) replayed every animation frame. */
+import * as THREE from 'three';
+const T = __SPIN__, t0 = performance.now(), P = THREE.Object3D.prototype, before = P.onBeforeRender;
+let passes = [], fresh = true, own = false, gl = null, stale = 0;
+P.onBeforeRender = function (r, s, c, target) {
+  if (this.isScene) {
+    if (this.children.length > 2) this.rotation.y = ((performance.now() - t0) / 1000) * (2 * Math.PI / T);
+    if (!own) { if (fresh) { passes = []; fresh = false; } stale = 0; gl = r; passes.push([target, s, c]); }
+  }
+  return before.apply(this, arguments);
+};
+(function tick() {
+  fresh = true;
+  if (gl && ++stale > 2) { own = true; for (const [t, s, c] of passes) { gl.setRenderTarget(t); gl.render(s, c); } gl.setRenderTarget(null); own = false; }
+  requestAnimationFrame(tick);
+})();
+</script>
