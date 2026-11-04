@@ -1,0 +1,34 @@
+Készíts egy 3D bolygóanimációt, wasd és egérrel irányítható kamerával, 16mm gyújtótávolsággal. a bolygó legyen 1000km-es, nap világítsa meg ami kapjon némi glare / bloom effektust.
+A kameramozgás scroll-al sokkal gyorsabb legyen, mint wasd-vel. a mozgás simított legyen. a bolygófelszínen, 15km magasság alatt a kamera horizontja igazodjon a bolygóéhoz.
+
+A bolygó légköre 15km magas legyen, progresszíven vékonyodó. Rendes Rayleigh Scatteringet adj hozzá.
+
+A terrain lehet egyszerűbb, de a víz legyen egy 5 különböző irányú shaderből összerakott élethű, hullámzó vízmodell. A lényeg a felhők:
+
+A felhők legyenek messziről is jól kinéző, átlagosan a bolygó 15%-át fedő volumetrikus felhők, a könnyű fátyolfelhőtől a viharfelhőig.
+
+A felhők közel ről nézve élethű fodrokkal, éles határral rendlkezzenek. a felhőalap legyen 1km-en, a felhőréteg max 1.5km magas.
+
+felhőknél figyelj a következőkre:
+1: reflection
+2: scattering within clouds
+3: sötétedés felhőn belül
+4: felhő megvilágítása a környezet által (felszínről (és atmoszféráról?) visszaverődés)
+5: a rayleigh scattering értelemszerűen az adott térfogatban található fénymennyiségtől függjön, tehát felhő alatt kevesebb fény - jóval kevesebb rayleigh effektus legyen.
+
+atmospheric haze természetesen szintén kell.
+
+Adj csúszkákat hozzá, hogy  finomhangolni lehessen a beállításokat.
+
+Optimalizáld az FPS-t, hogy full screen-ben is legalább 30 fps-en fusson. használd okosan a cachelt és precomputed értékeket
+Lepj meg az ügyességeddel.
+
+Output: a single `/work/index.html`, three.js only. Use this importmap (library is pre-vendored, read-only, no network):
+
+```html
+<script type="importmap">
+{"imports":{"three":"/vendor/three@0.182.0/three.module.min.js","three/addons/":"/vendor/three@0.182.0/addons/"}}
+</script>
+```
+
+Judged at 1280x800, headless Chrome, 60 s idle, no interaction, no console errors. No textures/models from the network. Preview: serve `/` (e.g. `python3 -m http.server -d /`) and open `/work/index.html`; check your render at most 5–10 times.
