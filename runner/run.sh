@@ -12,7 +12,7 @@ PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 [[ $PAR =~ ^[1-9][0-9]*$ ]] || { echo "-p needs a positive int" >&2; exit 2; }
 : "${TODOFORAI_API_KEYS_FILE:=$PWD/../terminal-bench/dev_api_keys.txt}"
 : "${TODOFORAI_API_URL:=https://api.todofor.ai}"
-: "${AGENT:=arena}" "${TIMEOUT:=1800}"
+: "${AGENT:=arena}" "${TIMEOUT:=7200}"
 DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
 # Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. 3d-bench/lava-lamp).
