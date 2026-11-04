@@ -5,20 +5,22 @@
 ## Setup
 - Dataset `terminal-bench/terminal-bench@4.0.0`. Subset: every second of the 63 CPU-only tasks in alphabetical order (`tasks_tb4_half.txt`). The 3 H100 tasks are excluded.
 - Agent: todoforai v1.0.x CLI + mayfly bridge, agent `app` (bash + tfa-cat), `anthropic/claude-opus-5.5` thinking=high, refusal fallback Opus 4.8. 1 trial per task. Default timeouts (no multiplier). Concurrency 6 on pc_14 (32 CPU / 125 GB).
-- Jobs: `jobs/todoforai-claude-opus-5.5-app__2026-11-03__23-08-59` (smoke test), `…__23-12-21` (31 tasks), `…__2026-11-04__09-22-31` (rerun of 4).
+- Jobs: `jobs/todoforai-claude-opus-5.5-app__2026-11-03__23-08-59` (smoke test), `…__23-12-21` (31 tasks), `…__2026-11-04__09-22-31` (rerun 1 of the 4 hung tasks; only rs-archive-clone finished before a pc_14 reboot at 11:20 UTC), `…__2026-11-04__17-15-08` (rerun 2: the other 3).
 - Reference: the official Claude Code + Opus 5.5 (max) run, hub job `bfd722a4-4c18-5a00-a874-c70b646870b8`: 5 trials per task, 64.8% on all 66 tasks.
 
-## Score (interim)
+## Score (interim, 31/32)
 | | ours (1 trial) | CC expected on the same tasks |
 |---|---|---|
-| 28 scored tasks | **17/28 = 60.7%** | 19.8/28 = 70.7% |
-| all 32 tasks | pending | 23.8/32 = 74.4% |
+| 31 scored tasks | **20/31 = 64.5%** | 22.8/31 = 73.5% |
+| all 32 tasks | pending (takens-embedding-lean running) | 23.8/32 = 74.4% |
 
 "CC expected" = the sum of CC's per-task pass rates (k/5). With 1 trial, ±1 task is ~3.5 pp, so the gap is within noise. Not leaderboard-eligible: it needs ≥5 trials per task, and community submissions are closed.
 
 ## Cost (31-task job + smoke test)
 - At list prices (`run_tokens.mjs`): **$272.61** (Opus 5.5: out 8.48M, cacheRead 79.35M, cacheWrite 3.06M). Of this, $270.69 is Opus 5.5 and $1.93 is the Opus 4.8 fallback. The 4 stuck trials are included up to the point they stalled.
 - Billed (promo prices, harbor `cost_usd`): $43.50.
+- Rerun 1 (list): $61.33 (4 todos; 3 cut by the reboot). Rerun 2 (list): $72.59 for 3 tasks so far (takens-embedding-lean still running, a long Lean proof).
+- Total so far at list price: **$406.53**.
 - CC official: $4,718.65 for 330 trials = $14.30/trial. Ours: ≈$8.79/task at list price.
 
 ## Per task
