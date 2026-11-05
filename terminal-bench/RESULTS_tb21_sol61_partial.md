@@ -6,15 +6,15 @@ Opus numbers = the same tasks from the 10-25/26 sweep (`RESULTS_tb21_tfacat_opus
 | | Sol 6.1 | Opus 5.5 |
 |---|---|---|
 | pass | **39/45 (87%)** | **40/45 (89%)** |
-| cost (list) | **$2.17** | **$22.55** |
+| cost (list) | **$3.92** | **$22.55** |
 
 | set | Sol | Opus | Sol $ | Opus $ | job |
 |---|---|---|---|---|---|
-| 7 from cancelled full89 | 7/7 | 5/7 | 0.21 | 4.42 | `todoforai-gpt-6.1-sol-app-sol__2026-11-05__13-40-57` |
-| 1–20 | 17/20 | 20/20 | 0.76 | 7.04 | `…__2026-11-05__14-55-27` |
-| 21–40 (−2 done) | 15/18 | 15/18 | 0.99 | 8.67 | `…__2026-11-05__15-26-40` |
+| 7 from cancelled full89 | 7/7 | 5/7 | 0.42 | 4.42 | `todoforai-gpt-6.1-sol-app-sol__2026-11-05__13-40-57` |
+| 1–20 | 17/20 | 20/20 | 1.53 | 7.04 | `…__2026-11-05__14-55-27` |
+| 21–40 (−2 done) | 15/18 | 15/18 | 1.97 | 8.67 | `…__2026-11-05__15-26-40` |
 
-Prices $/1M (in/out/cacheRead/cacheWrite): Sol 1/5/0.05/1.25, Opus 5/25/0.5/6.25.
+Prices $/1M (in/out/cacheRead/cacheWrite): Sol 2/10/0.10/2.50 (openai.com list; first draft wrongly used the backend catalog 1/5, = half), Opus 5/25/0.5/6.25.
 Tokens: `node jobs/tokcmp.mjs` (todo runMeta extras, sub-todos included).
 Sol writes ~3× fewer output tokens and ~0.6× the calls; input incl. cache similar.
 

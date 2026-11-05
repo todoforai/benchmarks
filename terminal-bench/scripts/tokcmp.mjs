@@ -19,7 +19,7 @@ const tok = async (todo) => { const t={in:0,out:0,cr:0,cw:0,calls:0,models:new S
       if(e&&(e.inputTokens!=null||e.outputTokens!=null)){t.in+=e.inputTokens||0;t.out+=e.outputTokens||0;t.cr+=e.cacheReadTokens||0;t.cw+=e.cacheWriteTokens||0;t.calls++;if(e.model)t.models.add(e.model)}
       for(const v of Object.values(o))walk(v); };
     walk((await r.json()).messages); } return t; };
-const P = { sol:{in:1,out:5,cr:0.05,cw:1.25}, opus:{in:5,out:25,cr:0.5,cw:6.25} };
+const P = { sol:{in:2,out:10,cr:0.1,cw:2.5}, opus:{in:5,out:25,cr:0.5,cw:6.25} };
 const cost=(t,p)=>(t.in*p.in+t.out*p.out+t.cr*p.cr+t.cw*p.cw)/1e6;
 const K=n=>(n/1e3).toFixed(0)+'k'; const rows=[]; const tot={sol:{in:0,out:0,cr:0,cw:0,calls:0,$:0},opus:{in:0,out:0,cr:0,cw:0,calls:0,$:0}};
 for (const [task,s] of S) { const o=O.get(task); if(!o) continue;
