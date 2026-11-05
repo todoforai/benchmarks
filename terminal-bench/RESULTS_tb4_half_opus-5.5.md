@@ -19,7 +19,7 @@
 ## Cost
 - At list prices (`run_tokens.mjs`): **$272.61** (Opus 5.5: out 8.48M, cacheRead 79.35M, cacheWrite 3.06M). Of this, $270.69 is Opus 5.5 and $1.93 is the Opus 4.8 fallback. The 4 stuck trials are included up to the point they stalled.
 - Billed (promo prices, harbor `cost_usd`): $43.50.
-- Rerun 1 (list): $61.33 (4 todos; 3 cut by the reboot). Rerun 2 (list): $91.99 for 3 tasks (takens-embedding-lean alone ≈ $87, 8 h).
+- Rerun 1 (list): $61.33 (4 todos; 3 cut by the reboot). Rerun 2 (list): $91.99 for 3 tasks (most of it takens-embedding-lean, 8 h).
 - Total at list price: **$425.93** for 32 scored tasks (including discarded hung attempts and the reboot-cut rerun).
 - Billed (harbor `cost_usd`): $43.50 + $5.54 + $22.29 = **$71.33**.
 - CC official: $4,718.65 for 330 trials = $14.30/trial. Ours: ≈$8.79/task at list price.
