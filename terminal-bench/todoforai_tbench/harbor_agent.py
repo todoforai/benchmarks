@@ -205,6 +205,13 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         ErrorPattern(_REFUSAL_RE, AgentSafetyRefusalError),
     ]
 
+    def __init__(self, *args, agent_name: str = "app", **kwargs):
+        # Bench agent profile on the account (`--ak agent_name=app-sol`): one
+        # profile per model family, so model-specific settings (refusal
+        # fallback, thinking level) never leak between sweeps.
+        self.agent_name = agent_name
+        super().__init__(*args, **kwargs)
+
     @staticmethod
     def name() -> str:
         return "todoforai"
@@ -290,7 +297,7 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         api_url = _api_url()
         # Pin the pre-configured benchmark agent by exact name — path-based
         # matching would auto-create a fresh "app" agent with a default model.
-        cli_flags = " --agent app"
+        cli_flags = f" --agent {shlex.quote(self.agent_name)}"
         # Model comes from the harbor command (-m), like claude-code/codex, so a
         # run is fully described by its invocation instead of by mutable
         # per-account state. Falls back to the account's configured model.

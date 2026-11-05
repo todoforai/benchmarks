@@ -14,7 +14,8 @@
 #   -n  concurrency          (default 4, max $TB_MAX_CONC or 4: 4 x 8 GB task RAM fits the WSL host)
 #   -k  attempts per task    (default 1)
 #   -e  effort for claude-code/codex (low|medium|high|xhigh|max). todoforai takes its
-#       effort from the `app` agent's thinkingLevel, not from this flag.
+#       effort from the bench agent's thinkingLevel, not from this flag.
+#   -g  todoforai bench agent profile on the account (default app; e.g. app-sol)
 #   --  everything after goes to `harbor run` verbatim, e.g.
 #       -- --allow-agent-host api.todofor.ai   (DeepSWE: no-network agent phase)
 #       -- --env-file ~/codex-cliproxy.env     (SWE-Atlas QnA judge: OPENAI_API_KEY/BASE_URL)
@@ -28,13 +29,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-AGENT=todoforai MODEL= DATASET=terminal-bench/terminal-bench-2-1 TASKS_FILE= CONC=4 K=1 EFFORT=
+AGENT=todoforai MODEL= DATASET=terminal-bench/terminal-bench-2-1 TASKS_FILE= CONC=4 K=1 EFFORT= PROFILE=app
 TASKS=()
-while getopts "a:m:d:t:i:n:k:e:h" o; do
+while getopts "a:m:d:t:i:n:k:e:g:h" o; do
   case $o in
     a) AGENT=$OPTARG ;; m) MODEL=$OPTARG ;; d) DATASET=$OPTARG ;; t) TASKS_FILE=$OPTARG ;;
-    i) TASKS+=("$OPTARG") ;; n) CONC=$OPTARG ;; k) K=$OPTARG ;; e) EFFORT=$OPTARG ;;
-    *) sed -n '2,23p' "$0"; exit 2 ;;
+    i) TASKS+=("$OPTARG") ;; n) CONC=$OPTARG ;; k) K=$OPTARG ;; e) EFFORT=$OPTARG ;; g) PROFILE=$OPTARG ;;
+    *) sed -n '2,24p' "$0"; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1)); [ "${1:-}" != -- ] || shift
@@ -51,10 +52,10 @@ ARGS=(-d "$DATASET" -m "$MODEL" -n "$CONC" -k "$K" --yes -o jobs
       --max-retries 2 --retry-include ApiError --retry-include NetworkConnectionError)
 case $AGENT in
   todoforai)
-    [ -z "$EFFORT" ] || echo "note: -e ignored for todoforai (effort = app agent thinkingLevel)" >&2
-    EFFORT=app
-    "$(dirname "$HARBOR")/python" -c 'from todoforai_tbench.harbor_agent import preflight; preflight()'
-    ARGS+=(--agent-import-path todoforai_tbench:TODOforAIHarborAgent) ;;
+    [ -z "$EFFORT" ] || echo "note: -e ignored for todoforai (effort = bench agent thinkingLevel)" >&2
+    EFFORT=$PROFILE
+    "$(dirname "$HARBOR")/python" -c "from todoforai_tbench.harbor_agent import preflight; preflight('$PROFILE')"
+    ARGS+=(--agent-import-path todoforai_tbench:TODOforAIHarborAgent --ak "agent_name=$PROFILE") ;;
   claude-code)
     ENV_FILE="${CLAUDE_ENV_FILE:-$HOME/claude-oauth.env}"
     [ -f "$ENV_FILE" ] || { echo "missing $ENV_FILE (CLAUDE_FORCE_OAUTH=1, CLAUDE_CODE_OAUTH_TOKEN=...)" >&2; exit 2; }
