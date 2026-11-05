@@ -130,7 +130,9 @@ def preflight(agent_name: str = "app") -> None:
     print(f"[preflight]   {key[:6]}… ok  agent={agent_name} model={match.get('model')}")
 
 
-_REFUSAL_RE = r"refused to answer this request|flagged as: cyber"
+# Anthropic refusal ("refused to answer… flagged as: cyber") and OpenAI's HTTP 400
+# "flagged for possible cybersecurity risk" (pre-unification agents surface it raw).
+_REFUSAL_RE = r"refused to answer this request|flagged as: cyber|flagged for possible \w+ risk"
 
 
 def _todo_id(cli_log: Path) -> str | None:
