@@ -167,3 +167,14 @@ wsl.exe.
 
 - No default model in scripts (`TB_MODEL` required). A leftover gpt-5.6-sol default ran a
   TB4 mini sweep on the wrong model for 40 min (2026-10-03); copy the model from the last job.
+
+## GPT-6.1 Sol (11-05)
+- One agent profile per model family (`app`, `app-sol`; `run.sh -g`): the Opus refusal
+  fallback on `app` would silently make a Sol run mixed-model.
+- OpenAI refuses with **HTTP 400** "flagged for possible cybersecurity risk" — not a finish
+  reason. Before OpenRouter.jl cdaa378 this was a generic API error: no refusal fallback, and
+  harbor saw ApiError → infra retry (pointless, deterministic).
+- ChatGPT-subscription quota runs out mid-day; run Sol in 20-task chunks.
+- `scripts/progress.sh` only knows batched job prefixes (defaults to an August run!);
+  for single-harbor-call jobs use `jobs/sol61_status.sh <job>`.
+- Opus `extras.model` stays `opus-5.5` on refusal-fallback calls — use `servedModel`.
