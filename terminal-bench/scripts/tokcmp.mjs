@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 const key = readFileSync('dev_api_keys.txt','utf8').split('\n')[0].split(/\s+/)[0];
-const jobs = { sol: ['todoforai-gpt-6.1-sol-app-sol__2026-11-05__15-26-40'],
+const jobs = { sol: ['todoforai-gpt-6.1-sol-app-sol__2026-11-05__13-40-57','todoforai-gpt-6.1-sol-app-sol__2026-11-05__14-55-27','todoforai-gpt-6.1-sol-app-sol__2026-11-05__15-26-40','todoforai-gpt-6.1-sol-app-sol__2026-11-06__14-25-47','todoforai-gpt-6.1-sol-app-sol__2026-11-06__15-26-11','todoforai-gpt-6.1-sol-app-sol__2026-11-06__15-30-49','todoforai-gpt-6.1-sol-app-sol__2026-11-06__16-32-06'],
   opus: ['todoforai-claude-opus-5.5-app__2026-10-25__23-54-53','todoforai-claude-opus-5.5-app__2026-10-26__00-27-40','todoforai-claude-opus-5.5-app__2026-10-26__10-21-19','todoforai-claude-opus-5.5-app__2026-10-26__18-10-14'] };
 const trials = (js) => { const m = new Map(); for (const j of js) for (const t of readdirSync('jobs/'+j,{withFileTypes:true})) {
   if (!t.isDirectory()) continue; const d=`jobs/${j}/${t.name}`, f=d+'/agent/todoforai-cli.txt';
