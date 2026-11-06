@@ -52,3 +52,15 @@ Config changes vs the 89-sweep (anything from `…10-35-09` on is NOT the 89-swe
 - Results: Codex 4.8 refusals 3/4 (protein-assembly ✗) → Codex with-fallback 75/89. video-processing A: clean run, 0 (4/5 tests). Audit: break-filter-js config rerun was in the table but not the headline → ours corrected 79 → **80/89**.
 - 10-08 16:49: **video-processing B** started (`scripts/sysmsg_variant_b.py`: +1 REPL/ipykernel line, 370 B sysmsg), k=2, job `todoforai-claude-opus-5.5-app__2026-10-08__16-49-56`, log `ours-video-B.log`. Not headline-countable (config change). Restore sysmsg after: `python3 scripts/sysmsg_variant_b.py restore`.
 - 10-08 23:20: video-processing B done in 5 min: **1/2** (5Rh9CNS 5/5 pass, yNfiRC4 4/5, same `test_jump_analyzer_test_video` assertion as A). Neither trial opened a REPL/ipykernel despite the sysmsg line → the hint is inert; task is ~50% noise on the hidden video, not an iteration-speed problem. Sysmsg restored to the 1-line original (234 B). B dropped.
+- top5cost thinking share (Opus 5.5 high, k=1; ours job `…10-07__13-40-59` from API runMeta `extras.thinkingTokens`; CC jsonl deduped by message id; Codex last `token_count` per rollout; `scripts/think_share.py`). Thinking / output tokens:
+
+  | task | ours | CC | Codex |
+  |---|---|---|---|
+  | dna-assembly | 121k/138k 88% (0) | 31k/40k 78% (0) | refusal, n/a |
+  | filter-js-from-html | 37k/55k 68% (0) | 11k/21k 53% (1) | 3k/17k 18% (0) |
+  | make-doom-for-mips | 75k/78k 97% (0) | 34k/72k 48% (0) | 24k/79k 31% (0) |
+  | schemelike-metacircular-eval | 139k/163k 85% (1) | 72k/94k 76% (1) | 33k/110k 30% (0) |
+  | winning-avg-corewars | 41k/48k 86% (1) | 15k/19k 77% (1) | 2k/12k 18% (1) |
+  | total excl. dna | 292k/343k **85%** | 132k/206k **64%** | 63k/219k **29%** |
+
+  Ours spends ~2.2× CC's thinking tokens per task on the same model+effort. Codex reasoning counts come via cliproxy translation (unverified mapping). Different runs/days, k=1 — direction, not precision.
