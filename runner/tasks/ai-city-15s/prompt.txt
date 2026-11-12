@@ -1,0 +1,9 @@
+Generate a realistic 3D render of a futuristic city run by super-advanced AI, in a single index.html with three.js.
+
+You have full creative freedom over what this city looks like: its architecture, era, time of day, weather, palette and mood are your call. One hard requirement: the image must be bright and well exposed, with most of the frame in the mid-tones and visible detail everywhere, no large crushed-black areas.
+
+The page will be rendered offline into a 15-second 1080p 30 fps video from the moment it loads: the clock is virtual and advances exactly 1/30 s per frame, so there is no real-time budget. A frame may take a few seconds to render; spend that on quality. Drive all motion from the requestAnimationFrame timestamp or performance.now(), not from frame counts. Design your own camera path for those 15 seconds to show off the city: which parts to reveal, in what order, how fast and from which angles is up to you. The city must be fully visible from the first frame, with no loading or intro screen.
+
+Target the quality of a commercial CGI campaign. Use the strongest rendering techniques you can, and match the real complexity of a city: irregularity, material variation, fine detail, imperfections. Get the geometry right first, with no visual artifacts. Make your own artistic choices for composition, lighting and palette so the scene is compelling.
+
+Before finishing, take screenshots across the 15 seconds and check them critically against professional references. If any frame looks too dark or muddy, fix the exposure and lighting first. Then fix the other biggest issues.
