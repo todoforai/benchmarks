@@ -29,8 +29,8 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   src=$d/work; [ -n "$SPIN" ] && [ -s "${tmp:-}/preview.mp4" ] && src=$tmp
   [ -s "$src/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$src/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
   [ -s "$src/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$src/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
-  entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" \
-    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, qualified:(.qualified//false), cost:(if .cost_usd == null then null else (.cost_usd*1000|round/1000) end), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), badges:(.badges // []), perf:(.perf // null), live:(if $live == "" then null else $live end), todo:(.todo//null), todoPublic:(.todo_public//false)}' "$d/meta.json")")
+  entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" --arg ranAt "$(basename "$run" | cut -c1-10)" \
+    '{model:(.model|sub("^[^:]+:";"")), slug:$slug, ranAt:$ranAt, qualified:(.qualified//false), cost:(if .cost_usd == null then null else (.cost_usd*1000|round/1000) end), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), badges:(.badges // []), perf:(.perf // null), live:(if $live == "" then null else $live end), todo:(.todo//null), todoPublic:(.todo_public//false)}' "$d/meta.json")")
 done
 # KIND=spec in task.env = long multi-paragraph spec: publish the whole prompt (minus the "Output:" contract tail), not just line 1.
 KIND=$(TE=$(dirname "$0")/../$bench/tasks/$task/task.env; [ -f "$TE" ] && . "$TE"; echo "${KIND:-}")
