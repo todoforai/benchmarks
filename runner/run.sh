@@ -7,6 +7,11 @@
 # meta.json: wall_s, exit + cost_usd, turns (metrics.sh). Solution size: `wc -c work/<file>`.
 set -euo pipefail
 cd "$(dirname "$0")"
+# Lid close / idle suspend freezes every sandbox mid-run (the server then cancels the todos, 2026-11-12):
+# hold a sleep + lid inhibitor for the whole run.
+if [ -z "${BENCH_INHIBITED:-}" ] && command -v systemd-inhibit >/dev/null; then
+  BENCH_INHIBITED=1 exec systemd-inhibit --what=sleep:idle:handle-lid-switch --who=bench-runner --why="bench run" --mode=block "$PWD/$(basename "$0")" "$@"
+fi
 TASK=${1:?task}; shift
 PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 [[ $PAR =~ ^[1-9][0-9]*$ ]] || { echo "-p needs a positive int" >&2; exit 2; }
