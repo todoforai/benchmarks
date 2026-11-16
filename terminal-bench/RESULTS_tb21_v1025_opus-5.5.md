@@ -30,6 +30,22 @@ financial-document-processor. Lost: cobol-modernization, filter-js-from-html (bo
 Same 7 tasks hit the 4.8 fallback as in v1.0.11: break-filter-js ✓, crack-7z-hash ✓, password-recovery ✓,
 protein-assembly ✓, vulnerable-secret ✓, dna-assembly ✗, dna-insert ✗. Pure 5.5 = 77/82.
 
-## Medium (thinkingLevel=medium), side test
-First 40: 38/40, $13.16 (vs high 35/40, $22.35). Remaining 49 in progress (first attempt 11-16 11:48 lost to a full
-C: drive on the Windows host: WSL ext4 went read-only; rerun of the 37 unfinished tasks started 12:15).
+## Medium (thinkingLevel=medium), same 89 tasks, k=1
+**83/89 (93.3%), $33.88** vs high 82/89, $51.46 (−34% cost). Within k=1 noise (σ≈3 tasks).
+
+| part | pass | cost | job |
+|---|---|---|---|
+| first 40 | 38/40 | $13.16 | `…-app-medium__2026-11-15__19-50-33` (6) + `…__21-05-53` (37 of which 34 counted) |
+| make-doom, schemelike, qemu-alpine-ssh | 2/3 | $5.42 | `…-app-medium__2026-11-15__19-50-33` |
+| 9 clean passes of the 11-16 11:48 attempt | 9/9 | $1.66 | `…-app-medium__2026-11-16__11-48-40` |
+| remaining 37 | 34/37 | $13.64 | `…-app-medium__2026-11-16__12-15-05` |
+
+The 11:48 attempt died on a full C: (WSL ext4 read-only): its 4 broken trials (mteb-leaderboard, regex-chess,
+torch-pipeline-parallelism: no reward; pytorch-model-recovery: verifier Bus error) are infra, rerun in the 37, all 4 passed.
+Backend deploys 12:55/13:01/13:32 and agent deploy 13:09 (local) made 4 trials reconnect (modernize-scientific-stack ✓,
+winning-avg-corewars ✓, train-fasttext ✓, protein-assembly ✗); each kept working after the reconnect.
+
+Medium fails (6): make-doom-for-mips (timeout), video-processing, dna-insert (4.8 fallback), filter-js-from-html
+(modified 3/12 clean files), mteb-retrieve (retrieved HumanEval instead of MTEB), protein-assembly (fusion order /
+donor missing; FPbase fetches 403). The last two pass at high. Medium passes that high failed: cobol-modernization,
+extract-moves-from-video, dna-assembly.
