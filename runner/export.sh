@@ -24,6 +24,8 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   svg=$(ls "$d"/work/*.svg 2>/dev/null | head -1 || true)
   [ -z "$live" ] && [ -n "$svg" ] && live="/bench/$bench/$task/$slug.html" && cp "$svg" "$PUB/$slug.svg" \
     && printf '<!doctype html><body style="margin:0;height:100vh;display:grid;place-items:center;background:#fff"><img src="%s.svg" style="width:100%%;height:100%%;object-fit:contain"></body>\n' "$slug" > "$PUB/$slug.html"
+  # Model pages often omit <html lang>; SEO audits flag it.
+  [ -n "$live" ] && perl -0pi -e 'unless(/<html[^>]*\blang=/i){ s/<html\b/<html lang="en"/i or s/^((?:\s*<!doctype[^>]*>)?)/$1<html lang="en">/i }' "$PUB/$slug.html"
   src=$d/work; [ -n "$SPIN" ] && [ -s "${tmp:-}/preview.mp4" ] && src=$tmp
   [ -s "$src/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$src/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
   [ -s "$src/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$src/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
