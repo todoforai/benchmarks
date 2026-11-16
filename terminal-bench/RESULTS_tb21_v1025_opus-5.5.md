@@ -35,7 +35,7 @@ protein-assembly ✓, vulnerable-secret ✓, dna-assembly ✗, dna-insert ✗. P
 
 | part | pass | cost | job |
 |---|---|---|---|
-| first 40 | 38/40 | $13.16 | `…-app-medium__2026-11-15__19-50-33` (6) + `…__21-05-53` (37 of which 34 counted) |
+| first 40 | 38/40 | $13.16 | `…-app-medium__2026-11-15__19-50-33` (its 3 first-40 tasks) + `…__21-05-53` (37) |
 | make-doom, schemelike, qemu-alpine-ssh | 2/3 | $5.42 | `…-app-medium__2026-11-15__19-50-33` |
 | 9 clean passes of the 11-16 11:48 attempt | 9/9 | $1.66 | `…-app-medium__2026-11-16__11-48-40` |
 | remaining 37 | 34/37 | $13.64 | `…-app-medium__2026-11-16__12-15-05` |
