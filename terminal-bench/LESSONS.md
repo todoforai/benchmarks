@@ -178,3 +178,9 @@ wsl.exe.
 - `scripts/progress.sh` only knows batched job prefixes (defaults to an August run!);
   for single-harbor-call jobs use `jobs/sol61_status.sh <job>`.
 - Opus `extras.model` stays `opus-5.5` on refusal-fallback calls — use `servedModel`.
+
+## WSL vhdx on a full C: (2026-11-16)
+The WSL `ext4.vhdx` lives on C: and only grows. When C: fills, ext4 goes read-only mid-run: docker
+`read-only file system`, verifier `Bus error`, trials with no reward. `df` inside WSL looks fine (1 TB virtual).
+Check `(Get-Volume C).SizeRemaining` on Windows, not `df`. Fix without admin: `wsl --shutdown;
+wsl --manage Ubuntu --set-sparse true --allow-unsafe`, then `sudo fstrim /` in WSL after `docker rmi` of unused images.
