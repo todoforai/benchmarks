@@ -5,6 +5,7 @@
 T="$(dirname "$0")"; [ -f "$T/task.env" ] && . "$T/task.env"   # REC_SCRIPT=idle|hover (per task)
 set -euo pipefail; d=$1; R="$(dirname "$(readlink -f "$0")")/../../runner"; cd "$R"
 [ -f "$d/work/index.html" ] || { echo "   NO index.html"; jq '. + {qualified:false, reason:"no index.html"}' "$d/meta.json" >"$d/m.tmp" && mv "$d/m.tmp" "$d/meta.json"; exit 0; }
+rm -f "$d/work/preview.errors.txt"   # a rerun must not inherit the last run's errors
 ./sandbox.sh "$d/work" -- bun /rec/rec.ts /work/index.html /work/preview.mp4 --serve / --w 1280 --h 800 --secs 20 --script "${REC_SCRIPT:-idle}" --shot /work/shot.png
 q=true; r=""; [ -s "$d/work/preview.errors.txt" ] && { q=false; r=$(head -c 300 "$d/work/preview.errors.txt"); }
 [ -s "$d/work/shot.png" ] || { q=false; r="no screenshot"; }
