@@ -232,3 +232,124 @@ is ~20KB (~5k tok) + tools, so expect ~+400ms per turn on 5.5. Quality: jarvis-f
 
 Sonnet 5.5: 0/60 under 1s, 39/60 under 2s, CV 50–91% — ~2× Haiku 5.5, ~4× Haiku 4.5 with context.
 \* haiku-4.5 bad tail again at ctx=0 (same as earlier run).
+
+### 2026-11-16 — Muse Spark 1.3 / Ember 1.0 (Meta API direct) vs Haiku (`muse-vs-haiku.mjs`), n=8 interleaved
+Muse has no `none` effort (floor = `minimal`; default when omitted = `high`). Muse streams no reasoning deltas, so any = visible.
+Voice-turn prompt (2 spoken sentences, small scheduling question), visible-token ms:
+| model | p50 | p90 | total p50 |
+|---|---|---|---|
+| haiku-4.5(none) | **508** | 553 | 1376 |
+| haiku-5.5(none) | 1040 | 1090 | 1785 |
+| muse-ember-1.0(minimal) | 1131 | 1402 | 1245 |
+| muse-spark-1.3(minimal) | 2627 | 3986 | 3141 |
+| muse-spark-1.3(low) | 8672 | 10907 | 9031 |
+`Say "ok"`: haiku-4.5 473, spark-1.3(minimal) 1088, haiku-5.5 1280, spark-1.3(low) 2580.
+
+### 2026-11-16 — fast-provider sweep + Gemini 4 Hydrogen/Carbon (`muse-vs-haiku.mjs`), voice-turn prompt, n=8
+Visible-token ms, p50 / p90. Two interleaved runs merged (Haiku/Groq/xAI were in both runs; numbers agree within ~50ms).
+| model | p50 | p90 | note |
+|---|---|---|---|
+| groq/gpt-oss-20b(low) | **117** | 182 | |
+| groq/gpt-oss-120b(low) | **139–149** | 338–383 | |
+| groq/qwen3.8-27b(none) | 161 | 467 | |
+| cerebras/gpt-oss-120b(low) | 350 | 358 | |
+| xai/grok-4.20-non-reasoning | 458–556 | 522–714 | |
+| haiku-4.5(none) | 493–534 | 536–701 | |
+| openai/gpt-4.1-mini | 510 | 1276 | |
+| gemini-3.1-flash-lite(none) | 612 | 1071 | |
+| gemini-3.5-flash-lite(low) | 666 | 787 | `none` rejected |
+| openai/gpt-5.4-mini(none) | 745 | 1237 | |
+| haiku-5.5(none) | 996–1016 | 1081–1128 | current JARVIS_MODEL |
+| muse-ember-1.0(minimal) | 1104 | 1248 | |
+| cerebras/qwen-3.8-27b | 1110 | 4101 | |
+| gemini-3.8-flash(none) | 1830 | 2463 | |
+| gemini-4-hydrogen(none) | 3185 | 3727 | still thinks ~500 tokens: `none`/`thinkingBudget:0` are not honored (thoughtsTokenCount 529) |
+| gemini-4-hydrogen(low) | 3343 | 3727 | |
+| muse-spark-1.3(minimal) | 3258 | 3880 | |
+| gemini-4-carbon(none) | 4003 | 12932 | `thinkingBudget:0` really gives 0 thoughts, but slow anyway |
+Gemini 4 rejects `minimal`. Speed only: quality for voice/orchestration still needs `frontend/jarvis-flows`.
+
+### 2026-11-16 — Luna / Terra direct OpenAI, voice-turn prompt, n=8 (visible p50 / p90 ms)
+gpt-5.6-luna(none) 635/742 · gpt-6-luna(none) 694/1711 · gpt-6-luna(low) 2527/2935 · gpt-6.1-terra(none) 1708/2647 · haiku-4.5(none) 511 · haiku-5.5(none) 1038/1506.
+AA Intelligence Index for gpt-6-luna: non-reasoning 9, low 10 (Haiku 5.5 low = 29) — fast but too weak for the tool-calling orchestrator.
+
+Caching (5k-token system prompt, second identical request): Muse Spark 1.3 4977/5071 cached (works);
+Groq gpt-oss-120b cached from the 3rd call (prompt_time 230ms → 5–80ms), Groq qwen3.8 none; Haiku via
+LLMService already marks system+tools `cache_control` — Haiku TTFT stays flat at 3k–8k cached context.
+
+### 2026-11-16 — Kimi K3 / GLM 5.3 direct OpenCode Go, voice-turn prompt (visible p50 / p90 ms)
+Systalyze (`inference.systalyze.com`, key in tfa-vault `api/systalyze`) not measured: key returns `insufficient_quota` ("account spend limit was reached").
+| model | n | p50 | p90 | note |
+|---|---|---|---|---|
+| haiku-5.5(none) | 8 | 993–1128 | 1088–1500 | |
+| glm-5.3-flash (default thinking) | 6 | 1895 | 2208 | |
+| kimi-k3(off) `thinking.type disabled` | 8 | 3610 | 11086 | non-stream single call: 1.75s total |
+| glm-5.3(off) | 8 | 4560 | 18695 | 1 timeout |
+| kimi-k3 (default thinking) | 6 | 5625 | 6015 | |
+| glm-5.3 (default thinking) | 6 | 19449 | 43991 | 1 timeout |
+OpenCode Go tail is too noisy for voice.
+
+### 2026-11-16 — OpenRouter, provider-pinned (`--or "model@tag[:effort]"`, no fallback), voice-turn prompt
+Visible p50 / p90 ms. `(off)` = `reasoning: {enabled: false}`.
+| target | n | p50 | p90 | note |
+|---|---|---|---|---|
+| kimi-k3 @ inference-net/us/fast (off) | 12 | **265** | 403 | caching works (4608/5088 from 2nd call), tool calls OK |
+| kimi-k3 @ inference-net/fast (off) | 12 | **275** | 337 | |
+| kimi-k3 @ together (off) | 12 | 434 | 545 | |
+| kimi-k3.1-pro @ wafer/us (off) | 8 | 453 | 2251 | tail |
+| kimi-k3.1-pro @ together (off) | 8 | 889 | 948 | = Haiku 5.5 |
+| claude-haiku-5.5 @ anthropic (off) | 6 | 872 | 2318 | |
+| haiku-5.5(none) via CLIProxy | 8–12 | 889–1183 | 986–1433 | baseline |
+| kimi-k3 @ fireworks (off) | 6 | 1203 | 2196 | 503s |
+| muse-spark-1.3 @ google-vertex (minimal) | 6–12 | 1680–2058 | 1934–4192 | faster than Meta direct (2.6–5.1s) |
+| muse-spark-open @ fireworks (minimal) | 6 | 2909 | 3247 | thinks before answering |
+| kimi-k3.1-pro @ inference-net (low) | 8 | 7776 | 9820 | thinking = unusable |
+Rate limits: wafer/inference-net hit upstream 429 on K3 / K3.1 Pro at times — production needs a provider fallback list.
+AA: Kimi K3 is deprecated, scored 17 at low; K3.1 Pro 46 (reasoning) — no non-reasoning score for either.
+
+## 2026-11-16 — OpenRouter caching (measured) + jarvis-flows Kimi vs Haiku
+
+Cache check (`cache-check.mjs`, same ~5k-token system prompt, call 1 → call 2 `cached_tokens`):
+
+| model @ provider | cached on call 2 | note |
+|---|---|---|
+| kimi-k3.1-pro @ wafer/us | 5056 | cost 0.00139 → 0.00102 |
+| kimi-k3.1-pro @ together | 4992 | |
+| kimi-k3.1-pro @ fireworks | 5101 | |
+| kimi-k3.1-pro @ deepinfra/bf16 | 4224 | 429 first |
+| kimi-k3.1-pro @ inference-net/mxfp4/us | **0** | listed cache price, no caching |
+| deepseek-v4.1-flash @ wafer/us, inference-net/us, together | 4992 | together TTFT 157–217ms |
+| inkling @ together | **0** | |
+
+OpenRouter non-thinking sweep (visible p50): deepseek-v4.1-flash @ inference-net/us 232ms, @ wafer/us 314ms;
+deepseek-v4-pro-0813 @ wafer/us 339ms; inkling @ together 250ms; kimi-k3.1-pro @ wafer/us 361ms.
+glm-5.3 / minimax-m3.1-flash / beam reject reasoning off.
+
+jarvis-flows (26 flows, judge gpt-6-sol, 1 run each):
+
+| model | gates pass | judge mean | ≤3 turns | top issues | firstMs p50 / p90 |
+|---|---|---|---|---|---|
+| claude-haiku-5-5 (default) | 8/26 | 3.77 | 29/65 | verbose 26, narration 21, wrong_tool 6 | 934 / 2335 |
+| kimi-k3.1-pro @ wafer/us,together,fireworks (off) | 11/26 | 3.75 | 31/65 | verbose 29, **extra_tool 17**, other 9 | 785 / 2672 |
+
+Wafer alone 429'd 6/26 flows → backend `openrouter/<model>@a,b,c` now takes a provider fallback list.
+
+## 2026-11-18 — DeepSeek V4.1 Flash in production (Tod), off vs low
+
+Prod default: `openrouter/deepseek/deepseek-v4.1-flash@together,wafer/us:low`, Haiku 5.5 fallback (backend c66e5f79).
+
+jarvis-flows (26 flows, local backend → OpenRouter, gates only):
+
+| Variant | Runs (pass) | Mean | firstMs p50 / p90 |
+|---|---|---|---|
+| Flash low @together,coreweave,wafer | 21 | 21 | 636 / 2492 |
+| Flash low (cloud shim, 3 runs) | 19, 17, 16 | 17.3 | ~700 / 2400 |
+| Flash off @together,wafer | 17, 17, 14 | 16.0 | 653–722 / 1581–1855 |
+
+Off is not faster at p50 on Together (low thinks only ~137 tokens there) and is weaker: it fails delegation
+(does the work itself with bash instead of dispatching), catch-up, and card flows in every run. Stay on low.
+
+Per-provider low-effort thinking (6 calls, ~5k prompt): Together 137 tok → first word 796 ms; Wafer 425 tok → 2244 ms;
+CoreWeave 373 tok, 0 cached → 3236 ms; inference-net 297 tok at 113 tok/s → 3462 ms (max 8.2 s).
+`reasoning.max_tokens` (64/128) and `effort: minimal` are not honored by Wafer / inference-net (up to 1518 thinking tokens at max 128).
+Together also returned 429 on 11/16 calls in one burst, so the fallback chain matters.
