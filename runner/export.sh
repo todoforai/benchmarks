@@ -28,7 +28,15 @@ for d in "$run"/*/; do d=${d%/}; [ -f "$d/meta.json" ] || continue; slug=$(basen
   [ -n "$live" ] && perl -0pi -e 'unless(/<html[^>]*\blang=/i){ s/<html\b/<html lang="en"/i or s/^((?:\s*<!doctype[^>]*>)?)/$1<html lang="en">/i }' "$PUB/$slug.html"
   src=$d/work; [ -n "$SPIN" ] && [ -s "${tmp:-}/preview.mp4" ] && src=$tmp
   [ -s "$src/$shot" ] && img="/bench/$bench/$task/$slug.jpg" && ffmpeg -y -loglevel error -i "$src/$shot" -vf scale=960:-1 "$PUB/$slug.jpg"
-  [ -s "$src/$vid" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$src/$vid" -t 12 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
+  # Published preview = virtual-clock re-record of the live page (30 s / 30 fps, no dropped frames) at the
+  # run preview's size; the run's own real-time capture (-t 12) is only the fallback.
+  pv=$src/$vid
+  if [ -s "$pv" ] && [ -n "$live" ]; then
+    wh=$(ffprobe -v error -select_streams v -show_entries stream=width,height -of csv=p=0 "$pv")
+    (cd "$REC" && bun vclock.ts "/$slug.html" "$d/vclock.mp4" --serve "$PUB" --secs 30 --fps 30 --w "${wh%,*}" --h "${wh#*,}" --gpu >/dev/null 2>&1) \
+      && pv=$d/vclock.mp4
+  fi
+  [ -s "$pv" ] && v="/bench/$bench/$task/$slug.mp4" && ffmpeg -y -loglevel error -i "$pv" -t 30 -an -vf scale=960:-2 -c:v libx264 -crf 28 -preset slow -movflags +faststart "$PUB/$slug.mp4"
   entries+=("$(jq -c --arg slug "$slug" --arg img "$img" --arg v "$v" --arg live "$live" --arg ranAt "$(basename "$run" | cut -c1-10)" \
     '{model:(.model|sub("^[^:]+:";"")), slug:$slug, ranAt:$ranAt, qualified:(.qualified//false), cost:(if .cost_usd == null then null else (.cost_usd*1000|round/1000) end), wall_s:.wall_s, turns:(.turns//null), img:(if $img == "" then null else $img end), video:(if $v == "" then null else $v end), note:(.reason // null), badges:(.badges // []), perf:(.perf // null), live:(if $live == "" then null else $live end), todo:(.todo//null), todoPublic:(.todo_public//false)}' "$d/meta.json")")
 done
