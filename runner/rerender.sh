@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Re-record published bench pages with the virtual clock (rec/vclock.ts): every frame exactly 1/fps, no jank.
+# Social-post renders (NOT for the site): re-record published bench pages with the virtual clock (rec/vclock.ts): every frame exactly 1/fps, no jank.
 #   ./rerender.sh <outdir> [bench/task ...]     default: every task under frontend/public/bench
 # Env: SECS=30 FPS=30 W=1280 H=800 PAR=3. Skips existing outputs (rerun = resume). Out: <outdir>/<bench>/<task>/<slug>.mp4
 set -euo pipefail; cd "$(dirname "$0")"
