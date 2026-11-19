@@ -24,6 +24,7 @@
 # $CLAUDE_ENV_FILE (default ~/claude-oauth.env, from `claude setup-token`).
 # codex: local cliproxy fork on :8317 (scripts/cliproxy_config.sh writes
 # ~/codex-cliproxy.env); config codex_cliproxy.toml. No Opus 4.8 refusal fallback.
+# CODEX_CONFIG=codex_sol.toml for OpenAI models (native Codex metadata).
 # One harbor call for the whole list (wall time = slowest task, not sum of batches).
 # Results: jobs/<agent>-<model>-<effort>__<timestamp>; `harbor view jobs`.
 set -euo pipefail
@@ -65,7 +66,7 @@ case $AGENT in
     ENV_FILE="${CODEX_ENV_FILE:-$HOME/codex-cliproxy.env}"
     [ -f "$ENV_FILE" ] || { echo "missing $ENV_FILE (run scripts/cliproxy_config.sh)" >&2; exit 2; }
     curl -s -m 5 -o /dev/null http://172.17.0.1:8317/ || { echo "cliproxy not reachable on 172.17.0.1:8317" >&2; exit 2; }
-    ARGS+=(-a codex --env-file "$ENV_FILE" --ak "config=$PWD/codex_cliproxy.toml")
+    ARGS+=(-a codex --env-file "$ENV_FILE" --ak "config=${CODEX_CONFIG:-$PWD/codex_cliproxy.toml}")
     [ -z "$EFFORT" ] || ARGS+=(--ak "reasoning_effort=$EFFORT") ;;
   *) echo "-a must be todoforai, claude-code or codex" >&2; exit 2 ;;
 esac
