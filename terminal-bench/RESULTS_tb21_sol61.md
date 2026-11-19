@@ -51,5 +51,32 @@ OpenAI refuses with HTTP 400 "flagged for possible cybersecurity risk". Fixed �
 (OpenRouter.jl `cdaa378`, agent deploy 11-05 20:56; harness `_REFUSAL_RE` `6300436`).
 `app-sol` has no `refusalFallbackModel`; adding one (e.g. Opus) would likely recover 2–3 tasks.
 
+## Follow-ups on the 13 Sol 6.1 fails (2026-11-17/18, Windows WSL, k=1 each)
+Same harness and `app-sol` agent; only the model / thinking level changed. Cost = tokens x list ($2/$10/$0.10 per M).
+
+| job (`jobs/todoforai-…`) | model | tasks | pass | cost |
+|---|---|---|---|---|
+| gpt-6.1-sol-app-sol-xhigh__2026-11-17__17-02-00 | 6.1 Sol xhigh | 13 fails | 5: break-filter-js-from-html, chess-best-move, sanitize-git-repo, train-fasttext, vulnerable-secret | ~$4.35 |
+| gpt-6.2-sol-app-sol-high__2026-11-17__20-56-18 | 6.2 Sol high | 13 fails | 3: chess-best-move, train-fasttext, vulnerable-secret | $3.90 |
+| gpt-6.2-sol-app-sol-xhigh__2026-11-17__22-14-49 | 6.2 Sol xhigh | 10 still failing | 1: install-windows-3.11 | $3.85 |
+| gpt-6.2-sol-app-sol-high-rerun__2026-11-18__12-01-14 | 6.2 Sol high | 13 fails | 4: chess-best-move, torch-pipeline-parallelism, train-fasttext, vulnerable-secret | $4.12 |
+
+Served model verified on every job (`scripts/verify_model.sh`); no ApiError / NetworkConnectionError.
+The 6.2 high first run overlapped a backend outage; the rerun (outage-free) gave 4 vs 3, the only
+difference being torch-pipeline-parallelism (verifier timeout first, pass on rerun). So the outage
+did not explain the 6.2 fails.
+
+**Composite, best result per task (NOT a clean k=1 score; failures got 2–3 extra attempts):**
+- Sol 6.1: 76 (high) + 5 (xhigh) = **81/89**
+- Sol 6.2: 76 (6.1 high passes, not re-run on 6.2) + 5 (chess, train-fasttext, vulnerable-secret,
+  install-windows-3.11, torch-pipeline-parallelism) = **81/89**
+
+Still failing on 6.2 after all attempts: model-extraction-relu-logits (`AgentSafetyRefusalError` every
+time), break-filter-js-from-html (advice only, no files changed), mteb-retrieve, configure-git-webserver,
+extract-elf, filter-js-from-html, make-doom-for-mips, sanitize-git-repo (6.1 xhigh solved it).
+
+Not done: a clean full-89 Sol 6.2 run; the 6.1 xhigh re-check of the 20 high passes
+(`…xhigh__2026-11-17__19-41-32`) was wrecked by a Windows crash (NonZeroAgentExitCode, 2 cancelled) — unusable.
+
 ## Open
 - Backend catalog prices Sol at 1/5 $/1M = half of list → check billing.
