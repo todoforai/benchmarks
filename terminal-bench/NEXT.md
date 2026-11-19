@@ -213,7 +213,7 @@ everything. Verified 2026-08-28 via `--debug-dump` toolSchemas capture:
 
 ```bash
 URL="https://api.todofor.ai/api/v1"
-PAYLOAD='{"permissions":{"allow":["builtin:webfetch"],"ask":[],"deny":["builtin:skill","builtin:google_search","builtin:question","builtin:html_snippet","builtin:business_onboarding","builtin:image_gen","builtin:todoforai_api","device:todoforai-explore"]}}'
+PAYLOAD='{"permissions":{"allow":["builtin:webfetch"],"ask":[],"deny":["builtin:skill","builtin:google_search","builtin:question","builtin:show","builtin:business_onboarding","builtin:image_gen","builtin:todoforai_api","device:todoforai-explore"]}}'
 while read -r key email; do
   [ -z "$key" ] && continue
   curl -sS -X PUT -H "x-api-key: $key" -H "Content-Type: application/json" \
