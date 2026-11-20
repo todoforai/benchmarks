@@ -99,5 +99,20 @@ Both via `gpt-6.2-sol` xhigh; Codex through the local cliproxy fork (Codex OAuth
   tasks high had solved (extract-moves-from-video, qemu-alpine-ssh, query-optimize, video-processing) — noise.
 - Sol 6.2 composite (best per task) is now **82/89** (+ model-extraction-relu-logits).
 
+
+### Same 38, Sol 6.2 HIGH (2026-11-20)
+| harness | job | pass (38) | cost | agent min |
+|---|---|---|---|---|
+| todoforai | `todoforai-gpt-6.2-sol-app-sol-high-hard40__2026-11-20__08-34-12` | **24** (+qemu ×2 pass = 26/40) | $11.06 (40) | 245 |
+| Codex CLI | `codex-gpt-6.2-sol-high-hard38__2026-11-20__09-57-16` | **27** | $10.48 | 177 |
+
+- Differ: ours only crack-7z-hash (Codex refused); Codex only dna-insert, mteb-retrieve, vulnerable-secret (we
+  refused), torch-pipeline-parallelism (ours VerifierTimeoutError = infra, not rerun yet).
+- Refusals are random per run: ours vulnerable-secret, model-extraction-relu-logits, break-filter; Codex crack-7z-hash,
+  model-extraction-relu-logits, break-filter.
+- Both levels pooled (76 trials): todoforai 50, Codex 53. Within noise (σ of the difference ≈ 4), but Codex is
+  consistently ~1.4–1.6× faster (fewer steps, ~20%; direct API vs our backend hop per step).
+- high vs xhigh: same score band, ~15–25% cheaper and faster; high stays the default.
+
 ## Open
 - Backend catalog prices Sol at 1/5 $/1M = half of list → check billing.
