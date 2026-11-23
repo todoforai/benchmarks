@@ -69,7 +69,7 @@ did not explain the 6.2 fails.
 **Composite, best result per task (NOT a clean k=1 score; failures got 2–3 extra attempts):**
 - Sol 6.1: 76 (high) + 5 (xhigh) = **81/89**
 - Sol 6.2: 76 (6.1 high passes, not re-run on 6.2) + 5 (chess, train-fasttext, vulnerable-secret,
-  install-windows-3.11, torch-pipeline-parallelism) = **81/89**
+  install-windows-3.11, torch-pipeline-parallelism) = **81/89** (82 after hard-40 xhigh, below)
 
 Still failing on 6.2 after all attempts: model-extraction-relu-logits (`AgentSafetyRefusalError` every
 time), break-filter-js-from-html (advice only, no files changed), mteb-retrieve, configure-git-webserver,
@@ -77,6 +77,42 @@ extract-elf, filter-js-from-html, make-doom-for-mips, sanitize-git-repo (6.1 xhi
 
 Not done: a clean full-89 Sol 6.2 run; the 6.1 xhigh re-check of the 20 high passes
 (`…xhigh__2026-11-17__19-41-32`) was wrecked by a Windows crash (NonZeroAgentExitCode, 2 cancelled) — unusable.
+
+
+## Hard-40, Sol 6.2 xhigh: todoforai vs Codex CLI (2026-11-19/20, Windows WSL, k=1)
+40 tasks = TB 2.1 tasks with the highest fail rate across all our earlier jobs (`tasks_hard40.txt`).
+Both via `gpt-6.2-sol` xhigh; Codex through the local cliproxy fork (Codex OAuth, `codex_sol.toml`).
+
+| harness | job(s) | pass | cost |
+|---|---|---|---|
+| todoforai | `todoforai-gpt-6.2-sol-app-sol-xhigh-hard40__2026-11-19__12-50-35` | **27/40** | $12.72 |
+| Codex CLI | `codex-gpt-6.2-sol-xhigh-hard40{,-rest36,-retry2}__…` | **26/38** | $12.10 |
+
+- Codex could not run qemu-alpine-ssh, qemu-startup: its installer needs nodejs from bullseye-security,
+  which now 404s (harness problem, not model). Excluded; on the 38 comparable tasks: **todoforai 26 = Codex 26**.
+- Differ: todoforai only raman-fitting, torch-pipeline-parallelism; Codex only extract-moves-from-video, train-fasttext.
+- Both fail: configure-git-webserver, extract-elf, filter-js-from-html, make-doom-for-mips, mteb-retrieve,
+  query-optimize, sanitize-git-repo, video-processing; both refuse break-filter-js-from-html, vulnerable-secret.
+- C: filled up mid Codex run (WSL vhdx 153 GB): 5 trials lost, rerun as `-rest36`; 2 setup timeouts after
+  the image re-pull rerun as `-retry2` (both passed). Cost includes the lost trials.
+- xhigh vs high (ours): xhigh newly solved model-extraction-relu-logits (never solved before) but missed 4
+  tasks high had solved (extract-moves-from-video, qemu-alpine-ssh, query-optimize, video-processing) — noise.
+- Sol 6.2 composite (best per task) is now **82/89** (+ model-extraction-relu-logits).
+
+
+### Same 38, Sol 6.2 HIGH (2026-11-20)
+| harness | job | pass (38) | cost | agent min |
+|---|---|---|---|---|
+| todoforai | `todoforai-gpt-6.2-sol-app-sol-high-hard40__2026-11-20__08-34-12` | **24** (+qemu ×2 pass = 26/40) | $11.06 (40) | 245 |
+| Codex CLI | `codex-gpt-6.2-sol-high-hard38__2026-11-20__09-57-16` | **27** | $10.48 | 177 |
+
+- Differ: ours only crack-7z-hash (Codex refused); Codex only dna-insert, mteb-retrieve, vulnerable-secret (we
+  refused), torch-pipeline-parallelism (ours VerifierTimeoutError = infra, not rerun yet).
+- Refusals are random per run: ours vulnerable-secret, model-extraction-relu-logits, break-filter; Codex crack-7z-hash,
+  model-extraction-relu-logits, break-filter.
+- Both levels pooled (76 trials): todoforai 50, Codex 53. Within noise (σ of the difference ≈ 4), but Codex is
+  consistently ~1.4–1.6× faster (fewer steps, ~20%; direct API vs our backend hop per step).
+- high vs xhigh: same score band, ~15–25% cheaper and faster; high stays the default.
 
 ## Open
 - Backend catalog prices Sol at 1/5 $/1M = half of list → check billing.

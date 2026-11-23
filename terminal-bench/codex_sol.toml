@@ -1,0 +1,2 @@
+# Codex CLI -> OpenAI (gpt-6.x) via the local cliproxy fork, Codex OAuth auth.
+# Codex knows its own models; no context overrides (codex_cliproxy.toml is for claude-*).
