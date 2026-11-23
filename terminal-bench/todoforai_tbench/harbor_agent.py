@@ -11,9 +11,13 @@ runs any number of trials in parallel — no key pool, no per-key machine-id, no
 daemon startup/polling, no cross-trial device collisions.
 """
 
+import asyncio
 import json
 import os
+import re
 import shlex
+import shutil
+import urllib.request
 import uuid
 from pathlib import Path
 
@@ -30,6 +34,95 @@ from harbor.agents.installed.base import (
 )
 from harbor.environments.base import BaseEnvironment
 from harbor.models.agent.context import AgentContext
+
+
+
+# Single source of truth for container binaries (linux-x64 Docker targets):
+# always pull latest GitHub Release into an immutable dist/release/<name>/<tag>/
+# cache so pc-6, Windows, and WSL never drift and never overwrite local builds.
+# Set TODOFORAI_LOCAL_DIST=1 to upload local builds from dist/ instead.
+_RELEASE_BINS = {
+    "todoforai-bridge": "https://github.com/todoforai/bridge/releases/latest/download/todoforai-bridge-linux-x64",
+    "todoforai-cli": "https://github.com/todoforai/cli/releases/latest/download/todoforai-cli-linux-x64",
+}
+_dist_locks: dict[int, asyncio.Lock] = {}
+_dist_resolved: dict[Path, list[Path]] = {}
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _latest_release(url: str) -> tuple[str, str]:
+    """Return (tag, pinned_download_url) from GitHub's /latest/ redirect."""
+    opener = urllib.request.build_opener(_NoRedirect)
+    req = urllib.request.Request(url, method="HEAD")
+    try:
+        opener.open(req, timeout=15)
+    except urllib.error.HTTPError as e:
+        loc = e.headers.get("Location", "")
+        m = re.search(r"/releases/download/([^/]+)/", loc)
+        if m:
+            return m.group(1), loc
+        raise RuntimeError(f"no release tag in redirect for {url}: HTTP {e.code} Location={loc!r}") from e
+    raise RuntimeError(f"expected redirect for {url}")
+
+
+def _newest_cached(rel_dir: Path, name: str) -> Path | None:
+    if not rel_dir.is_dir():
+        return None
+    bins = [b for b in rel_dir.glob(f"*/{name}") if b.is_file() and b.stat().st_size > 0]
+    return max(bins, key=lambda b: b.stat().st_mtime) if bins else None
+
+
+def _sync_release_bins(dist_dir: Path) -> list[Path]:
+    files: list[Path] = []
+    for name, url in _RELEASE_BINS.items():
+        rel_dir = dist_dir / "release" / name
+        cached = _newest_cached(rel_dir, name)
+        try:
+            tag, dl_url = _latest_release(url)
+        except Exception as exc:
+            if cached:
+                print(f"[dist] release check failed for {name} ({exc}); using cached {cached.parent.name}")
+                files.append(cached)
+                continue
+            raise
+        target = rel_dir / tag / name
+        if target.is_file() and target.stat().st_size > 0:
+            files.append(target)
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        tmp = target.parent / f".{name}.tmp.{os.getpid()}"
+        try:
+            with urllib.request.urlopen(dl_url, timeout=120) as resp, tmp.open("wb") as out:
+                shutil.copyfileobj(resp, out)
+            os.chmod(tmp, 0o755)
+            os.replace(tmp, target)
+            print(f"[dist] downloaded {name} {tag}")
+            files.append(target)
+        except Exception:
+            tmp.unlink(missing_ok=True)
+            if cached:
+                print(f"[dist] download failed for {name} {tag}; using cached {cached.parent.name}")
+                files.append(cached)
+                continue
+            raise
+    return files
+
+
+async def _resolve_dist_files(dist_dir: Path) -> list[Path]:
+    if os.environ.get("TODOFORAI_LOCAL_DIST") == "1":
+        return [dist_dir / n for n in ("todoforai-cli", "todoforai-bridge", "todoforai-cli.js") if (dist_dir / n).is_file()]
+    if dist_dir in _dist_resolved:
+        return _dist_resolved[dist_dir]
+    loop_id = id(asyncio.get_running_loop())
+    lock = _dist_locks.setdefault(loop_id, asyncio.Lock())
+    async with lock:
+        if dist_dir not in _dist_resolved:
+            _dist_resolved[dist_dir] = await asyncio.to_thread(_sync_release_bins, dist_dir)
+        return _dist_resolved[dist_dir]
 
 
 def _api_key() -> str:
@@ -286,9 +379,11 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
             user="root",
         )
         dist_dir = Path(__file__).parent / "dist"
-        if dist_dir.is_dir():
+        files = await _resolve_dist_files(dist_dir)
+        if files:
             await environment.exec(command="mkdir -p /installed-agent/dist")
-            await environment.upload_dir(source_dir=dist_dir, target_dir="/installed-agent/dist")
+            for f in files:
+                await environment.upload_file(source_path=f, target_path=f"/installed-agent/dist/{f.name}")
         await super().setup(environment)
 
     @with_prompt_template
