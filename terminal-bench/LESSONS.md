@@ -184,3 +184,11 @@ The WSL `ext4.vhdx` lives on C: and only grows. When C: fills, ext4 goes read-on
 `read-only file system`, verifier `Bus error`, trials with no reward. `df` inside WSL looks fine (1 TB virtual).
 Check `(Get-Volume C).SizeRemaining` on Windows, not `df`. Fix without admin: `wsl --shutdown;
 wsl --manage Ubuntu --set-sparse true --allow-unsafe`, then `sudo fstrim /` in WSL after `docker rmi` of unused images.
+Sparse alone is not enough: an 89-task run refilled C: (2026-11-25). Sparse only gives space back
+on `fstrim`, so run a side loop during sweeps (`docker image prune -a -f --filter until=15m;
+sudo -n fstrim /` every 5 min). Check C: free space before every sweep.
+
+## `harbor job resume` and renamed job dirs
+`harbor job resume -p <dir>` uses `config.json` `job_name`, not the dir name. If the dir was renamed,
+it silently starts a FRESH full job under the old name. Rename the dir back first, resume, then
+rename again. Move crashed trials (empty `result.json`) out of the dir first, or resume fails on them.
