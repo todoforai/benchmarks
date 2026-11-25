@@ -14,7 +14,7 @@ partly by the opus-4.8 refusal fallback).
 
 Diffs vs medium best-of: high won mteb-retrieve, video-processing; lost break-filter-js-from-html,
 crack-7z-hash (refusals), extract-moves-from-video (agent timeout), torch-pipeline-parallelism
-(verifier timeout). Fails both: dna-insert, filter-js-from-html, protein-assembly(high only fail),
+(verifier timeout). Fails both: dna-insert, filter-js-from-html, protein-assembly,
 make-doom-for-mips, schemelike-metacircular-eval.
 
 Infra: C: filled twice (WSL vhdx) → 12 trials lost and rerun; chess-best-move lost to a timed
