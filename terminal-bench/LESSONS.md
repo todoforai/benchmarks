@@ -192,3 +192,6 @@ sudo -n fstrim /` every 5 min). Check C: free space before every sweep.
 `harbor job resume -p <dir>` uses `config.json` `job_name`, not the dir name. If the dir was renamed,
 it silently starts a FRESH full job under the old name. Rename the dir back first, resume, then
 rename again. Move crashed trials (empty `result.json`) out of the dir first, or resume fails on them.
+Don't prune images on a timer mid-run: `--filter until=` is the image's build time, so a just-pulled
+task image can be removed before its container starts (compose `up` fails → RuntimeError). Prune
+only when C: is low (<30 GB), and stop harbor below 15 GB.
