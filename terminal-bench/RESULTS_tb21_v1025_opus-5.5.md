@@ -1,12 +1,12 @@
 # TB 2.1 full 89 — todoforai v1.0.25, bash + tfa-cat, Opus 5.5 high, k=1
 
-**82/89 (92.1%)**, $51.46 list, single sweep, no reruns. Previous: 81/89 (v1.0.11, 10-25/26, $50.82).
+**82/89 (92.1%)**, $49.87 list, single sweep, no reruns. Previous: 81/89 (v1.0.11, 10-25/26, $49.45).
 
 | batch | pass | cost | job |
 |---|---|---|---|
-| 1–20 | 19/20 | $8.99 | `todoforai-claude-opus-5.5-app__2026-11-14__14-20-52` |
-| 21–40 | 16/20 | $13.36 | `…__2026-11-14__16-30-14` |
-| 41–89 | 47/49 | $29.11 | `…__2026-11-16__10-08-48` |
+| 1–20 | 19/20 | $8.55 | `todoforai-claude-opus-5.5-app__2026-11-14__14-20-52` |
+| 21–40 | 16/20 | $12.93 | `…__2026-11-14__16-30-14` |
+| 41–89 | 47/49 | $28.40 | `…__2026-11-16__10-08-48` |
 
 Setup: bridge v1.5.86, CLI 0.1.72 (Windows host, WSL docker), bench agent `app` = Opus 5.5 high, one tool (`bash`),
 Opus 4.8 refusal fallback. Agent `9bc39700` for 1–40, `bd81e338` for 41–89 (adds `refusalRetryEvery`, left **off**).
@@ -31,14 +31,14 @@ Same 7 tasks hit the 4.8 fallback as in v1.0.11: break-filter-js ✓, crack-7z-h
 protein-assembly ✓, vulnerable-secret ✓, dna-assembly ✗, dna-insert ✗. Pure 5.5 = 77/82.
 
 ## Medium (thinkingLevel=medium), same 89 tasks, k=1
-**83/89 (93.3%), $33.88** vs high 82/89, $51.46 (−34% cost). Within k=1 noise (σ≈3 tasks).
+**83/89 (93.3%), $32.66** vs high 82/89, $49.87 (−35% cost). Within k=1 noise (σ≈3 tasks).
 
 | part | pass | cost | job |
 |---|---|---|---|
-| first 40 | 38/40 | $13.16 | `…-app-medium__2026-11-15__19-50-33` (its 3 first-40 tasks) + `…__21-05-53` (37) |
-| make-doom, schemelike, qemu-alpine-ssh | 2/3 | $5.42 | `…-app-medium__2026-11-15__19-50-33` |
-| 9 clean passes of the 11-16 11:48 attempt | 9/9 | $1.66 | `…-app-medium__2026-11-16__11-48-40` |
-| remaining 37 | 34/37 | $13.64 | `…-app-medium__2026-11-16__12-15-05` |
+| first 40 | 38/40 | $12.67 | `…-app-medium__2026-11-15__19-50-33` (its 3 first-40 tasks) + `…__21-05-53` (37) |
+| make-doom, schemelike, qemu-alpine-ssh | 2/3 | $5.33 | `…-app-medium__2026-11-15__19-50-33` |
+| 9 clean passes of the 11-16 11:48 attempt | 9/9 | $1.60 | `…-app-medium__2026-11-16__11-48-40` |
+| remaining 37 | 34/37 | $13.05 | `…-app-medium__2026-11-16__12-15-05` |
 
 The 11:48 attempt died on a full C: (WSL ext4 read-only): its 4 broken trials (mteb-leaderboard, regex-chess,
 torch-pipeline-parallelism: no reward; pytorch-model-recovery: verifier Bus error) are infra, rerun in the 37, all 4 passed.
@@ -49,3 +49,5 @@ Medium fails (6): make-doom-for-mips (timeout), video-processing, dna-insert (4.
 (modified 3/12 clean files), mteb-retrieve (retrieved HumanEval instead of MTEB), protein-assembly (fusion order /
 donor missing; FPbase fetches 403). The last two pass at high. Medium passes that high failed: cobol-modernization,
 extract-moves-from-video, dna-assembly.
+
+Cost correction (2026-11-26): TODO for AI Opus list-price estimates count matching cache-write usage once across early and final events. Totals are rounded after summation; results and provider charges are unchanged.

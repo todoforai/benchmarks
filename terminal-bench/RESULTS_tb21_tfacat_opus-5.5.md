@@ -4,11 +4,11 @@
 
 | harness | pass | cost (list) |
 |---|---|---|
-| **todoforai v1.0.11, bash + tfa-cat (10-25/26)** | **81/89** (91.0%) | $50.82 |
-| todoforai v1.0.4, read + bash (10-06/07, 3 declared reruns) | 80/89 (89.9%) | $53.90 |
+| **todoforai v1.0.11, bash + tfa-cat (10-25/26)** | **81/89** (91.0%) | $49.45 |
+| todoforai v1.0.4, read + bash (10-06/07, 3 declared reruns) | 80/89 (89.9%) | $51.80 |
 | Claude Code 2.1.289 | 78/89 (87.6%) | ≈$45.68 |
 | Codex 0.160.1 | 75/89 (84.3%) | ≈$38.66 |
-| todoforai old prompt (10-05) | 71/89 (79.8%) | $31.76 |
+| todoforai old prompt (10-05) | 71/89 (79.8%) | $30.49 |
 
 Same counting rules as `RESULTS_tb21_full89.md`. k=1 noise σ≈3 tasks: 81 vs 80 is noise; the point is that
 dropping the read tool for `tfa-cat` costs nothing and the config is simpler (one tool: `bash`).
@@ -24,10 +24,10 @@ dropping the read tool for `tfa-cat` costs nothing and the config is simpler (on
 ## Batches
 | batch | pass | cost | job |
 |---|---|---|---|
-| 1–20 | 20/20 | $7.04 | `todoforai-claude-opus-5.5-app__2026-10-25__23-54-53` |
-| 21–40 | 16/20 | $12.15 | `…__2026-10-26__00-27-40` |
-| 41–60 | 18/20 | $10.55 | `…__2026-10-26__10-21-19` |
-| 61–89 | 27/29 | $21.08 | `…__2026-10-26__18-10-14` |
+| 1–20 | 20/20 | $6.82 | `todoforai-claude-opus-5.5-app__2026-10-25__23-54-53` |
+| 21–40 | 16/20 | $11.67 | `…__2026-10-26__00-27-40` |
+| 41–60 | 18/20 | $10.25 | `…__2026-10-26__10-21-19` |
+| 61–89 | 27/29 | $20.70 | `…__2026-10-26__18-10-14` |
 
 Batches 1–40 ran on agent `6b25f3c6`; 41–60 with an extra bash-description sentence ("Every call starts in the
 workspace dir"), 61–89 with a `# default cwd` marker on the `$ pwd` line. Neither changed anything (see cwd note),
@@ -71,3 +71,5 @@ more prompt.
 ## Cost
 `scripts/run_tokens.mjs <job>`, list price (5.5 and 4.8: $5/$25 in/out, $0.5 cache read, $6.25 cache write).
 Output tokens dominate ($36 of $51); cache reads 9.4M tokens.
+
+Cost correction (2026-11-26): TODO for AI Opus list-price estimates count matching cache-write usage once across early and final events. Totals are rounded after summation; results and provider charges are unchanged.
