@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Rebuild frontend/src/data/bench-results.json from every run of the given benches (default: 3d-bench).
 # One entry per <bench>/<task>; per model the most recent run wins. Media lands via export.sh.
+# WARNING: rebuilds the JSON from THIS machine's runs/ only: runs made on other machines drop out
+# (2026-11-26: pelican 19→3). Check `git diff --stat` in frontend; to add a few runs, merge them into the JSON with jq instead.
 #   ./publish.sh [bench...]
 set -euo pipefail; cd "$(dirname "$0")"
 OUT=../../frontend/src/data/bench-results.json
