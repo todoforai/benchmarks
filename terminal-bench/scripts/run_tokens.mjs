@@ -28,6 +28,7 @@ const PRICES = {
     list:  { in: 4, out: 20, cacheRead: 0.4, cacheWrite: 5 },
     promo: { in: 2, out: 10, cacheRead: 0.2, cacheWrite: 2.5 },
   },
+  'openai:openai/gpt-6.2-sol': { list: { in: 2, out: 10, cacheRead: 0.1, cacheWrite: 2.5 } },
   'anthropic:anthropic/claude-opus-5':   { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },
   'anthropic:anthropic/claude-opus-5.5': { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },   // same list price as opus-5
   'anthropic:anthropic/claude-opus-4.8': { list: { in: 5, out: 25, cacheRead: 0.5, cacheWrite: 6.25 } },   // refusal fallback; same list price
