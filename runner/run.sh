@@ -17,7 +17,7 @@ PAR=1; [ "${1:-}" = "-p" ] && { PAR=$2; shift 2; }
 [[ $PAR =~ ^[1-9][0-9]*$ ]] || { echo "-p needs a positive int" >&2; exit 2; }
 : "${TODOFORAI_API_KEYS_FILE:=$PWD/../terminal-bench/dev_api_keys.txt}"
 : "${TODOFORAI_API_URL:=https://api.todofor.ai}"
-: "${AGENT:=arena}" "${TIMEOUT:=7200}"
+: "${AGENT:=arena}" "${TIMEOUT:=7200}" "${BENCH_PROJECT_ID:=a91348da-e710-48d6-876e-3f5148d999fb}"
 DEFAULT_MODELS="openai:openai/gpt-6-sol anthropic:anthropic/claude-opus-5 anthropic:anthropic/claude-sonnet-5"
 MODELS=("$@"); [ ${#MODELS[@]} -gt 0 ] || read -ra MODELS <<<"$DEFAULT_MODELS"
 # Task = runner/tasks/<name> or a category dir: ../<bench>/tasks/<name> (e.g. 3d-bench/lava-lamp).
@@ -56,8 +56,8 @@ one() {  # $1 model  $2 key
     done ) & local wd=$!
   set +e
   # Model/agent via env too: ids like "…/claude-opus-5.5(high)" break shell quoting.
-  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$PROMPT_FILE")" TFA_MODEL="$M" TFA_AGENT="$AGENT" \
-    ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
+  TODOFORAI_API_TOKEN="$KEY" TFA_PROMPT="$(cat "$PROMPT_FILE")" TFA_MODEL="$M" TFA_AGENT="$AGENT" TFA_PROJECT="$BENCH_PROJECT_ID" \
+    ./sandbox.sh "$d/work" -- bash -c 'printf "%s" "$TFA_PROMPT" | timeout '"$TIMEOUT"' todoforai-cli --isolated --non-interactive --allow-all --path /work ${TFA_PROJECT:+--project "$TFA_PROJECT"} --agent "$TFA_AGENT" --model "$TFA_MODEL"' \
     2>&1 | while IFS= read -r l; do printf '%(%H:%M:%S)T %s\n' -1 "$l"; done >"$d/agent.log"; rc=${PIPESTATUS[0]}
   set -e; kill "$wd" 2>/dev/null || true; wait "$wd" 2>/dev/null || true
   kill -- -"$rec" 2>/dev/null || true; wait "$rec" 2>/dev/null || true

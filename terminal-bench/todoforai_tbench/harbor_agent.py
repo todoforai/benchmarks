@@ -395,6 +395,9 @@ class TODOforAIHarborAgent(BaseInstalledAgent):
         # Pin the pre-configured benchmark agent by exact name — path-based
         # matching would auto-create a fresh "app" agent with a default model.
         cli_flags = f" --agent {shlex.quote(self.agent_name)}"
+        project_id = os.environ.get("BENCH_PROJECT_ID", "a91348da-e710-48d6-876e-3f5148d999fb")
+        if project_id:
+            cli_flags += f" --project {shlex.quote(project_id)}"
         # Model comes from the harbor command (-m), like claude-code/codex, so a
         # run is fully described by its invocation instead of by mutable
         # per-account state. Falls back to the account's configured model.

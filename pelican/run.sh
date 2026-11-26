@@ -5,7 +5,7 @@
 #   ./run.sh [model ...]        default: sol, opus-5, sonnet-5
 set -euo pipefail
 cd "$(dirname "$0")"
-: "${TODOFORAI_API_KEYS_FILE:=$PWD/../terminal-bench/dev_api_keys.txt}"
+: "${TODOFORAI_API_KEYS_FILE:=$PWD/../terminal-bench/dev_api_keys.txt}" "${BENCH_PROJECT_ID:=a91348da-e710-48d6-876e-3f5148d999fb}"
 export PATH="$PWD/../terminal-bench/todoforai_tbench/dist:$PATH"   # same binaries the tbench containers get
 KEY=$(grep -v '^#' "$TODOFORAI_API_KEYS_FILE" | head -1 | awk '{print $1}')
 [ -n "$KEY" ] || { echo "no api key in $TODOFORAI_API_KEYS_FILE" >&2; exit 1; }
@@ -24,7 +24,7 @@ for M in "${MODELS[@]}"; do
   ( cd "$d" && env -u TODOFORAI_PROJECT_ID -u TODOFORAI_TODO_ID -u TODOFORAI_AGENT_SETTINGS_ID \
       -u TODOFORAI_MESSAGE_ID -u TODOFORAI_BLOCK_ID -u TODOFORAI_API_URL \
       HOME="$(mktemp -d)" TODOFORAI_API_TOKEN="$KEY" timeout 1800 \
-      todoforai-cli --isolated --non-interactive --allow-all --path "$PWD" --agent app --model "$M" "$TASK" \
+      todoforai-cli --isolated --non-interactive --allow-all --path "$PWD" ${BENCH_PROJECT_ID:+--project "$BENCH_PROJECT_ID"} --agent app --model "$M" "$TASK" \
       > agent.log 2>&1 ) || echo "   exit=$? (see $d/agent.log)"
   # The isolated bridge runs bash in its own workspace (/tmp/todoforai), not --path,
   # so the file usually lands there; pull it back into the run dir.

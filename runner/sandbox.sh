@@ -8,7 +8,7 @@
 # (see pelican/RESULTS.md) → bind the work dir there too, so both paths are one dir.
 # NOT isolated: network (the agent needs the API; host loopback is reachable),
 # and the API key is readable via /proc inside — use dedicated bench keys only.
-# Env passed through: TODOFORAI_API_TOKEN, TODOFORAI_API_URL, TFA_PROMPT.
+# Env passed through: TODOFORAI_API_TOKEN, TODOFORAI_API_URL, TFA_PROMPT, TFA_MODEL, TFA_AGENT, TFA_PROJECT.
 set -euo pipefail; cd "$(dirname "$0")"
 W=$(readlink -f "$1"); shift; [ "${1:-}" = -- ] && shift
 DIST=$(readlink -f ../terminal-bench/todoforai_tbench/dist)
@@ -36,5 +36,5 @@ exec bwrap --ro-bind /usr /usr --ro-bind /etc /etc \
   --clearenv --setenv HOME /tmp/home --setenv USER bench --setenv TERM xterm \
   --setenv PATH /tbin:/tfa:/usr/local/bin:/usr/bin:/bin \
   --setenv TODOFORAI_API_TOKEN "${TODOFORAI_API_TOKEN:-}" --setenv TODOFORAI_API_URL "${TODOFORAI_API_URL:-}" \
-  --setenv TFA_PROMPT "${TFA_PROMPT:-}" --setenv TFA_MODEL "${TFA_MODEL:-}" --setenv TFA_AGENT "${TFA_AGENT:-}" \
+  --setenv TFA_PROMPT "${TFA_PROMPT:-}" --setenv TFA_MODEL "${TFA_MODEL:-}" --setenv TFA_AGENT "${TFA_AGENT:-}" --setenv TFA_PROJECT "${TFA_PROJECT:-}" \
   -- "$@"
